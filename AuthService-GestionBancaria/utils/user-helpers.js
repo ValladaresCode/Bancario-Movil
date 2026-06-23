@@ -20,6 +20,11 @@ export const buildUserResponse = (user) => {
     role: user.UserRoles?.[0]?.Role?.Name ?? 'USER_ROLE',
     isActive: user.IsActive,
     isEmailVerified: user.UserEmail ? user.UserEmail.EmailVerified : false,
+    fechaNacimiento: user.UserProfile && user.UserProfile.FechaNacimiento ? user.UserProfile.FechaNacimiento : '',
+    dpi: user.UserProfile && user.UserProfile.Dpi ? user.UserProfile.Dpi : '',
+    ingresosMensuales: user.UserProfile && user.UserProfile.IngresosMensuales ? user.UserProfile.IngresosMensuales : '',
+    direccion: user.UserProfile && user.UserProfile.Direccion ? user.UserProfile.Direccion : '',
+    nombreTrabajo: user.UserProfile && user.UserProfile.NombreTrabajo ? user.UserProfile.NombreTrabajo : '',
     createdAt: user.CreatedAt,
     updatedAt: user.UpdatedAt,
   };

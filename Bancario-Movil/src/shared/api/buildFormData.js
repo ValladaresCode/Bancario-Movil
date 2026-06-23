@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 // Helper para multipart/form-data en React Native.
 // En RN NO existe el objeto File del navegador: las imágenes de expo-image-picker
 // se adjuntan como un objeto nativo { uri, name, type }.
@@ -26,7 +28,7 @@ export const guessImagePart = (uri) => {
  * @param {Object} fields - pares clave/valor de texto (se omiten null/undefined/'').
  * @param {Object} [image] - { uri, field } donde field por defecto es 'profilePicture'.
  */
-export const buildFormData = (fields = {}, image = null) => {
+export const buildFormData = async (fields = {}, image = null) => {
   const formData = new FormData();
 
   Object.entries(fields).forEach(([key, value]) => {
@@ -36,9 +38,21 @@ export const buildFormData = (fields = {}, image = null) => {
   });
 
   if (image?.uri) {
-    const part = guessImagePart(image.uri);
-    if (part) {
-      formData.append(image.field || 'profilePicture', part);
+    if (Platform.OS === 'web') {
+      try {
+        const response = await fetch(image.uri);
+        const blob = await response.blob();
+        const ext = image.uri.split('.').pop() || 'jpg';
+        const file = new File([blob], `profile.${ext}`, { type: blob.type });
+        formData.append(image.field || 'profilePicture', file);
+      } catch (err) {
+        console.error('Error converting blob URI to file on web:', err);
+      }
+    } else {
+      const part = guessImagePart(image.uri);
+      if (part) {
+        formData.append(image.field || 'profilePicture', part);
+      }
     }
   }
 

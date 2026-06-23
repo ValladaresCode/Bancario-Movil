@@ -27,6 +27,11 @@ export const UserUpdateRequest = sequelize.define(
       field: 'email',
       validate: { isEmail: true },
     },
+    Name: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      field: 'name',
+    },
     Phone: {
       type: DataTypes.STRING(8),
       allowNull: true,
@@ -52,6 +57,16 @@ export const UserUpdateRequest = sequelize.define(
           msg: 'Los ingresos mensuales deben ser mayores a 0.',
         }
       }
+    },
+    Direccion: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'direccion',
+    },
+    NombreTrabajo: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'nombre_trabajo',
     },
     Status: {
       type: DataTypes.ENUM('PENDING', 'APPROVED', 'REJECTED'),

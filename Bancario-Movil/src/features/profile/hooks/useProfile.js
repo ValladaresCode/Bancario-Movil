@@ -12,8 +12,9 @@ const mapToViewModel = (raw) => ({
   role: raw?.role,
   fechaNacimiento: raw?.fechaNacimiento || '',
   dpi: raw?.dpi || '',
-  // El backend devuelve `ingreso_mensuales`; lo exponemos normalizado.
   ingresosMensuales: raw?.ingreso_mensuales ?? raw?.ingresosMensuales ?? '',
+  direccion: raw?.direccion || '',
+  nombreTrabajo: raw?.nombreTrabajo ?? raw?.nombre_trabajo ?? '',
 });
 
 export function useProfile() {
@@ -45,13 +46,12 @@ export function useProfile() {
   const updateProfile = useCallback(
     async (form) => {
       try {
-        const formData = buildFormData(
+        const formData = await buildFormData(
           {
             name: form.name,
-            phone: form.phone,
-            fechaNacimiento: form.fechaNacimiento,
-            dpi: form.dpi,
             ingresosMensuales: form.ingresosMensuales,
+            direccion: form.direccion,
+            nombreTrabajo: form.nombreTrabajo,
           },
           form.profilePicture ? { uri: form.profilePicture, field: 'profilePicture' } : null
         );

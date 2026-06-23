@@ -16,6 +16,7 @@ import { ServiceDetailScreen } from '../features/services/screens/ServiceDetailS
 import { PromotionsScreen } from '../features/promotions/screens/PromotionsScreen';
 import { PromotionDetailScreen } from '../features/promotions/screens/PromotionDetailScreen';
 import { ProfileScreen } from '../features/profile/screens/ProfileScreen';
+import { EditProfileScreen } from '../features/profile/screens/EditProfileScreen';
 import { FavoritesScreen } from '../features/favorites/screens/FavoritesScreen';
 import { TransferToFavoriteScreen } from '../features/favorites/screens/TransferToFavoriteScreen';
 import { CurrenciesScreen } from '../features/currencies/screens/CurrenciesScreen';
@@ -38,6 +39,7 @@ const S = {
   Promotions: withErrorBoundary(PromotionsScreen),
   PromotionDetail: withErrorBoundary(PromotionDetailScreen),
   Profile: withErrorBoundary(ProfileScreen),
+  EditProfile: withErrorBoundary(EditProfileScreen),
   Favorites: withErrorBoundary(FavoritesScreen),
   TransferToFavorite: withErrorBoundary(TransferToFavoriteScreen),
   Currencies: withErrorBoundary(CurrenciesScreen),
@@ -107,6 +109,7 @@ function ProfileStack() {
   return (
     <ProfileStackNav.Navigator screenOptions={stackScreenOptions}>
       <ProfileStackNav.Screen name="Profile" component={S.Profile} options={{ title: 'Mi Perfil' }} />
+      <ProfileStackNav.Screen name="EditProfile" component={S.EditProfile} options={{ title: 'Editar Perfil' }} />
       <ProfileStackNav.Screen name="Favorites" component={S.Favorites} options={{ title: 'Favoritos' }} />
       <ProfileStackNav.Screen name="TransferToFavorite" component={S.TransferToFavorite} options={{ title: 'Transferir a Favorito' }} />
       <ProfileStackNav.Screen name="Currencies" component={S.Currencies} options={{ title: 'Divisas' }} />

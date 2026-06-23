@@ -33,7 +33,7 @@ export function useAuth() {
   const register = useCallback(async (form) => {
     setLoading(true);
     try {
-      const formData = buildFormData(
+      const formData = await buildFormData(
         {
           name: form.name,
           email: form.email,

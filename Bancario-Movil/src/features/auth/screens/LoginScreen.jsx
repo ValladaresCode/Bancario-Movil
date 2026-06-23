@@ -98,13 +98,6 @@ export function LoginScreen({ navigation }) {
             </TouchableOpacity>
 
             <Button title="Iniciar sesión" gradient onPress={handleSubmit(onSubmit)} loading={loading} />
-
-            <View style={styles.footer}>
-              <Text style={styles.muted}>¿No tienes cuenta? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                <Text style={styles.link}>Regístrate</Text>
-              </TouchableOpacity>
-            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

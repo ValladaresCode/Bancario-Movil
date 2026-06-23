@@ -27,14 +27,6 @@ export function AccountsScreen({ navigation }) {
         keyExtractor={(item) => String(item.numeroCuenta)}
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={COLORS.primary} />}
-        ListHeaderComponent={
-          <Button
-            title="+ Solicitar nueva cuenta"
-            variant="secondary"
-            onPress={() => navigation.navigate('RequestAccount')}
-            style={styles.requestBtn}
-          />
-        }
         ListEmptyComponent={
           <EmptyState
             icon="account-balance-wallet"
