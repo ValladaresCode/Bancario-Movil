@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Button, Input } from '../../../shared/components';
-import { COLORS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
 import { pickProfileImage } from '../../../shared/utils/imagePicker';
 import { useAuth } from '../hooks/useAuth';
 
@@ -88,6 +88,7 @@ export function RegisterScreen({ navigation }) {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Nombre completo"
+                leftIcon="person-outline"
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
@@ -105,6 +106,7 @@ export function RegisterScreen({ navigation }) {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Correo electrónico"
+                leftIcon="mail-outline"
                 autoCapitalize="none"
                 keyboardType="email-address"
                 value={value}
@@ -121,6 +123,7 @@ export function RegisterScreen({ navigation }) {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Contraseña"
+                leftIcon="lock-outline"
                 secureTextEntry
                 value={value}
                 onChangeText={onChange}
@@ -136,6 +139,7 @@ export function RegisterScreen({ navigation }) {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Teléfono"
+                leftIcon="phone-iphone"
                 keyboardType="phone-pad"
                 value={value}
                 onChangeText={onChange}
@@ -150,6 +154,7 @@ export function RegisterScreen({ navigation }) {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Fecha de nacimiento (opcional)"
+                leftIcon="event"
                 placeholder="AAAA-MM-DD"
                 value={value}
                 onChangeText={onChange}
@@ -163,6 +168,7 @@ export function RegisterScreen({ navigation }) {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="DPI (opcional)"
+                leftIcon="badge"
                 keyboardType="number-pad"
                 value={value}
                 onChangeText={onChange}
@@ -176,6 +182,7 @@ export function RegisterScreen({ navigation }) {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Ingresos mensuales (opcional)"
+                leftIcon="payments"
                 keyboardType="numeric"
                 value={value}
                 onChangeText={onChange}
@@ -184,7 +191,7 @@ export function RegisterScreen({ navigation }) {
             )}
           />
 
-          <Button title="Crear cuenta" onPress={handleSubmit(onSubmit)} loading={loading} />
+          <Button title="Crear cuenta" gradient onPress={handleSubmit(onSubmit)} loading={loading} />
 
           <View style={styles.footer}>
             <Text style={styles.muted}>¿Ya tienes cuenta? </Text>
@@ -202,8 +209,8 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
   flex: { flex: 1 },
   content: { padding: SPACING.xl },
-  title: { fontSize: FONT_SIZE.xxl, fontWeight: '800', color: COLORS.text },
-  subtitle: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary, marginBottom: SPACING.xl, marginTop: SPACING.xs },
+  title: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.brand },
+  subtitle: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary, marginBottom: SPACING.xl, marginTop: SPACING.xs },
   avatarPicker: { alignItems: 'center', marginBottom: SPACING.xl, gap: SPACING.sm },
   avatar: { width: 88, height: 88, borderRadius: RADIUS.pill },
   avatarPlaceholder: {
@@ -214,7 +221,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  link: { color: COLORS.primary, fontWeight: '700', fontSize: FONT_SIZE.sm },
+  link: { color: COLORS.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: SPACING.xl },
-  muted: { color: COLORS.textSecondary, fontSize: FONT_SIZE.sm },
+  muted: { color: COLORS.textSecondary, fontFamily: FONTS.body, fontSize: FONT_SIZE.sm },
 });

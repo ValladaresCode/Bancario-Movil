@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Button, Input } from '../../../shared/components';
-import { COLORS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
 import { useAuth } from '../hooks/useAuth';
 
 export function VerifyEmailScreen({ navigation, route }) {
@@ -40,7 +40,9 @@ export function VerifyEmailScreen({ navigation, route }) {
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.iconWrap}>
-          <MaterialIcons name="mark-email-unread" size={56} color={COLORS.primary} />
+          <View style={styles.iconCircle}>
+            <MaterialIcons name="mark-email-unread" size={40} color={COLORS.primary} />
+          </View>
         </View>
         <Text style={styles.title}>Verifica tu correo</Text>
         <Text style={styles.subtitle}>
@@ -50,13 +52,14 @@ export function VerifyEmailScreen({ navigation, route }) {
 
         <Input
           label="Código de verificación"
+          leftIcon="vpn-key"
           placeholder="Pega aquí el token de tu correo"
           autoCapitalize="none"
           value={token}
           onChangeText={setToken}
         />
 
-        <Button title="Verificar" onPress={onVerify} loading={loading} />
+        <Button title="Verificar" gradient onPress={onVerify} loading={loading} />
 
         <TouchableOpacity onPress={onResend} style={styles.resend}>
           <Text style={styles.link}>Reenviar correo de verificación</Text>
@@ -74,16 +77,25 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
   content: { padding: SPACING.xl, flexGrow: 1, justifyContent: 'center' },
   iconWrap: { alignItems: 'center', marginBottom: SPACING.lg },
-  title: { fontSize: FONT_SIZE.xxl, fontWeight: '800', color: COLORS.text, textAlign: 'center' },
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.brand, textAlign: 'center' },
   subtitle: {
     fontSize: FONT_SIZE.sm,
+    fontFamily: FONTS.body,
     color: COLORS.textSecondary,
     textAlign: 'center',
     marginVertical: SPACING.lg,
     lineHeight: 20,
   },
-  bold: { fontWeight: '700', color: COLORS.text },
+  bold: { fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
   resend: { alignItems: 'center', marginTop: SPACING.lg },
-  link: { color: COLORS.primary, fontWeight: '700', fontSize: FONT_SIZE.sm },
-  muted: { color: COLORS.textSecondary, fontSize: FONT_SIZE.sm },
+  link: { color: COLORS.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
+  muted: { color: COLORS.textSecondary, fontFamily: FONTS.body, fontSize: FONT_SIZE.sm },
 });

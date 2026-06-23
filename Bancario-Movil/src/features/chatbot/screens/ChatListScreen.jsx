@@ -2,7 +2,7 @@ import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } fr
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Button, Card, EmptyState, LoadingSpinner } from '../../../shared/components';
-import { COLORS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
 import { formatDateTime } from '../../../shared/utils/format';
 import { useChatList } from '../hooks/useChatbot';
 
@@ -31,14 +31,15 @@ export function ChatListScreen({ navigation }) {
           <EmptyState icon="chat-bubble-outline" title="Sin conversaciones" message={error || 'Inicia un chat con el asistente.'} />
         }
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => navigation.navigate('Chat', { chatId: item._id, title: item.title })}>
+          <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('Chat', { chatId: item._id, title: item.title })}>
             <Card style={styles.card}>
+              {/* Círculo de icono tintado con el acento de marca */}
               <View style={styles.iconWrap}>
                 <MaterialIcons name="smart-toy" size={22} color={COLORS.primary} />
               </View>
               <View style={styles.middle}>
                 <Text style={styles.title} numberOfLines={1}>{item.title || 'Conversación'}</Text>
-                <Text style={styles.muted}>{formatDateTime(item.updatedAt)}</Text>
+                <Text style={styles.muted} numberOfLines={1}>{formatDateTime(item.updatedAt)}</Text>
               </View>
               <MaterialIcons name="chevron-right" size={22} color={COLORS.textMuted} />
             </Card>
@@ -63,6 +64,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   middle: { flex: 1 },
-  title: { fontSize: FONT_SIZE.md, fontWeight: '700', color: COLORS.text },
-  muted: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: SPACING.xs },
+  title: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
+  muted: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginTop: SPACING.xs },
 });

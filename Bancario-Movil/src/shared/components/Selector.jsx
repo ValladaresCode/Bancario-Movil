@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { COLORS, FONT_SIZE, RADIUS, SPACING } from '../constants/theme';
+import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../constants/theme';
 
 // Selector de chips horizontal para opciones [{ value, label }].
 export function Selector({ label, options = [], value, onChange, horizontal = true }) {
@@ -19,6 +19,7 @@ export function Selector({ label, options = [], value, onChange, horizontal = tr
             <TouchableOpacity
               key={String(option.value)}
               onPress={() => onChange(option.value)}
+              activeOpacity={0.8}
               style={[styles.chip, selected && styles.chipSelected]}
             >
               <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{option.label}</Text>
@@ -34,6 +35,7 @@ const styles = StyleSheet.create({
   wrapper: { marginBottom: SPACING.lg },
   label: {
     fontSize: FONT_SIZE.sm,
+    fontFamily: FONTS.semibold,
     fontWeight: '600',
     color: COLORS.textSecondary,
     marginBottom: SPACING.sm,
@@ -49,6 +51,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
   },
   chipSelected: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  chipText: { fontSize: FONT_SIZE.sm, fontWeight: '600', color: COLORS.textSecondary },
+  chipText: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.semibold, fontWeight: '600', color: COLORS.textSecondary },
   chipTextSelected: { color: COLORS.white },
 });

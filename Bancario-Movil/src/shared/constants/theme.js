@@ -1,44 +1,82 @@
 // Tokens de diseño de la app bancaria. NADA de colores/espaciados hardcodeados
-// fuera de este archivo. Paleta basada en el primario #208AEF (splash de app.json).
+// fuera de este archivo. Paleta replicada del frontend web "KINAL BANC":
+// navy de marca #08316d + acento #1a56db, superficies claras y estados tintados.
 
 export const COLORS = {
-  // Marca
-  primary: '#208AEF',
-  primaryDark: '#1565C0',
-  primaryLight: '#E6F4FE',
-  secondary: '#00C2A8',
-  secondaryDark: '#009B86',
+  // Marca / acento interactivo
+  primary: '#1a56db', // acento: botones, links, estados activos
+  primaryDark: '#08316d', // navy de marca
+  primaryLight: '#E8EFFD', // tinte claro del acento (contenedores de iconos)
+  secondary: '#0b4b8f',
+  secondaryDark: '#02183f',
+
+  // Navy de marca (para gradientes/hero/headers)
+  brandDeep: '#02183f',
+  brand: '#08316d',
+  brandMid: '#07306a',
+  brandBright: '#0b4b8f',
+  accentStrong: '#011743',
 
   // Superficies / fondo
-  background: '#F4F6FA',
-  surface: '#FFFFFF',
-  surfaceAlt: '#EEF2F7',
-  overlay: 'rgba(16, 24, 40, 0.45)',
+  background: '#f5f6f8',
+  surface: '#ffffff',
+  surfaceAlt: '#f1f3f7',
+  overlay: 'rgba(2, 24, 63, 0.55)',
 
   // Texto
-  text: '#1A2233',
-  textSecondary: '#60646C',
-  textMuted: '#8A93A6',
-  textOnPrimary: '#FFFFFF',
+  text: '#0b0b0b',
+  textSecondary: '#334155', // slate-700
+  textMuted: 'rgba(15, 23, 42, 0.6)',
+  textOnPrimary: '#ffffff',
 
   // Bordes / divisores
-  border: '#E0E4EB',
-  borderStrong: '#C9D0DB',
+  border: 'rgba(15, 23, 42, 0.12)',
+  borderStrong: 'rgba(15, 23, 42, 0.22)',
 
-  // Estados
-  success: '#1FAE63',
-  successBg: '#E3F7EC',
-  danger: '#E5484D',
-  dangerBg: '#FCE9E9',
-  warning: '#F5A623',
-  warningBg: '#FDF1DC',
-  info: '#208AEF',
-  infoBg: '#E6F4FE',
+  // Estados (sistema tintado: texto sólido + fondo 15% + borde 30%)
+  success: '#047857', // emerald-700 (montos +, depósitos)
+  successBg: 'rgba(16, 185, 129, 0.15)',
+  successBorder: 'rgba(16, 185, 129, 0.3)',
+  danger: '#be123c', // rose-700 (montos -, errores)
+  dangerBg: 'rgba(244, 63, 94, 0.15)',
+  dangerBorder: 'rgba(244, 63, 94, 0.3)',
+  warning: '#b45309', // amber-800
+  warningBg: 'rgba(245, 158, 11, 0.15)',
+  warningBorder: 'rgba(245, 158, 11, 0.3)',
+  info: '#0369a1', // sky-700
+  infoBg: 'rgba(14, 165, 233, 0.15)',
+  infoBorder: 'rgba(14, 165, 233, 0.3)',
+  neutral: '#334155', // slate
+  neutralBg: 'rgba(100, 116, 139, 0.15)',
+  neutralBorder: 'rgba(100, 116, 139, 0.3)',
 
-  // Neutrales utilitarios (bug del ref: faltaba white)
+  // Neutrales utilitarios
   white: '#FFFFFF',
   black: '#000000',
   transparent: 'transparent',
+};
+
+// Gradientes de marca para <LinearGradient />.
+export const GRADIENTS = {
+  brand: ['#02183f', '#07306a', '#0b4b8f'], // navbar/headers (horizontal)
+  brandLocations: [0, 0.48, 1],
+  hero: ['#02183f', '#08316d', '#0b4b8f'], // fondo de login (diagonal)
+  balance: ['#08316d', '#1a56db'], // tarjeta de saldo (navy → acento)
+  start: { x: 0, y: 0 },
+  endHorizontal: { x: 1, y: 0 },
+  endDiagonal: { x: 1, y: 1 },
+  endVertical: { x: 0, y: 1 },
+};
+
+// Familias tipográficas de marca (cargadas en App.jsx).
+// Con fontFamily personalizada, el peso va "horneado" en la familia.
+export const FONTS = {
+  body: 'SpaceGrotesk_400Regular',
+  medium: 'SpaceGrotesk_500Medium',
+  semibold: 'SpaceGrotesk_600SemiBold',
+  bold: 'SpaceGrotesk_700Bold',
+  display: 'Literata_600SemiBold', // títulos serif
+  displayBold: 'Literata_700Bold',
 };
 
 export const SPACING = {
@@ -62,26 +100,43 @@ export const FONT_SIZE = {
 };
 
 export const RADIUS = {
-  sm: 8,
+  sm: 10,
   md: 12,
-  lg: 16,
+  lg: 18, // tarjetas (rounded-[18px] del web)
   xl: 24,
   pill: 999,
 };
 
 export const SHADOWS = {
+  // Sombra suave grande del web: 0 16px 40px rgba(15,23,42,0.12)
   card: {
-    shadowColor: '#101828',
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 4,
+  },
+  // Sombra ligera para tiles pequeños (shadow-sm).
+  subtle: {
+    shadowColor: '#0f172a',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowRadius: 10,
+    elevation: 2,
   },
   floating: {
-    shadowColor: '#101828',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.16,
-    shadowRadius: 20,
-    elevation: 8,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.18,
+    shadowRadius: 32,
+    elevation: 10,
+  },
+  // Sombra coloreada navy para tarjetas con gradiente de marca.
+  brand: {
+    shadowColor: '#08316d',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.35,
+    shadowRadius: 24,
+    elevation: 10,
   },
 };

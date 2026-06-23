@@ -3,7 +3,7 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Input } from '../../../shared/components';
-import { COLORS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { COLORS, FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
 import { useAuth } from '../hooks/useAuth';
 
 export function ForgotPasswordScreen({ navigation }) {
@@ -50,12 +50,13 @@ export function ForgotPasswordScreen({ navigation }) {
 
         <Input
           label="Correo electrónico"
+          leftIcon="mail-outline"
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
         />
-        <Button title="Enviar enlace" onPress={onSendLink} loading={loading} />
+        <Button title="Enviar enlace" gradient onPress={onSendLink} loading={loading} />
 
         <TouchableOpacity onPress={() => setShowReset((v) => !v)} style={styles.toggle}>
           <Text style={styles.link}>{showReset ? 'Ocultar' : 'Ya tengo un código'}</Text>
@@ -65,12 +66,14 @@ export function ForgotPasswordScreen({ navigation }) {
           <View style={styles.resetBox}>
             <Input
               label="Código de recuperación"
+              leftIcon="vpn-key"
               autoCapitalize="none"
               value={token}
               onChangeText={setToken}
             />
             <Input
               label="Nueva contraseña"
+              leftIcon="lock-outline"
               secureTextEntry
               value={newPassword}
               onChangeText={setNewPassword}
@@ -90,10 +93,10 @@ export function ForgotPasswordScreen({ navigation }) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
   content: { padding: SPACING.xl, flexGrow: 1, justifyContent: 'center' },
-  title: { fontSize: FONT_SIZE.xxl, fontWeight: '800', color: COLORS.text },
-  subtitle: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary, marginBottom: SPACING.xl, marginTop: SPACING.xs },
+  title: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.brand },
+  subtitle: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary, marginBottom: SPACING.xl, marginTop: SPACING.xs },
   toggle: { alignItems: 'center', marginTop: SPACING.lg },
   resetBox: { marginTop: SPACING.lg },
-  link: { color: COLORS.primary, fontWeight: '700', fontSize: FONT_SIZE.sm },
-  muted: { color: COLORS.textSecondary, fontSize: FONT_SIZE.sm },
+  link: { color: COLORS.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
+  muted: { color: COLORS.textSecondary, fontFamily: FONTS.body, fontSize: FONT_SIZE.sm },
 });

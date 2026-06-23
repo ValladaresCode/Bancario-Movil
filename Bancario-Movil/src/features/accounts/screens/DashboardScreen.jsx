@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { Card, LoadingSpinner } from '../../../shared/components';
-import { COLORS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { Card, GradientCard, LoadingSpinner } from '../../../shared/components';
+import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
 import { useAuthStore } from '../../../shared/store/authStore';
 import { formatCurrency, maskAccountNumber } from '../../../shared/utils/format';
 import { useAccounts } from '../hooks/useAccounts';
@@ -40,8 +40,13 @@ export function DashboardScreen({ navigation }) {
     >
       <Text style={styles.greeting}>Hola, {user?.name || 'cliente'} 👋</Text>
 
-      <Card style={styles.balanceCard}>
-        <Text style={styles.balanceLabel}>Saldo total</Text>
+      <GradientCard contentStyle={styles.balanceInner}>
+        <View style={styles.balanceTop}>
+          <Text style={styles.balanceLabel}>Saldo total</Text>
+          <View style={styles.balanceChip}>
+            <MaterialIcons name="account-balance-wallet" size={16} color={COLORS.white} />
+          </View>
+        </View>
         {totalsByCurrency.length === 0 ? (
           <Text style={styles.balanceMain}>{formatCurrency(0, 'GTQ')}</Text>
         ) : (
@@ -51,14 +56,15 @@ export function DashboardScreen({ navigation }) {
             </Text>
           ))
         )}
-        <Text style={styles.balanceSub}>{accounts.length} cuenta(s)</Text>
-      </Card>
+        <Text style={styles.balanceSub}>{accounts.length} cuenta(s) activas</Text>
+      </GradientCard>
 
       <View style={styles.actionsRow}>
         {QUICK_ACTIONS.map((action) => (
           <TouchableOpacity
             key={action.label}
             style={styles.action}
+            activeOpacity={0.85}
             onPress={() => navigation.navigate(action.tab, { screen: action.screen })}
           >
             <View style={styles.actionIcon}>
@@ -76,14 +82,19 @@ export function DashboardScreen({ navigation }) {
         accounts.map((acc) => (
           <TouchableOpacity
             key={acc.numeroCuenta}
+            activeOpacity={0.85}
             onPress={() => navigation.navigate('Cuentas', { screen: 'AccountDetail', params: { account: acc } })}
           >
             <Card style={styles.accountRow}>
-              <View>
+              <View style={styles.accountIcon}>
+                <MaterialIcons name="credit-card" size={22} color={COLORS.primary} />
+              </View>
+              <View style={styles.accountInfo}>
                 <Text style={styles.accountType}>{acc.tipoLabel}</Text>
                 <Text style={styles.muted}>{maskAccountNumber(acc.numeroCuenta)}</Text>
               </View>
               <Text style={styles.accountBalance}>{acc.saldoFmt}</Text>
+              <MaterialIcons name="chevron-right" size={22} color={COLORS.textMuted} />
             </Card>
           </TouchableOpacity>
         ))
@@ -95,25 +106,57 @@ export function DashboardScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   content: { padding: SPACING.lg, gap: SPACING.md },
-  greeting: { fontSize: FONT_SIZE.xl, fontWeight: '800', color: COLORS.text },
-  balanceCard: { backgroundColor: COLORS.primary, gap: SPACING.xs },
-  balanceLabel: { color: COLORS.white, opacity: 0.85, fontSize: FONT_SIZE.sm },
-  balanceMain: { color: COLORS.white, fontSize: FONT_SIZE.xxxl, fontWeight: '800' },
-  balanceSub: { color: COLORS.white, opacity: 0.85, fontSize: FONT_SIZE.xs, marginTop: SPACING.xs },
-  actionsRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  greeting: { fontSize: FONT_SIZE.xl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.text },
+
+  balanceInner: { gap: SPACING.xs },
+  balanceTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  balanceLabel: {
+    color: 'rgba(255,255,255,0.85)',
+    fontFamily: FONTS.medium,
+    fontSize: FONT_SIZE.sm,
+    letterSpacing: 0.5,
+  },
+  balanceChip: {
+    width: 32,
+    height: 32,
+    borderRadius: RADIUS.pill,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  balanceMain: { color: COLORS.white, fontSize: FONT_SIZE.xxxl, fontFamily: FONTS.displayBold, fontWeight: '800' },
+  balanceSub: { color: 'rgba(255,255,255,0.85)', fontFamily: FONTS.body, fontSize: FONT_SIZE.xs, marginTop: SPACING.xs },
+
+  actionsRow: { flexDirection: 'row', justifyContent: 'space-between', gap: SPACING.sm },
   action: { alignItems: 'center', gap: SPACING.xs, flex: 1 },
   actionIcon: {
-    width: 56,
-    height: 56,
+    width: 58,
+    height: 58,
     borderRadius: RADIUS.lg,
     backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  actionLabel: { fontSize: FONT_SIZE.xs, color: COLORS.textSecondary, fontWeight: '600' },
-  sectionTitle: { fontSize: FONT_SIZE.lg, fontWeight: '700', color: COLORS.text, marginTop: SPACING.sm },
-  accountRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  accountType: { fontSize: FONT_SIZE.md, fontWeight: '700', color: COLORS.text },
-  accountBalance: { fontSize: FONT_SIZE.lg, fontWeight: '800', color: COLORS.primary },
-  muted: { fontSize: FONT_SIZE.sm, color: COLORS.textMuted },
+  actionLabel: { fontSize: FONT_SIZE.xs, color: COLORS.textSecondary, fontFamily: FONTS.semibold, fontWeight: '600' },
+
+  sectionTitle: {
+    fontSize: FONT_SIZE.lg,
+    fontFamily: FONTS.displayBold,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginTop: SPACING.sm,
+  },
+  accountRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
+  accountIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  accountInfo: { flex: 1 },
+  accountType: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
+  accountBalance: { fontSize: FONT_SIZE.md, fontFamily: FONTS.bold, fontWeight: '800', color: COLORS.primary },
+  muted: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textMuted },
 });

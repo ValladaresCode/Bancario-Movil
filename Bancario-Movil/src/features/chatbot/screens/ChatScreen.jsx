@@ -13,7 +13,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { EmptyState } from '../../../shared/components';
-import { COLORS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
 import { useChat } from '../hooks/useChatbot';
 
 export function ChatScreen({ route }) {
@@ -60,7 +60,12 @@ export function ChatScreen({ route }) {
         />
       )}
 
-      {sending ? <Text style={styles.typing}>El asistente está escribiendo…</Text> : null}
+      {sending ? (
+        <View style={styles.typingRow}>
+          <ActivityIndicator size="small" color={COLORS.primary} />
+          <Text style={styles.typing}>El asistente está escribiendo…</Text>
+        </View>
+      ) : null}
 
       <View style={styles.inputBar}>
         <TextInput
@@ -93,12 +98,27 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
     borderRadius: RADIUS.lg,
   },
+  // Burbuja del usuario: acento de marca con texto blanco.
   userBubble: { alignSelf: 'flex-end', backgroundColor: COLORS.primary, borderBottomRightRadius: RADIUS.sm },
-  modelBubble: { alignSelf: 'flex-start', backgroundColor: COLORS.surface, borderBottomLeftRadius: RADIUS.sm },
-  bubbleText: { fontSize: FONT_SIZE.sm, lineHeight: 20 },
+  // Burbuja del asistente: superficie tintada con borde sutil.
+  modelBubble: {
+    alignSelf: 'flex-start',
+    backgroundColor: COLORS.surfaceAlt,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderBottomLeftRadius: RADIUS.sm,
+  },
+  bubbleText: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, lineHeight: 20 },
   userText: { color: COLORS.white },
   modelText: { color: COLORS.text },
-  typing: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, paddingHorizontal: SPACING.lg, paddingBottom: SPACING.xs },
+  typingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.xs,
+  },
+  typing: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textMuted },
   inputBar: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -118,8 +138,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingTop: SPACING.sm,
     fontSize: FONT_SIZE.md,
+    fontFamily: FONTS.body,
     color: COLORS.text,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.surfaceAlt,
   },
   sendBtn: {
     width: 44,

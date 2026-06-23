@@ -3,7 +3,7 @@ import { Alert, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { Button, Card, Selector } from '../../../shared/components';
 import { ACCOUNT_TYPE_OPTIONS, CURRENCY_OPTIONS } from '../../../shared/constants';
-import { COLORS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { COLORS, FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
 import { useAccounts } from '../hooks/useAccounts';
 
 export function RequestAccountScreen({ navigation }) {
@@ -43,6 +43,6 @@ export function RequestAccountScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   content: { padding: SPACING.lg },
-  title: { fontSize: FONT_SIZE.xl, fontWeight: '800', color: COLORS.text },
-  subtitle: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary, marginTop: SPACING.xs, marginBottom: SPACING.lg },
+  title: { fontSize: FONT_SIZE.xl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.text },
+  subtitle: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary, marginTop: SPACING.xs, marginBottom: SPACING.lg },
 });

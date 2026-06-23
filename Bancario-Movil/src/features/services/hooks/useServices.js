@@ -2,17 +2,29 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { bankClient, getApiError } from '../../../shared/api';
 
+// Coerciona a texto renderizable; si llega un objeto/array inesperado, lo descarta
+// (evita el crash "Objects are not valid as a React child" → página en blanco).
+const toText = (v, fallback = '') => {
+  if (v === null || v === undefined) return fallback;
+  if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return String(v);
+  return fallback;
+};
+const toNum = (v) =>
+  typeof v === 'number' || (typeof v === 'string' && v.trim() !== '' && !Number.isNaN(Number(v)))
+    ? Number(v)
+    : undefined;
+
 const mapToViewModel = (service) => ({
   raw: service,
   id: service?._id || service?.id,
-  name: service?.name || 'Servicio',
-  description: service?.description || '',
-  price: service?.price,
-  currency: service?.currency || 'GTQ',
+  name: toText(service?.name, 'Servicio'),
+  description: toText(service?.description),
+  price: toNum(service?.price),
+  currency: toText(service?.currency, 'GTQ'),
   imageUrl: service?.imageUrl && service.imageUrl !== 'null' ? service.imageUrl : null,
-  category: service?.category || 'General',
-  type: service?.type || 'SERVICE',
-  discount: service?.discount,
+  category: toText(service?.category, 'General'),
+  type: toText(service?.type, 'SERVICE'),
+  discount: toNum(service?.discount),
 });
 
 export function useServices() {

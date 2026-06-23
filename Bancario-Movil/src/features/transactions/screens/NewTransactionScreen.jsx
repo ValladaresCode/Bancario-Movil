@@ -1,14 +1,15 @@
 import { useMemo, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { Button, Card, Input, Selector } from '../../../shared/components';
+import { notify } from '../../../shared/utils/confirm';
 import {
   CURRENCY_OPTIONS,
   TRANSACTION_LIMITS,
   TRANSACTION_TYPES,
   TRANSACTION_TYPE_OPTIONS,
 } from '../../../shared/constants';
-import { COLORS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { COLORS, FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
 import { formatCurrency, maskAccountNumber } from '../../../shared/utils/format';
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useTransactions } from '../hooks/useTransactions';
@@ -37,6 +38,13 @@ export function NewTransactionScreen({ navigation, route }) {
     [accounts]
   );
 
+  // Limpia los campos editables a su valor inicial tras una transacción exitosa.
+  const resetForm = () => {
+    setCuentaDestino('');
+    setMonto('');
+    setDescripcion('');
+  };
+
   const needsOrigen = tipo === TRANSACTION_TYPES.TRANSFERENCIA || tipo === TRANSACTION_TYPES.RETIRO;
   const needsDestino = tipo === TRANSACTION_TYPES.TRANSFERENCIA || tipo === TRANSACTION_TYPES.DEPOSITO;
   const needsDescripcion = tipo === TRANSACTION_TYPES.TRANSFERENCIA;
@@ -56,7 +64,7 @@ export function NewTransactionScreen({ navigation, route }) {
   const onSubmit = async () => {
     const validationError = validate();
     if (validationError) {
-      Alert.alert('Revisa los datos', validationError);
+      notify('Revisa los datos', validationError);
       return;
     }
 
@@ -75,12 +83,15 @@ export function NewTransactionScreen({ navigation, route }) {
 
     if (!result.ok) {
       // Muestra el mensaje del backend (límites diarios, saldo insuficiente, etc.).
-      Alert.alert('No se pudo completar', result.error);
+      notify('No se pudo completar', result.error);
       return;
     }
-    Alert.alert('Transacción registrada', 'Tu movimiento se procesó correctamente.', [
-      { text: 'Ver movimientos', onPress: () => navigation.goBack() },
-    ]);
+    // El reset y la navegación van dentro del callback para que el usuario lea el
+    // aviso antes de salir (paridad web/nativo).
+    notify('Transacción registrada', 'Tu movimiento se procesó correctamente.', () => {
+      resetForm();
+      navigation.goBack();
+    });
   };
 
   return (
@@ -107,6 +118,7 @@ export function NewTransactionScreen({ navigation, route }) {
               label="Cuenta de destino"
               placeholder="Número de cuenta"
               keyboardType="number-pad"
+              leftIcon="account-balance"
               value={cuentaDestino}
               onChangeText={setCuentaDestino}
             />
@@ -116,6 +128,7 @@ export function NewTransactionScreen({ navigation, route }) {
             label="Monto"
             placeholder="0.00"
             keyboardType="numeric"
+            leftIcon="attach-money"
             value={monto}
             onChangeText={setMonto}
           />
@@ -125,6 +138,7 @@ export function NewTransactionScreen({ navigation, route }) {
           <Input
             label={needsDescripcion ? 'Descripción (requerida)' : 'Descripción (opcional)'}
             placeholder="Motivo de la transacción"
+            leftIcon="notes"
             value={descripcion}
             onChangeText={setDescripcion}
           />
@@ -145,6 +159,6 @@ const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: COLORS.background },
   container: { flex: 1, backgroundColor: COLORS.background },
   content: { padding: SPACING.lg },
-  warn: { fontSize: FONT_SIZE.sm, color: COLORS.warning, marginBottom: SPACING.lg },
-  limits: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: SPACING.lg },
+  warn: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium, color: COLORS.warning, marginBottom: SPACING.lg },
+  limits: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: SPACING.lg },
 });

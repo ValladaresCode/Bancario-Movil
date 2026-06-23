@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Alert, Image, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { Button, Card, Input, LoadingSpinner } from '../../../shared/components';
-import { COLORS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { Button, Card, GradientCard, Input, LoadingSpinner } from '../../../shared/components';
+import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
 import { pickProfileImage } from '../../../shared/utils/imagePicker';
+import { confirmAction, notify } from '../../../shared/utils/confirm';
 import { useProfile } from '../hooks/useProfile';
 
 const MENU = [
@@ -34,7 +35,7 @@ export function ProfileScreen({ navigation }) {
 
   const handlePickImage = async () => {
     const result = await pickProfileImage();
-    if (result.error) return Alert.alert('Permiso requerido', result.error);
+    if (result.error) return notify('Permiso requerido', result.error);
     if (!result.canceled) setImageUri(result.uri);
   };
 
@@ -43,19 +44,21 @@ export function ProfileScreen({ navigation }) {
     const result = await updateProfile({ ...form, profilePicture: imageUri });
     setSaving(false);
     if (!result.ok) {
-      Alert.alert('Error', result.error);
+      notify('Error', result.error);
       return;
     }
     setEditing(false);
-    Alert.alert('Perfil actualizado', 'Algunos cambios pueden quedar pendientes de aprobación.');
+    notify('Perfil actualizado', 'Algunos cambios pueden quedar pendientes de aprobación.');
   };
 
-  const onLogout = () => {
-    Alert.alert('Cerrar sesión', '¿Seguro que deseas salir?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Salir', style: 'destructive', onPress: () => logout() },
-    ]);
-  };
+  const onLogout = () =>
+    confirmAction({
+      title: 'Cerrar sesión',
+      message: '¿Seguro que deseas salir?',
+      confirmText: 'Salir',
+      destructive: true,
+      onConfirm: logout,
+    });
 
   if (loading && !profile) return <LoadingSpinner message="Cargando perfil..." />;
 
@@ -67,20 +70,21 @@ export function ProfileScreen({ navigation }) {
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={COLORS.primary} />}
     >
-      <Card style={styles.headerCard}>
+      {/* Header premium: avatar + nombre + correo sobre gradiente de marca. */}
+      <GradientCard contentStyle={styles.headerCard}>
         <TouchableOpacity onPress={editing ? handlePickImage : undefined} activeOpacity={editing ? 0.7 : 1}>
           {avatar ? (
             <Image source={{ uri: avatar }} style={styles.avatar} />
           ) : (
             <View style={[styles.avatar, styles.avatarPlaceholder]}>
-              <MaterialIcons name="person" size={40} color={COLORS.primary} />
+              <MaterialIcons name="person" size={40} color={COLORS.white} />
             </View>
           )}
           {editing ? <Text style={styles.changePhoto}>Cambiar foto</Text> : null}
         </TouchableOpacity>
         <Text style={styles.name}>{profile?.name}</Text>
         <Text style={styles.email}>{profile?.email}</Text>
-      </Card>
+      </GradientCard>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -127,7 +131,9 @@ export function ProfileScreen({ navigation }) {
       <Card style={styles.menuCard}>
         {MENU.map((item) => (
           <TouchableOpacity key={item.screen} style={styles.menuRow} onPress={() => navigation.navigate(item.screen)}>
-            <MaterialIcons name={item.icon} size={22} color={COLORS.primary} />
+            <View style={styles.menuIcon}>
+              <MaterialIcons name={item.icon} size={20} color={COLORS.primary} />
+            </View>
             <Text style={styles.menuLabel}>{item.label}</Text>
             <MaterialIcons name="chevron-right" size={22} color={COLORS.textMuted} />
           </TouchableOpacity>
@@ -151,13 +157,17 @@ function InfoRow({ label, value }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   content: { padding: SPACING.lg, gap: SPACING.md },
-  headerCard: { alignItems: 'center', gap: SPACING.xs },
+  headerCard: { alignItems: 'center', gap: SPACING.xs, paddingVertical: SPACING.xl },
   avatar: { width: 96, height: 96, borderRadius: RADIUS.pill },
-  avatarPlaceholder: { backgroundColor: COLORS.primaryLight, alignItems: 'center', justifyContent: 'center' },
-  changePhoto: { color: COLORS.primary, fontWeight: '700', fontSize: FONT_SIZE.xs, textAlign: 'center', marginTop: SPACING.xs },
-  name: { fontSize: FONT_SIZE.xl, fontWeight: '800', color: COLORS.text, marginTop: SPACING.sm },
-  email: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary },
-  error: { color: COLORS.danger, fontSize: FONT_SIZE.sm },
+  avatarPlaceholder: {
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  changePhoto: { color: COLORS.white, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.xs, textAlign: 'center', marginTop: SPACING.xs },
+  name: { fontSize: FONT_SIZE.xl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.white, marginTop: SPACING.sm },
+  email: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.white, opacity: 0.85 },
+  error: { color: COLORS.danger, fontFamily: FONTS.medium, fontSize: FONT_SIZE.sm },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -165,8 +175,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: COLORS.border,
   },
-  infoLabel: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary },
-  infoValue: { fontSize: FONT_SIZE.sm, fontWeight: '700', color: COLORS.text },
+  infoLabel: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary },
+  infoValue: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
   editBtn: { marginTop: SPACING.md },
   menuCard: { gap: SPACING.xs },
   menuRow: {
@@ -177,5 +187,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: COLORS.border,
   },
-  menuLabel: { flex: 1, fontSize: FONT_SIZE.md, fontWeight: '600', color: COLORS.text },
+  menuIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  menuLabel: { flex: 1, fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '600', color: COLORS.text },
 });

@@ -2,16 +2,28 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { bankClient, getApiError } from '../../../shared/api';
 
+// Coerciona a texto renderizable; si llega un objeto/array inesperado, lo descarta
+// (evita el crash "Objects are not valid as a React child" → página en blanco).
+const toText = (v, fallback = '') => {
+  if (v === null || v === undefined) return fallback;
+  if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return String(v);
+  return fallback;
+};
+const toNum = (v) =>
+  typeof v === 'number' || (typeof v === 'string' && v.trim() !== '' && !Number.isNaN(Number(v)))
+    ? Number(v)
+    : undefined;
+
 const mapToViewModel = (promo) => ({
   raw: promo,
   id: promo?._id || promo?.id,
-  name: promo?.name || promo?.title || 'Promoción',
-  description: promo?.description || '',
+  name: toText(promo?.name) || toText(promo?.title) || 'Promoción',
+  description: toText(promo?.description),
   imageUrl: promo?.imageUrl && promo.imageUrl !== 'null' ? promo.imageUrl : null,
-  terms: promo?.terms || promo?.termsAndConditions || '',
+  terms: toText(promo?.terms) || toText(promo?.termsAndConditions),
   startDate: promo?.startDate,
   endDate: promo?.endDate,
-  discount: promo?.discount,
+  discount: toNum(promo?.discount),
 });
 
 export function usePromotions() {

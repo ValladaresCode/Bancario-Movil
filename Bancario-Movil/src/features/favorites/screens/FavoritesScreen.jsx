@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { Button, Card, EmptyState, Input, LoadingSpinner, Selector } from '../../../shared/components';
+import { Badge, Button, Card, EmptyState, Input, LoadingSpinner, Selector } from '../../../shared/components';
 import { ACCOUNT_TYPE_OPTIONS } from '../../../shared/constants';
-import { COLORS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
 import { maskAccountNumber } from '../../../shared/utils/format';
 import { useFavorites } from '../hooks/useFavorites';
 
@@ -85,9 +85,10 @@ export function FavoritesScreen({ navigation }) {
             </View>
             <View style={styles.middle}>
               <Text style={styles.alias}>{item.alias}</Text>
-              <Text style={styles.muted}>
-                {maskAccountNumber(item.cuenta)} · {item.tipo}
-              </Text>
+              <Text style={styles.muted}>{maskAccountNumber(item.cuenta)}</Text>
+              <View style={styles.badgeRow}>
+                <Badge label={item.tipo} tone="neutral" />
+              </View>
             </View>
             <View style={styles.actions}>
               <TouchableOpacity
@@ -122,8 +123,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   middle: { flex: 1 },
-  alias: { fontSize: FONT_SIZE.md, fontWeight: '700', color: COLORS.text },
-  muted: { fontSize: FONT_SIZE.xs, color: COLORS.textSecondary, marginTop: SPACING.xs },
+  alias: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
+  muted: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textSecondary, marginTop: SPACING.xs },
+  badgeRow: { marginTop: SPACING.xs },
   actions: { flexDirection: 'row', gap: SPACING.sm },
   transferBtn: {
     width: 38,

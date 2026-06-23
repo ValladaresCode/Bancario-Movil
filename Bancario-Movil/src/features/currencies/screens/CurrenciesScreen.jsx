@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { Card, EmptyState, Input, LoadingSpinner, Selector } from '../../../shared/components';
 import { CURRENCY_OPTIONS } from '../../../shared/constants';
-import { COLORS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
 import { formatNumber } from '../../../shared/utils/format';
 import { useCurrencies } from '../hooks/useCurrencies';
 
@@ -42,7 +43,12 @@ export function CurrenciesScreen() {
       ) : (
         converted.map((item) => (
           <Card key={item.code} style={styles.rateRow}>
-            <Text style={styles.code}>{item.code}</Text>
+            <View style={styles.codeWrap}>
+              <View style={styles.iconCircle}>
+                <MaterialIcons name="currency-exchange" size={18} color={COLORS.primary} />
+              </View>
+              <Text style={styles.code}>{item.code}</Text>
+            </View>
             <Text style={styles.value}>{item.value}</Text>
           </Card>
         ))
@@ -54,8 +60,17 @@ export function CurrenciesScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   content: { padding: SPACING.lg, gap: SPACING.sm },
-  update: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted },
+  update: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textMuted },
   rateRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  code: { fontSize: FONT_SIZE.lg, fontWeight: '800', color: COLORS.text },
-  value: { fontSize: FONT_SIZE.lg, fontWeight: '700', color: COLORS.primary },
+  codeWrap: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
+  iconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  code: { fontSize: FONT_SIZE.lg, fontFamily: FONTS.bold, fontWeight: '800', color: COLORS.text },
+  value: { fontSize: FONT_SIZE.lg, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.primary },
 });

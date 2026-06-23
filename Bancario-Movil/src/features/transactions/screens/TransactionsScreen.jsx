@@ -3,7 +3,7 @@ import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Badge, Button, Card, EmptyState, LoadingSpinner } from '../../../shared/components';
-import { COLORS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useTransactions } from '../hooks/useTransactions';
 
@@ -65,14 +65,14 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.surfaceAlt,
+    backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   middle: { flex: 1 },
-  tipo: { fontSize: FONT_SIZE.md, fontWeight: '700', color: COLORS.text },
-  muted: { fontSize: FONT_SIZE.xs, color: COLORS.textSecondary },
-  date: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: SPACING.xs },
+  tipo: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
+  muted: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textSecondary },
+  date: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginTop: SPACING.xs },
   right: { alignItems: 'flex-end', gap: SPACING.xs },
-  monto: { fontSize: FONT_SIZE.md, fontWeight: '800' },
+  monto: { fontSize: FONT_SIZE.md, fontFamily: FONTS.bold, fontWeight: '800' },
 });

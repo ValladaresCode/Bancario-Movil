@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { Button, Card, Input, Selector } from '../../../shared/components';
+import { Button, Card, GradientCard, Input, Selector } from '../../../shared/components';
+import { notify } from '../../../shared/utils/confirm';
 import { CURRENCY_OPTIONS, TRANSACTION_LIMITS, TRANSACTION_TYPES } from '../../../shared/constants';
-import { COLORS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { COLORS, FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
 import { formatCurrency, maskAccountNumber } from '../../../shared/utils/format';
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useTransactions } from '../../transactions/hooks/useTransactions';
@@ -28,17 +29,24 @@ export function TransferToFavoriteScreen({ navigation, route }) {
     [accounts]
   );
 
+  // Limpia los campos editables tras una transferencia exitosa.
+  const resetForm = () => {
+    setMonto('');
+    setDescripcion('');
+    setCuentaOrigen('');
+  };
+
   const onSubmit = async () => {
     const montoNum = Number(monto);
-    if (!cuentaOrigen) return Alert.alert('Atención', 'Selecciona la cuenta de origen.');
-    if (!montoNum || montoNum <= 0) return Alert.alert('Atención', 'Ingresa un monto válido.');
+    if (!cuentaOrigen) return notify('Atención', 'Selecciona la cuenta de origen.');
+    if (!montoNum || montoNum <= 0) return notify('Atención', 'Ingresa un monto válido.');
     if (montoNum > TRANSACTION_LIMITS.PER_TRANSACTION) {
-      return Alert.alert(
+      return notify(
         'Límite excedido',
         `El monto máximo por transacción es ${formatCurrency(TRANSACTION_LIMITS.PER_TRANSACTION, 'GTQ')}.`
       );
     }
-    if (!descripcion.trim()) return Alert.alert('Atención', 'La descripción es requerida.');
+    if (!descripcion.trim()) return notify('Atención', 'La descripción es requerida.');
 
     // Paso 2 (real): se ejecuta como TRANSFERENCIA hacia la cuenta del favorito.
     setSubmitting(true);
@@ -53,12 +61,17 @@ export function TransferToFavoriteScreen({ navigation, route }) {
     setSubmitting(false);
 
     if (!result.ok) {
-      Alert.alert('No se pudo transferir', result.error);
+      notify('No se pudo transferir', result.error);
       return;
     }
-    Alert.alert('Transferencia realizada', `Enviaste ${formatCurrency(montoNum, moneda)} a ${favorite?.alias}.`, [
-      { text: 'Listo', onPress: () => navigation.goBack() },
-    ]);
+    notify(
+      'Transferencia realizada',
+      `Enviaste ${formatCurrency(montoNum, moneda)} a ${favorite?.alias}.`,
+      () => {
+        resetForm();
+        navigation.goBack();
+      }
+    );
   };
 
   if (!favorite) {
@@ -72,11 +85,12 @@ export function TransferToFavoriteScreen({ navigation, route }) {
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Card style={styles.destCard}>
+        {/* Tarjeta destino con gradiente de marca (navy → acento), texto en blanco. */}
+        <GradientCard contentStyle={styles.destCard}>
           <Text style={styles.destLabel}>Transferir a</Text>
           <Text style={styles.destAlias}>{favorite.alias}</Text>
           <Text style={styles.destCuenta}>{maskAccountNumber(favorite.cuenta)} · {favorite.tipo}</Text>
-        </Card>
+        </GradientCard>
 
         <Card>
           {accountOptions.length > 0 ? (
@@ -96,7 +110,7 @@ export function TransferToFavoriteScreen({ navigation, route }) {
             Máx. {formatCurrency(TRANSACTION_LIMITS.PER_TRANSACTION, 'GTQ')} por transacción ·{' '}
             {formatCurrency(TRANSACTION_LIMITS.PER_DAY, 'GTQ')} por día.
           </Text>
-          <Button title="Transferir" onPress={onSubmit} loading={submitting} />
+          <Button title="Transferir" gradient onPress={onSubmit} loading={submitting} />
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -107,11 +121,11 @@ const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: COLORS.background },
   container: { flex: 1, backgroundColor: COLORS.background },
   content: { padding: SPACING.lg, gap: SPACING.md },
-  destCard: { backgroundColor: COLORS.primary, gap: SPACING.xs },
-  destLabel: { color: COLORS.white, opacity: 0.85, fontSize: FONT_SIZE.sm },
-  destAlias: { color: COLORS.white, fontSize: FONT_SIZE.xl, fontWeight: '800' },
-  destCuenta: { color: COLORS.white, opacity: 0.9, fontSize: FONT_SIZE.sm },
-  warn: { fontSize: FONT_SIZE.sm, color: COLORS.warning, marginBottom: SPACING.lg },
-  limits: { fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: SPACING.lg },
-  muted: { fontSize: FONT_SIZE.sm, color: COLORS.textMuted },
+  destCard: { gap: SPACING.xs },
+  destLabel: { color: COLORS.white, opacity: 0.85, fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium },
+  destAlias: { color: COLORS.white, fontSize: FONT_SIZE.xl, fontFamily: FONTS.displayBold, fontWeight: '800' },
+  destCuenta: { color: COLORS.white, opacity: 0.9, fontSize: FONT_SIZE.sm, fontFamily: FONTS.body },
+  warn: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium, color: COLORS.warning, marginBottom: SPACING.lg },
+  limits: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: SPACING.lg },
+  muted: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textMuted },
 });

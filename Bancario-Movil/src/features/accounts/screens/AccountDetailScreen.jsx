@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Badge, Button, Card } from '../../../shared/components';
-import { COLORS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { Badge, Button, Card, GradientCard } from '../../../shared/components';
+import { COLORS, FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
 import { formatDate } from '../../../shared/utils/format';
 
 function DetailRow({ label, value }) {
@@ -26,11 +26,11 @@ export function AccountDetailScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Card style={styles.heroCard}>
+      <GradientCard contentStyle={styles.heroCard}>
         <Text style={styles.heroLabel}>Saldo disponible</Text>
         <Text style={styles.heroSaldo}>{account.saldoFmt}</Text>
         <Badge label={account.estadoLabel} tone={account.estadoTone} />
-      </Card>
+      </GradientCard>
 
       <Card>
         <DetailRow label="Número de cuenta" value={account.numeroCuenta} />
@@ -58,9 +58,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   content: { padding: SPACING.lg, gap: SPACING.md },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.background },
-  heroCard: { alignItems: 'center', gap: SPACING.sm, backgroundColor: COLORS.primary },
-  heroLabel: { color: COLORS.white, opacity: 0.85, fontSize: FONT_SIZE.sm },
-  heroSaldo: { color: COLORS.white, fontSize: FONT_SIZE.xxxl, fontWeight: '800' },
+  heroCard: { alignItems: 'center', gap: SPACING.sm },
+  heroLabel: { color: 'rgba(255,255,255,0.85)', fontFamily: FONTS.medium, fontSize: FONT_SIZE.sm },
+  heroSaldo: { color: COLORS.white, fontSize: FONT_SIZE.xxxl, fontFamily: FONTS.displayBold, fontWeight: '800' },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: COLORS.border,
   },
-  detailLabel: { fontSize: FONT_SIZE.sm, color: COLORS.textSecondary },
-  detailValue: { fontSize: FONT_SIZE.sm, fontWeight: '700', color: COLORS.text },
+  detailLabel: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary },
+  detailValue: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
   action: { marginTop: SPACING.sm },
 });
