@@ -4,12 +4,14 @@ import { LoginScreen } from '../features/auth/screens/LoginScreen';
 import { RegisterScreen } from '../features/auth/screens/RegisterScreen';
 import { VerifyEmailScreen } from '../features/auth/screens/VerifyEmailScreen';
 import { ForgotPasswordScreen } from '../features/auth/screens/ForgotPasswordScreen';
+import { WelcomeScreen } from '../features/auth/screens/WelcomeScreen';
 
 const Stack = createNativeStackNavigator();
 
 export function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
