@@ -163,6 +163,33 @@ export const validateUpdateUser = [
     .matches(/^\d{8}$/)
     .withMessage('El número de teléfono debe tener exactamente 8 dígitos'),
 
+  body('name')
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('El nombre no puede exceder 100 caracteres')
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
+    .withMessage('El nombre solo puede contener letras y espacios'),
+
+  body('direccion')
+    .optional()
+    .trim()
+    .isLength({ max: 255 })
+    .withMessage('La dirección no puede exceder 255 caracteres'),
+
+  body('nombreTrabajo')
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('El nombre de trabajo no puede exceder 100 caracteres'),
+
+  body('ingresosMensuales')
+    .optional()
+    .isNumeric()
+    .withMessage('Los ingresos mensuales deben ser un número')
+    .isFloat({ min: 0 })
+    .withMessage('Los ingresos mensuales no pueden ser negativos'),
+
   body('newPassword')
     .optional()
     .isLength({ min: 8, max: 255 })

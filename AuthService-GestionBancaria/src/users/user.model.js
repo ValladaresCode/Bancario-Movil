@@ -137,6 +137,16 @@ export const UserProfile = sequelize.define(
         }
       }
     },
+    Direccion: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'direccion',
+    },
+    NombreTrabajo: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'nombre_trabajo',
+    },
   },
   {
     tableName: 'user_profiles',
