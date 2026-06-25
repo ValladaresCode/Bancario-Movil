@@ -4,7 +4,8 @@ import { bankClient, getApiError } from '../../../shared/api';
 
 // Conversor de divisas (endpoint público). GET /currencies?base=GTQ
 export function useCurrencies(initialBase = 'GTQ') {
-  const [base, setBase] = useState(initialBase);
+  const normalizedInitialBase = String(initialBase || 'GTQ').toUpperCase();
+  const [base, setBase] = useState(normalizedInitialBase);
   const [rates, setRates] = useState({});
   const [lastUpdate, setLastUpdate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,7 +15,8 @@ export function useCurrencies(initialBase = 'GTQ') {
     setLoading(true);
     setError('');
     try {
-      const res = await bankClient.get('/currencies', { params: { base } });
+      const normalizedBase = String(base || 'GTQ').toUpperCase();
+      const res = await bankClient.get('/currencies', { params: { base: normalizedBase } });
       const data = res.data?.data || res.data || {};
       setRates(data.rates || {});
       setLastUpdate(data.lastUpdate || null);
