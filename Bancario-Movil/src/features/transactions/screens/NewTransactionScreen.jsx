@@ -1,18 +1,28 @@
 import { useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button, Card, Input, Selector } from '../../../shared/components';
 import { notify } from '../../../shared/utils/confirm';
 import {
+  ACCOUNT_TYPE_OPTIONS,
   CURRENCY_OPTIONS,
   TRANSACTION_LIMITS,
   TRANSACTION_TYPES,
   TRANSACTION_TYPE_OPTIONS,
 } from '../../../shared/constants';
-import { COLORS, FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
 import { formatCurrency, maskAccountNumber } from '../../../shared/utils/format';
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useTransactions } from '../hooks/useTransactions';
+
+const originIsSelected = (tipo) =>
+  tipo === TRANSACTION_TYPES.TRANSFERENCIA || tipo === TRANSACTION_TYPES.RETIRO;
+
+const destinoIsSelected = (tipo) =>
+  tipo === TRANSACTION_TYPES.TRANSFERENCIA || tipo === TRANSACTION_TYPES.DEPOSITO;
+
+const descripcionIsRequired = (tipo) =>
+  tipo === TRANSACTION_TYPES.TRANSFERENCIA;
 
 export function NewTransactionScreen({ navigation, route }) {
   const presetOrigen = route?.params?.cuentaOrigen;
@@ -24,10 +34,15 @@ export function NewTransactionScreen({ navigation, route }) {
   const [tipo, setTipo] = useState(TRANSACTION_TYPES.TRANSFERENCIA);
   const [cuentaOrigen, setCuentaOrigen] = useState(presetOrigen || '');
   const [cuentaDestino, setCuentaDestino] = useState('');
+  const [tipoCuentaDestino, setTipoCuentaDestino] = useState('');
   const [monto, setMonto] = useState('');
   const [moneda, setMoneda] = useState(presetMoneda || CURRENCY_OPTIONS[0].value);
   const [descripcion, setDescripcion] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const needsOrigen = originIsSelected(tipo);
+  const needsDestino = destinoIsSelected(tipo);
+  const needsDescripcion = descripcionIsRequired(tipo);
 
   const accountOptions = useMemo(
     () =>
@@ -38,16 +53,17 @@ export function NewTransactionScreen({ navigation, route }) {
     [accounts]
   );
 
-  // Limpia los campos editables a su valor inicial tras una transacción exitosa.
+  const selectedAccount = useMemo(
+    () => accounts.find((a) => String(a.numeroCuenta) === cuentaOrigen),
+    [accounts, cuentaOrigen]
+  );
+
   const resetForm = () => {
     setCuentaDestino('');
+    setTipoCuentaDestino('');
     setMonto('');
     setDescripcion('');
   };
-
-  const needsOrigen = tipo === TRANSACTION_TYPES.TRANSFERENCIA || tipo === TRANSACTION_TYPES.RETIRO;
-  const needsDestino = tipo === TRANSACTION_TYPES.TRANSFERENCIA || tipo === TRANSACTION_TYPES.DEPOSITO;
-  const needsDescripcion = tipo === TRANSACTION_TYPES.TRANSFERENCIA;
 
   const validate = () => {
     const montoNum = Number(monto);
@@ -55,8 +71,18 @@ export function NewTransactionScreen({ navigation, route }) {
     if (montoNum > TRANSACTION_LIMITS.PER_TRANSACTION) {
       return `El monto máximo por transacción es ${formatCurrency(TRANSACTION_LIMITS.PER_TRANSACTION, 'GTQ')}.`;
     }
-    if (needsOrigen && !cuentaOrigen) return 'Selecciona la cuenta de origen.';
-    if (needsDestino && !cuentaDestino.trim()) return 'Ingresa la cuenta de destino.';
+    if (needsOrigen) {
+      if (!cuentaOrigen) return 'Selecciona la cuenta de origen.';
+      if (selectedAccount && montoNum > selectedAccount.saldo) {
+        return `Saldo insuficiente. Disponible: ${selectedAccount.saldoFmt}.`;
+      }
+    }
+    if (needsDestino) {
+      if (!cuentaDestino.trim()) return 'Ingresa el número de cuenta de destino.';
+      if (tipo === TRANSACTION_TYPES.TRANSFERENCIA && !tipoCuentaDestino) {
+        return 'Selecciona el tipo de cuenta de destino.';
+      }
+    }
     if (needsDescripcion && !descripcion.trim()) return 'La descripción es requerida para transferencias.';
     return null;
   };
@@ -74,7 +100,10 @@ export function NewTransactionScreen({ navigation, route }) {
       moneda,
     };
     if (needsOrigen) payload.cuentaOrigen = cuentaOrigen;
-    if (needsDestino) payload.cuentaDestino = cuentaDestino.trim();
+    if (needsDestino) {
+      payload.cuentaDestino = cuentaDestino.trim();
+      payload.tipoCuenta = tipoCuentaDestino;
+    }
     if (descripcion.trim()) payload.descripcion = descripcion.trim();
 
     setSubmitting(true);
@@ -82,12 +111,9 @@ export function NewTransactionScreen({ navigation, route }) {
     setSubmitting(false);
 
     if (!result.ok) {
-      // Muestra el mensaje del backend (límites diarios, saldo insuficiente, etc.).
       notify('No se pudo completar', result.error);
       return;
     }
-    // El reset y la navegación van dentro del callback para que el usuario lea el
-    // aviso antes de salir (paridad web/nativo).
     notify('Transacción registrada', 'Tu movimiento se procesó correctamente.', () => {
       resetForm();
       navigation.goBack();
@@ -102,26 +128,40 @@ export function NewTransactionScreen({ navigation, route }) {
 
           {needsOrigen ? (
             accountOptions.length > 0 ? (
-              <Selector
-                label="Cuenta de origen"
-                options={accountOptions}
-                value={cuentaOrigen}
-                onChange={setCuentaOrigen}
-              />
+              <>
+                <Selector label="Cuenta de origen" options={accountOptions} value={cuentaOrigen} onChange={setCuentaOrigen} />
+                {selectedAccount ? (
+                  <View style={styles.balanceRow}>
+                    <Text style={styles.balanceLabel}>Saldo disponible</Text>
+                    <Text style={styles.balanceValue}>{selectedAccount.saldoFmt}</Text>
+                  </View>
+                ) : null}
+              </>
             ) : (
               <Text style={styles.warn}>No tienes cuentas disponibles como origen.</Text>
             )
           ) : null}
 
           {needsDestino ? (
-            <Input
-              label="Cuenta de destino"
-              placeholder="Número de cuenta"
-              keyboardType="number-pad"
-              leftIcon="account-balance"
-              value={cuentaDestino}
-              onChangeText={setCuentaDestino}
-            />
+            <>
+              <Input
+                label="Cuenta de destino"
+                placeholder="Número de cuenta"
+                keyboardType="number-pad"
+                leftIcon="account-balance"
+                value={cuentaDestino}
+                onChangeText={setCuentaDestino}
+              />
+              {tipo === TRANSACTION_TYPES.TRANSFERENCIA ? (
+                <Selector
+                  label="Tipo de cuenta destino"
+                  options={ACCOUNT_TYPE_OPTIONS}
+                  value={tipoCuentaDestino}
+                  onChange={setTipoCuentaDestino}
+                  horizontal={false}
+                />
+              ) : null}
+            </>
           ) : null}
 
           <Input
@@ -143,12 +183,20 @@ export function NewTransactionScreen({ navigation, route }) {
             onChangeText={setDescripcion}
           />
 
-          <Text style={styles.limits}>
-            Límites: máx. {formatCurrency(TRANSACTION_LIMITS.PER_TRANSACTION, 'GTQ')} por transacción ·{' '}
-            {formatCurrency(TRANSACTION_LIMITS.PER_DAY, 'GTQ')} por día.
-          </Text>
+          <View style={styles.limitsBox}>
+            <Text style={styles.limitsTitle}>Límites de transferencia</Text>
+            <Text style={styles.limitsItem}>
+              • Máximo {formatCurrency(TRANSACTION_LIMITS.PER_TRANSACTION, 'GTQ')} por transacción
+            </Text>
+            <Text style={styles.limitsItem}>
+              • Máximo {formatCurrency(TRANSACTION_LIMITS.PER_DAY, 'GTQ')} por día
+            </Text>
+            <Text style={styles.limitsItem}>
+              • No puede exceder el saldo disponible de la cuenta origen
+            </Text>
+          </View>
 
-          <Button title="Registrar transacción" onPress={onSubmit} loading={submitting} />
+          <Button title="Registrar transacción" onPress={onSubmit} loading={submitting} gradient />
         </Card>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -159,6 +207,51 @@ const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: COLORS.background },
   container: { flex: 1, backgroundColor: COLORS.background },
   content: { padding: SPACING.lg },
-  warn: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium, color: COLORS.warning, marginBottom: SPACING.lg },
-  limits: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: SPACING.lg },
+  warn: {
+    fontSize: FONT_SIZE.sm,
+    fontFamily: FONTS.medium,
+    color: COLORS.warning,
+    marginBottom: SPACING.lg,
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: RADIUS.md,
+    marginBottom: SPACING.lg,
+  },
+  balanceLabel: {
+    fontSize: FONT_SIZE.sm,
+    fontFamily: FONTS.semibold,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+  },
+  balanceValue: {
+    fontSize: FONT_SIZE.md,
+    fontFamily: FONTS.bold,
+    fontWeight: '800',
+    color: COLORS.primary,
+  },
+  limitsBox: {
+    backgroundColor: COLORS.surfaceAlt,
+    borderRadius: RADIUS.md,
+    padding: SPACING.lg,
+    marginBottom: SPACING.lg,
+  },
+  limitsTitle: {
+    fontSize: FONT_SIZE.sm,
+    fontFamily: FONTS.semibold,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.sm,
+  },
+  limitsItem: {
+    fontSize: FONT_SIZE.xs,
+    fontFamily: FONTS.body,
+    color: COLORS.textMuted,
+    lineHeight: 18,
+  },
 });
