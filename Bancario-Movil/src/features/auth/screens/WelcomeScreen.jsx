@@ -3,9 +3,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 
 export function WelcomeScreen({ navigation }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const insets = useSafeAreaInsets();
 
   return (
@@ -20,7 +23,7 @@ export function WelcomeScreen({ navigation }) {
       >
         <View style={styles.content}>
           <View style={styles.brandBadge}>
-            <MaterialIcons name="account-balance" size={34} color={COLORS.white} />
+            <MaterialIcons name="account-balance" size={34} color={colors.white} />
           </View>
 
           <Text style={styles.title}>Bienvenido a KINAL BANC</Text>
@@ -39,7 +42,7 @@ export function WelcomeScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -65,7 +68,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FONT_SIZE.xxxl,
     fontFamily: FONTS.displayBold,
-    color: COLORS.white,
+    color: colors.white,
     marginBottom: SPACING.sm,
   },
   subtitle: {
@@ -80,14 +83,14 @@ const styles = StyleSheet.create({
     gap: SPACING.md,
   },
   primaryButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: SPACING.lg,
     borderRadius: RADIUS.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   primaryButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: FONT_SIZE.lg,
     fontFamily: FONTS.bold,
     fontWeight: '700',
@@ -102,7 +105,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   secondaryButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: FONT_SIZE.lg,
     fontFamily: FONTS.bold,
     fontWeight: '700',

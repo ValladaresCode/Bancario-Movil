@@ -2,7 +2,7 @@
 // fuera de este archivo. Paleta replicada del frontend web "KINAL BANC":
 // navy de marca #08316d + acento #1a56db, superficies claras y estados tintados.
 
-export const COLORS = {
+export const LIGHT_COLORS = {
   // Marca / acento interactivo
   primary: '#1a56db', // acento: botones, links, estados activos
   primaryDark: '#08316d', // navy de marca
@@ -49,6 +49,60 @@ export const COLORS = {
   neutral: '#334155', // slate
   neutralBg: 'rgba(100, 116, 139, 0.15)',
   neutralBorder: 'rgba(100, 116, 139, 0.3)',
+
+  // Neutrales utilitarios
+  white: '#FFFFFF',
+  black: '#000000',
+  transparent: 'transparent',
+};
+
+export const DARK_COLORS = {
+  // Marca / acento interactivo (ajustados para dark mode)
+  primary: '#3b82f6', // blue-500, más claro para contraste
+  primaryDark: '#2563eb', // blue-600
+  primaryLight: 'rgba(59, 130, 246, 0.2)',
+  secondary: '#60a5fa', // blue-400
+  secondaryDark: '#3b82f6', // blue-500
+
+  // Navy de marca - en dark mode se cambian por grises azulados profundos
+  brandDeep: '#020617', // slate-950
+  brand: '#0f172a', // slate-900
+  brandMid: '#1e293b', // slate-800
+  brandBright: '#334155', // slate-700
+  accentStrong: '#020617',
+
+  // Superficies / fondo
+  background: '#0f172a', // slate-900
+  surface: '#1e293b', // slate-800
+  surfaceAlt: '#334155', // slate-700
+  overlay: 'rgba(2, 6, 23, 0.7)',
+
+  // Texto
+  text: '#f8fafc', // slate-50
+  textSecondary: '#94a3b8', // slate-400
+  textMuted: 'rgba(248, 250, 252, 0.5)',
+  textOnPrimary: '#ffffff',
+
+  // Bordes / divisores
+  border: 'rgba(248, 250, 252, 0.1)',
+  borderStrong: 'rgba(248, 250, 252, 0.2)',
+
+  // Estados
+  success: '#10b981', // emerald-500
+  successBg: 'rgba(16, 185, 129, 0.15)',
+  successBorder: 'rgba(16, 185, 129, 0.3)',
+  danger: '#f43f5e', // rose-500
+  dangerBg: 'rgba(244, 63, 94, 0.15)',
+  dangerBorder: 'rgba(244, 63, 94, 0.3)',
+  warning: '#f59e0b', // amber-500
+  warningBg: 'rgba(245, 158, 11, 0.15)',
+  warningBorder: 'rgba(245, 158, 11, 0.3)',
+  info: '#0ea5e9', // sky-500
+  infoBg: 'rgba(14, 165, 233, 0.15)',
+  infoBorder: 'rgba(14, 165, 233, 0.3)',
+  neutral: '#94a3b8', // slate-400
+  neutralBg: 'rgba(148, 163, 184, 0.15)',
+  neutralBorder: 'rgba(148, 163, 184, 0.3)',
 
   // Neutrales utilitarios
   white: '#FFFFFF',

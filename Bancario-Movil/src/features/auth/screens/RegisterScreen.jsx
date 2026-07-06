@@ -15,11 +15,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Button, Input } from '../../../shared/components';
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { pickProfileImage } from '../../../shared/utils/imagePicker';
 import { useAuth } from '../hooks/useAuth';
 
 export function RegisterScreen({ navigation }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const { register, loading } = useAuth();
   const [imageUri, setImageUri] = useState(null);
   const {
@@ -75,7 +78,7 @@ export function RegisterScreen({ navigation }) {
               <Image source={{ uri: imageUri }} style={styles.avatar} />
             ) : (
               <View style={styles.avatarPlaceholder}>
-                <MaterialIcons name="add-a-photo" size={28} color={COLORS.primary} />
+                <MaterialIcons name="add-a-photo" size={28} color={colors.primary} />
               </View>
             )}
             <Text style={styles.link}>Foto de perfil (opcional)</Text>
@@ -205,23 +208,23 @@ export function RegisterScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
   content: { padding: SPACING.xl },
-  title: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.brand },
-  subtitle: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary, marginBottom: SPACING.xl, marginTop: SPACING.xs },
+  title: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: colors.brand },
+  subtitle: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: colors.textSecondary, marginBottom: SPACING.xl, marginTop: SPACING.xs },
   avatarPicker: { alignItems: 'center', marginBottom: SPACING.xl, gap: SPACING.sm },
   avatar: { width: 88, height: 88, borderRadius: RADIUS.pill },
   avatarPlaceholder: {
     width: 88,
     height: 88,
     borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  link: { color: COLORS.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
+  link: { color: colors.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: SPACING.xl },
-  muted: { color: COLORS.textSecondary, fontFamily: FONTS.body, fontSize: FONT_SIZE.sm },
+  muted: { color: colors.textSecondary, fontFamily: FONTS.body, fontSize: FONT_SIZE.sm },
 });

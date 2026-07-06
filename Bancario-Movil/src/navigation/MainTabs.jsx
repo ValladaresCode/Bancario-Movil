@@ -2,7 +2,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { COLORS, FONTS, FONT_SIZE } from '../shared/constants/theme';
+import { TouchableOpacity } from 'react-native';
+
+import { FONTS, FONT_SIZE, SPACING } from '../shared/constants/theme';
+import { useThemeStore } from '../shared/hooks/useThemeStore';
 import { withErrorBoundary } from '../shared/components';
 
 import { DashboardScreen } from '../features/accounts/screens/DashboardScreen';
@@ -47,22 +50,47 @@ const S = {
   Chat: withErrorBoundary(ChatScreen),
 };
 
-// Opciones de header reutilizadas por todos los stacks anidados.
-// Navy sólido de marca (#08316d) con título serif.
-const stackScreenOptions = {
-  headerStyle: { backgroundColor: COLORS.brand },
-  headerTintColor: COLORS.white,
+// Opciones de header devueltas dinámicamente según el tema
+const getStackScreenOptions = (colors) => ({
+  headerStyle: { backgroundColor: colors.brand },
+  headerTintColor: colors.white,
   headerTitleStyle: { fontFamily: FONTS.displayBold, fontWeight: '700', fontSize: FONT_SIZE.lg },
   headerShadowVisible: true,
-  contentStyle: { backgroundColor: COLORS.background },
-};
+  contentStyle: { backgroundColor: colors.background },
+});
+
+// Botón de modo oscuro en el header
+function ThemeToggleButton() {
+  const { colors, isDark, toggleTheme } = useThemeStore();
+  return (
+    <TouchableOpacity
+      onPress={toggleTheme}
+      style={{ marginRight: SPACING.xs, padding: SPACING.xs }}
+      activeOpacity={0.7}
+    >
+      <MaterialIcons
+        name={isDark ? 'light-mode' : 'dark-mode'}
+        size={24}
+        color={colors.white}
+      />
+    </TouchableOpacity>
+  );
+}
 
 // --- Stack: Inicio ---
 const HomeStackNav = createNativeStackNavigator();
 function HomeStack() {
+  const { colors } = useThemeStore();
   return (
-    <HomeStackNav.Navigator screenOptions={stackScreenOptions}>
-      <HomeStackNav.Screen name="Dashboard" component={S.Dashboard} options={{ title: 'Inicio' }} />
+    <HomeStackNav.Navigator screenOptions={getStackScreenOptions(colors)}>
+      <HomeStackNav.Screen
+        name="Dashboard"
+        component={S.Dashboard}
+        options={{
+          title: 'Inicio',
+          headerRight: () => <ThemeToggleButton />,
+        }}
+      />
     </HomeStackNav.Navigator>
   );
 }
@@ -70,8 +98,9 @@ function HomeStack() {
 // --- Stack: Cuentas ---
 const AccountsStackNav = createNativeStackNavigator();
 function AccountsStack() {
+  const { colors } = useThemeStore();
   return (
-    <AccountsStackNav.Navigator screenOptions={stackScreenOptions}>
+    <AccountsStackNav.Navigator screenOptions={getStackScreenOptions(colors)}>
       <AccountsStackNav.Screen name="Accounts" component={S.Accounts} options={{ title: 'Mis Cuentas' }} />
       <AccountsStackNav.Screen name="AccountDetail" component={S.AccountDetail} options={{ title: 'Detalle de Cuenta' }} />
       <AccountsStackNav.Screen name="RequestAccount" component={S.RequestAccount} options={{ title: 'Solicitar Cuenta' }} />
@@ -82,8 +111,9 @@ function AccountsStack() {
 // --- Stack: Movimientos ---
 const TransactionsStackNav = createNativeStackNavigator();
 function TransactionsStack() {
+  const { colors } = useThemeStore();
   return (
-    <TransactionsStackNav.Navigator screenOptions={stackScreenOptions}>
+    <TransactionsStackNav.Navigator screenOptions={getStackScreenOptions(colors)}>
       <TransactionsStackNav.Screen name="Transactions" component={S.Transactions} options={{ title: 'Movimientos' }} />
       <TransactionsStackNav.Screen name="NewTransaction" component={S.NewTransaction} options={{ title: 'Nueva Transacción' }} />
     </TransactionsStackNav.Navigator>
@@ -93,8 +123,9 @@ function TransactionsStack() {
 // --- Stack: Servicios + Promociones ---
 const CatalogStackNav = createNativeStackNavigator();
 function CatalogStack() {
+  const { colors } = useThemeStore();
   return (
-    <CatalogStackNav.Navigator screenOptions={stackScreenOptions}>
+    <CatalogStackNav.Navigator screenOptions={getStackScreenOptions(colors)}>
       <CatalogStackNav.Screen name="Services" component={S.Services} options={{ title: 'Servicios' }} />
       <CatalogStackNav.Screen name="ServiceDetail" component={S.ServiceDetail} options={{ title: 'Detalle del Servicio' }} />
       <CatalogStackNav.Screen name="Promotions" component={S.Promotions} options={{ title: 'Promociones' }} />
@@ -106,8 +137,9 @@ function CatalogStack() {
 // --- Stack: Perfil (+ Favoritos, Divisas, Chatbot) ---
 const ProfileStackNav = createNativeStackNavigator();
 function ProfileStack() {
+  const { colors } = useThemeStore();
   return (
-    <ProfileStackNav.Navigator screenOptions={stackScreenOptions}>
+    <ProfileStackNav.Navigator screenOptions={getStackScreenOptions(colors)}>
       <ProfileStackNav.Screen name="Profile" component={S.Profile} options={{ title: 'Mi Perfil' }} />
       <ProfileStackNav.Screen name="EditProfile" component={S.EditProfile} options={{ title: 'Editar Perfil' }} />
       <ProfileStackNav.Screen name="Favorites" component={S.Favorites} options={{ title: 'Favoritos' }} />
@@ -145,15 +177,16 @@ const resetTabOnPress = ({ navigation, route }) => ({
 });
 
 export function MainTabs() {
+  const { colors } = useThemeStore();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textMuted,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          backgroundColor: COLORS.surface,
-          borderTopColor: COLORS.border,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           borderTopWidth: 1,
           height: 66,
           paddingTop: 6,

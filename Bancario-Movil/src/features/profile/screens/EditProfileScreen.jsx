@@ -2,13 +2,16 @@ import { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import { Button, Card, Input, LoadingSpinner } from '../../../shared/components';
-import { COLORS, SPACING } from '../../../shared/constants/theme';
+import { SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { pickProfileImage } from '../../../shared/utils/imagePicker';
 import { notify } from '../../../shared/utils/confirm';
 import { useProfile } from '../hooks/useProfile';
 import { ProfileHeader } from './ProfileHeader';
 
 export function EditProfileScreen({ navigation }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const { profile, loading, updateProfile } = useProfile();
   const [form, setForm] = useState({ name: '', direccion: '', nombreTrabajo: '', ingresosMensuales: '' });
   const [imageUri, setImageUri] = useState(null);
@@ -94,7 +97,7 @@ export function EditProfileScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: SPACING.lg, gap: SPACING.md },
 });

@@ -3,11 +3,14 @@ import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Card, EmptyState, GradientCard, LoadingSpinner } from '../../../shared/components';
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { formatDate } from '../../../shared/utils/format';
 import { usePromotions } from '../hooks/usePromotions';
 
 export function PromotionDetailScreen({ route }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const id = route?.params?.id;
   const { getPromotionById } = usePromotions();
   const [promo, setPromo] = useState(null);
@@ -37,17 +40,16 @@ export function PromotionDetailScreen({ route }) {
         <Image source={{ uri: promo.imageUrl }} style={styles.image} />
       ) : (
         <View style={[styles.image, styles.imagePlaceholder]}>
-          <MaterialIcons name="campaign" size={40} color={COLORS.primary} />
+          <MaterialIcons name="campaign" size={40} color={colors.primary} />
         </View>
       )}
 
       <Text style={styles.name}>{promo.name}</Text>
 
-      {/* Descuento destacado en tarjeta con gradiente de marca */}
       {promo.discount ? (
         <GradientCard style={styles.discountCard} contentStyle={styles.discountContent}>
           <View style={styles.discountIcon}>
-            <MaterialIcons name="sell" size={22} color={COLORS.white} />
+            <MaterialIcons name="sell" size={22} color={colors.white} />
           </View>
           <View>
             <Text style={styles.discountLabel}>Descuento</Text>
@@ -82,12 +84,12 @@ export function PromotionDetailScreen({ route }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: SPACING.lg, gap: SPACING.md },
-  image: { width: '100%', height: 180, borderRadius: RADIUS.lg, backgroundColor: COLORS.primaryLight },
+  image: { width: '100%', height: 180, borderRadius: RADIUS.lg, backgroundColor: colors.primaryLight },
   imagePlaceholder: { alignItems: 'center', justifyContent: 'center' },
-  name: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.text },
+  name: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: colors.text },
   discountCard: { marginTop: SPACING.xs },
   discountContent: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
   discountIcon: {
@@ -98,8 +100,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  discountLabel: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium, color: COLORS.white, opacity: 0.85 },
-  discount: { fontSize: FONT_SIZE.xl, fontFamily: FONTS.displayBold, color: COLORS.white, fontWeight: '800' },
-  sectionTitle: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.xs },
-  body: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary, lineHeight: 20 },
+  discountLabel: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium, color: colors.white, opacity: 0.85 },
+  discount: { fontSize: FONT_SIZE.xl, fontFamily: FONTS.displayBold, color: colors.white, fontWeight: '800' },
+  sectionTitle: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: colors.text, marginBottom: SPACING.xs },
+  body: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: colors.textSecondary, lineHeight: 20 },
 });

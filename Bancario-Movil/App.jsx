@@ -13,12 +13,13 @@ import {
 import { Literata_600SemiBold, Literata_700Bold } from '@expo-google-fonts/literata';
 
 import { AppNavigator } from './src/navigation/AppNavigator';
-import { COLORS } from './src/shared/constants/theme';
+import { useThemeStore } from './src/shared/hooks/useThemeStore';
 
 // Mantén el splash hasta que las fuentes de marca (Space Grotesk + Literata) carguen.
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function App() {
+  const { colors, isDark } = useThemeStore();
   const [fontsLoaded, fontError] = useFonts({
     SpaceGrotesk_400Regular,
     SpaceGrotesk_500Medium,
@@ -43,8 +44,8 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1, backgroundColor: COLORS.background }} onLayout={onLayout}>
-        <StatusBar style="light" />
+      <View style={{ flex: 1, backgroundColor: colors.background }} onLayout={onLayout}>
+        <StatusBar style={isDark ? 'light' : 'dark'} />
         <AppNavigator />
       </View>
     </SafeAreaProvider>

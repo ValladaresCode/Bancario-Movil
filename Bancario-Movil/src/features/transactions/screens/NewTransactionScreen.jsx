@@ -10,7 +10,8 @@ import {
   TRANSACTION_TYPES,
   TRANSACTION_TYPE_OPTIONS,
 } from '../../../shared/constants';
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { formatCurrency, maskAccountNumber } from '../../../shared/utils/format';
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useTransactions } from '../hooks/useTransactions';
@@ -25,6 +26,8 @@ const descripcionIsRequired = (tipo) =>
   tipo === TRANSACTION_TYPES.TRANSFERENCIA;
 
 export function NewTransactionScreen({ navigation, route }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const presetOrigen = route?.params?.cuentaOrigen;
   const presetMoneda = route?.params?.moneda;
 
@@ -203,14 +206,14 @@ export function NewTransactionScreen({ navigation, route }) {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: COLORS.background },
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: SPACING.lg },
   warn: {
     fontSize: FONT_SIZE.sm,
     fontFamily: FONTS.medium,
-    color: COLORS.warning,
+    color: colors.warning,
     marginBottom: SPACING.lg,
   },
   balanceRow: {
@@ -219,7 +222,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     borderRadius: RADIUS.md,
     marginBottom: SPACING.lg,
   },
@@ -227,16 +230,16 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE.sm,
     fontFamily: FONTS.semibold,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   balanceValue: {
     fontSize: FONT_SIZE.md,
     fontFamily: FONTS.bold,
     fontWeight: '800',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   limitsBox: {
-    backgroundColor: COLORS.surfaceAlt,
+    backgroundColor: colors.surfaceAlt,
     borderRadius: RADIUS.md,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
@@ -245,13 +248,13 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE.sm,
     fontFamily: FONTS.semibold,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: SPACING.sm,
   },
   limitsItem: {
     fontSize: FONT_SIZE.xs,
     fontFamily: FONTS.body,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     lineHeight: 18,
   },
 });

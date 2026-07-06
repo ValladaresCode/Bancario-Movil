@@ -2,11 +2,14 @@ import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } fr
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Button, Card, EmptyState, LoadingSpinner } from '../../../shared/components';
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { formatDateTime } from '../../../shared/utils/format';
 import { useChatList } from '../hooks/useChatbot';
 
 export function ChatListScreen({ navigation }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const { chats, loading, error, refetch } = useChatList();
 
   if (loading && chats.length === 0) {
@@ -19,7 +22,7 @@ export function ChatListScreen({ navigation }) {
         data={chats}
         keyExtractor={(item) => String(item._id)}
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={COLORS.primary} />}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.primary} />}
         ListHeaderComponent={
           <Button
             title="+ Nueva conversación"
@@ -33,15 +36,14 @@ export function ChatListScreen({ navigation }) {
         renderItem={({ item }) => (
           <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('Chat', { chatId: item._id, title: item.title })}>
             <Card style={styles.card}>
-              {/* Círculo de icono tintado con el acento de marca */}
               <View style={styles.iconWrap}>
-                <MaterialIcons name="smart-toy" size={22} color={COLORS.primary} />
+                <MaterialIcons name="smart-toy" size={22} color={colors.primary} />
               </View>
               <View style={styles.middle}>
                 <Text style={styles.title} numberOfLines={1}>{item.title || 'Conversación'}</Text>
                 <Text style={styles.muted} numberOfLines={1}>{formatDateTime(item.updatedAt)}</Text>
               </View>
-              <MaterialIcons name="chevron-right" size={22} color={COLORS.textMuted} />
+              <MaterialIcons name="chevron-right" size={22} color={colors.textMuted} />
             </Card>
           </TouchableOpacity>
         )}
@@ -50,8 +52,8 @@ export function ChatListScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   list: { padding: SPACING.lg, gap: SPACING.sm },
   newBtn: { marginBottom: SPACING.sm },
   card: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
@@ -59,11 +61,11 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   middle: { flex: 1 },
-  title: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
-  muted: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginTop: SPACING.xs },
+  title: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: colors.text },
+  muted: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: colors.textMuted, marginTop: SPACING.xs },
 });

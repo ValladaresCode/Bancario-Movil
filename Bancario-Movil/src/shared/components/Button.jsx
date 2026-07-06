@@ -1,7 +1,8 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { COLORS, FONTS, FONT_SIZE, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
+import { FONTS, FONT_SIZE, GRADIENTS, RADIUS, SPACING } from '../constants/theme';
+import { useThemeStore } from '../hooks/useThemeStore';
 
 // Botón reutilizable.
 //  variant: 'primary' | 'secondary' | 'ghost' | 'danger'
@@ -16,8 +17,11 @@ export function Button({
   style,
   ...props
 }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const isDisabled = disabled || loading;
-  const palette = VARIANTS[variant] || VARIANTS.primary;
+  const variants = getVariants(colors);
+  const palette = variants[variant] || variants.primary;
   const useGradient = gradient && variant === 'primary' && !isDisabled;
 
   const content = loading ? (
@@ -66,12 +70,12 @@ export function Button({
   );
 }
 
-const VARIANTS = {
-  primary: { bg: COLORS.primary, border: COLORS.primary, text: COLORS.white },
-  secondary: { bg: COLORS.surfaceAlt, border: COLORS.border, text: COLORS.primary },
-  ghost: { bg: COLORS.transparent, border: COLORS.transparent, text: COLORS.primary },
-  danger: { bg: COLORS.danger, border: COLORS.danger, text: COLORS.white },
-};
+const getVariants = (colors) => ({
+  primary: { bg: colors.primary, border: colors.primary, text: colors.white },
+  secondary: { bg: colors.surfaceAlt, border: colors.border, text: colors.primary },
+  ghost: { bg: colors.transparent, border: colors.transparent, text: colors.primary },
+  danger: { bg: colors.danger, border: colors.danger, text: colors.white },
+});
 
 const BASE = {
   height: 52,
@@ -81,14 +85,14 @@ const BASE = {
   paddingHorizontal: SPACING.lg,
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   base: { ...BASE, borderWidth: 1 },
   gradient: { ...BASE },
   pressed: { opacity: 0.9, transform: [{ scale: 0.99 }] },
   disabled: { opacity: 0.5 },
   shadowPrimary: {
     borderRadius: RADIUS.md,
-    shadowColor: COLORS.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 14,

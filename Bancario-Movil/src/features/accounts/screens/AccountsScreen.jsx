@@ -2,11 +2,14 @@ import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } fr
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Badge, Button, Card, EmptyState, LoadingSpinner } from '../../../shared/components';
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { maskAccountNumber } from '../../../shared/utils/format';
 import { useAccounts } from '../hooks/useAccounts';
 
 export function AccountsScreen({ navigation }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const { accounts, loading, error, refetch } = useAccounts();
 
   // Navega a Nueva Transacción con esta cuenta precargada como ORIGEN.
@@ -26,7 +29,7 @@ export function AccountsScreen({ navigation }) {
         data={accounts}
         keyExtractor={(item) => String(item.numeroCuenta)}
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={COLORS.primary} />}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.primary} />}
         ListEmptyComponent={
           <EmptyState
             icon="account-balance-wallet"
@@ -40,7 +43,7 @@ export function AccountsScreen({ navigation }) {
               <View style={styles.cardHeader}>
                 <View style={styles.row}>
                   <View style={styles.iconCircle}>
-                    <MaterialIcons name="account-balance" size={22} color={COLORS.primary} />
+                    <MaterialIcons name="account-balance" size={22} color={colors.primary} />
                   </View>
                   <Text style={styles.tipo}>{item.tipoLabel}</Text>
                 </View>
@@ -59,7 +62,7 @@ export function AccountsScreen({ navigation }) {
                   activeOpacity={0.7}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
-                  <MaterialIcons name="swap-horiz" size={18} color={COLORS.primary} />
+                  <MaterialIcons name="swap-horiz" size={18} color={colors.primary} />
                   <Text style={styles.transferText}>Transferir</Text>
                 </TouchableOpacity>
               </View>
@@ -71,8 +74,8 @@ export function AccountsScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   list: { padding: SPACING.lg, gap: SPACING.md },
   requestBtn: { marginBottom: SPACING.sm },
   card: { gap: SPACING.xs },
@@ -82,30 +85,30 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: RADIUS.md,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tipo: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
-  numero: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary, marginTop: SPACING.xs },
-  saldoLabel: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.medium, color: COLORS.textMuted, marginTop: SPACING.sm },
-  saldo: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.text },
+  tipo: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: colors.text },
+  numero: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: colors.textSecondary, marginTop: SPACING.xs },
+  saldoLabel: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.medium, color: colors.textMuted, marginTop: SPACING.sm },
+  saldo: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: colors.text },
   footer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     marginTop: SPACING.sm,
     paddingTop: SPACING.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   transferZone: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.xs,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs,
     borderRadius: RADIUS.pill,
   },
-  transferText: { color: COLORS.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
+  transferText: { color: colors.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
 });

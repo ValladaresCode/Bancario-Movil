@@ -1,13 +1,16 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SHADOWS, SPACING } from '../constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SHADOWS, SPACING } from '../constants/theme';
+import { useThemeStore } from '../hooks/useThemeStore';
 
 // Spinner centrado a pantalla completa.
 export function LoadingSpinner({ message }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   return (
     <View style={styles.center}>
-      <ActivityIndicator size="large" color={COLORS.primary} />
+      <ActivityIndicator size="large" color={colors.primary} />
       {message ? <Text style={styles.muted}>{message}</Text> : null}
     </View>
   );
@@ -15,10 +18,12 @@ export function LoadingSpinner({ message }) {
 
 // Estado vacío para listas (icono en círculo tintado).
 export function EmptyState({ icon = 'inbox', title = 'Sin datos', message }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   return (
     <View style={styles.empty}>
       <View style={styles.emptyIcon}>
-        <MaterialIcons name={icon} size={32} color={COLORS.primary} />
+        <MaterialIcons name={icon} size={32} color={colors.primary} />
       </View>
       <Text style={styles.emptyTitle}>{title}</Text>
       {message ? <Text style={styles.muted}>{message}</Text> : null}
@@ -28,12 +33,16 @@ export function EmptyState({ icon = 'inbox', title = 'Sin datos', message }) {
 
 // Tarjeta contenedora con sombra suave.
 export function Card({ children, style }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   return <View style={[styles.card, style]}>{children}</View>;
 }
 
 // Píldora de estado con color semántico (fondo tintado + texto + borde).
 export function Badge({ label, tone = 'info' }) {
-  const palette = TONES[tone] || TONES.info;
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
+  const palette = getTones(colors)[tone] || getTones(colors).info;
   return (
     <View style={[styles.badge, { backgroundColor: palette.bg, borderColor: palette.border }]}>
       <Text style={[styles.badgeText, { color: palette.text }]}>{label}</Text>
@@ -41,21 +50,21 @@ export function Badge({ label, tone = 'info' }) {
   );
 }
 
-const TONES = {
-  success: { bg: COLORS.successBg, text: COLORS.success, border: COLORS.successBorder },
-  danger: { bg: COLORS.dangerBg, text: COLORS.danger, border: COLORS.dangerBorder },
-  warning: { bg: COLORS.warningBg, text: COLORS.warning, border: COLORS.warningBorder },
-  info: { bg: COLORS.infoBg, text: COLORS.info, border: COLORS.infoBorder },
-  neutral: { bg: COLORS.neutralBg, text: COLORS.neutral, border: COLORS.neutralBorder },
-};
+const getTones = (colors) => ({
+  success: { bg: colors.successBg, text: colors.success, border: colors.successBorder },
+  danger: { bg: colors.dangerBg, text: colors.danger, border: colors.dangerBorder },
+  warning: { bg: colors.warningBg, text: colors.warning, border: colors.warningBorder },
+  info: { bg: colors.infoBg, text: colors.info, border: colors.infoBorder },
+  neutral: { bg: colors.neutralBg, text: colors.neutral, border: colors.neutralBorder },
+});
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   center: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: SPACING.xl,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   empty: {
     alignItems: 'center',
@@ -67,7 +76,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: SPACING.xs,
@@ -76,19 +85,19 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE.lg,
     fontFamily: FONTS.displayBold,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   muted: {
     fontSize: FONT_SIZE.sm,
     fontFamily: FONTS.body,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     textAlign: 'center',
   },
   card: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     padding: SPACING.lg,
     ...SHADOWS.card,
   },

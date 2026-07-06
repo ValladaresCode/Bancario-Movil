@@ -14,10 +14,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, Input } from '../../../shared/components';
 import { notify } from '../../../shared/utils/confirm';
-import { COLORS, FONTS, FONT_SIZE, GRADIENTS, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, GRADIENTS, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { useAuth } from '../hooks/useAuth';
 
 export function LoginScreen({ navigation }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const { login, loading } = useAuth();
   const insets = useSafeAreaInsets();
   const {
@@ -43,7 +46,7 @@ export function LoginScreen({ navigation }) {
             style={[styles.hero, { paddingTop: insets.top + SPACING.xxl }]}
           >
             <View style={styles.brandBadge}>
-              <MaterialIcons name="account-balance" size={30} color={COLORS.white} />
+              <MaterialIcons name="account-balance" size={30} color={colors.white} />
             </View>
             <Text style={styles.brand}>KINAL BANC</Text>
             <Text style={styles.tagline}>Tu banca, en tu bolsillo</Text>
@@ -105,8 +108,8 @@ export function LoginScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
   scroll: { flexGrow: 1 },
   hero: {
@@ -129,7 +132,7 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE.xxl,
     fontFamily: FONTS.displayBold,
     fontWeight: '700',
-    color: COLORS.white,
+    color: colors.white,
     letterSpacing: 1,
   },
   tagline: {
@@ -140,7 +143,7 @@ const styles = StyleSheet.create({
   },
   formCard: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderTopLeftRadius: RADIUS.xl,
     borderTopRightRadius: RADIUS.xl,
     marginTop: -SPACING.xl,
@@ -152,17 +155,17 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZE.xl,
     fontFamily: FONTS.displayBold,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   formSubtitle: {
     fontSize: FONT_SIZE.sm,
     fontFamily: FONTS.body,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: SPACING.xs,
     marginBottom: SPACING.xl,
   },
   linkRight: { alignSelf: 'flex-end', marginBottom: SPACING.lg },
-  link: { color: COLORS.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
+  link: { color: colors.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: SPACING.xl },
-  muted: { color: COLORS.textSecondary, fontFamily: FONTS.body, fontSize: FONT_SIZE.sm },
+  muted: { color: colors.textSecondary, fontFamily: FONTS.body, fontSize: FONT_SIZE.sm },
 });

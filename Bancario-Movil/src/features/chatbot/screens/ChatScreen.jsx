@@ -13,10 +13,13 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { EmptyState } from '../../../shared/components';
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { useChat } from '../hooks/useChatbot';
 
 export function ChatScreen({ route }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const initialChatId = route?.params?.chatId || null;
   const { messages, loading, sending, sendMessage } = useChat(initialChatId);
   const [text, setText] = useState('');
@@ -37,7 +40,7 @@ export function ChatScreen({ route }) {
     >
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator color={COLORS.primary} />
+          <ActivityIndicator color={colors.primary} />
         </View>
       ) : (
         <FlatList
@@ -62,7 +65,7 @@ export function ChatScreen({ route }) {
 
       {sending ? (
         <View style={styles.typingRow}>
-          <ActivityIndicator size="small" color={COLORS.primary} />
+          <ActivityIndicator size="small" color={colors.primary} />
           <Text style={styles.typing}>El asistente está escribiendo…</Text>
         </View>
       ) : null}
@@ -71,7 +74,7 @@ export function ChatScreen({ route }) {
         <TextInput
           style={styles.input}
           placeholder="Escribe un mensaje"
-          placeholderTextColor={COLORS.textMuted}
+          placeholderTextColor={colors.textMuted}
           value={text}
           onChangeText={setText}
           multiline
@@ -81,15 +84,15 @@ export function ChatScreen({ route }) {
           onPress={onSend}
           disabled={!text.trim() || sending}
         >
-          <MaterialIcons name="send" size={20} color={COLORS.white} />
+          <MaterialIcons name="send" size={20} color={colors.white} />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   list: { padding: SPACING.lg, gap: SPACING.sm, flexGrow: 1 },
   bubble: {
@@ -98,19 +101,17 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
     borderRadius: RADIUS.lg,
   },
-  // Burbuja del usuario: acento de marca con texto blanco.
-  userBubble: { alignSelf: 'flex-end', backgroundColor: COLORS.primary, borderBottomRightRadius: RADIUS.sm },
-  // Burbuja del asistente: superficie tintada con borde sutil.
+  userBubble: { alignSelf: 'flex-end', backgroundColor: colors.primary, borderBottomRightRadius: RADIUS.sm },
   modelBubble: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.surfaceAlt,
+    backgroundColor: colors.surfaceAlt,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderBottomLeftRadius: RADIUS.sm,
   },
   bubbleText: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, lineHeight: 20 },
-  userText: { color: COLORS.white },
-  modelText: { color: COLORS.text },
+  userText: { color: colors.white },
+  modelText: { color: colors.text },
   typingRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -118,35 +119,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingBottom: SPACING.xs,
   },
-  typing: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textMuted },
+  typing: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: colors.textMuted },
   inputBar: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     gap: SPACING.sm,
     padding: SPACING.md,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: COLORS.border,
-    backgroundColor: COLORS.surface,
+    borderTopColor: colors.border,
+    backgroundColor: colors.surface,
   },
   input: {
     flex: 1,
     maxHeight: 120,
     minHeight: 44,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: RADIUS.lg,
     paddingHorizontal: SPACING.md,
     paddingTop: SPACING.sm,
     fontSize: FONT_SIZE.md,
     fontFamily: FONTS.body,
-    color: COLORS.text,
-    backgroundColor: COLORS.surfaceAlt,
+    color: colors.text,
+    backgroundColor: colors.surfaceAlt,
   },
   sendBtn: {
     width: 44,
     height: 44,
     borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

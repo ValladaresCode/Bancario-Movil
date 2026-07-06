@@ -3,10 +3,13 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Input } from '../../../shared/components';
-import { COLORS, FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { useAuth } from '../hooks/useAuth';
 
 export function ForgotPasswordScreen({ navigation }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const { forgotPassword, resetPassword, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [showReset, setShowReset] = useState(false);
@@ -78,6 +81,7 @@ export function ForgotPasswordScreen({ navigation }) {
               value={newPassword}
               onChangeText={setNewPassword}
             />
+            <MaterialIcons name="lock-reset" size={64} color={colors.primary} />
             <Button title="Restablecer contraseña" variant="secondary" onPress={onReset} loading={loading} />
           </View>
         ) : null}
@@ -90,13 +94,13 @@ export function ForgotPasswordScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.background },
   content: { padding: SPACING.xl, flexGrow: 1, justifyContent: 'center' },
-  title: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.brand },
-  subtitle: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary, marginBottom: SPACING.xl, marginTop: SPACING.xs },
+  title: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: colors.text },
+  subtitle: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: colors.textSecondary, marginBottom: SPACING.xl, marginTop: SPACING.xs },
   toggle: { alignItems: 'center', marginTop: SPACING.lg },
-  resetBox: { marginTop: SPACING.lg },
-  link: { color: COLORS.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
-  muted: { color: COLORS.textSecondary, fontFamily: FONTS.body, fontSize: FONT_SIZE.sm },
+  resetBox: { marginTop: SPACING.lg, alignItems: 'center' },
+  link: { color: colors.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
+  muted: { color: colors.textSecondary, fontFamily: FONTS.body, fontSize: FONT_SIZE.sm },
 });

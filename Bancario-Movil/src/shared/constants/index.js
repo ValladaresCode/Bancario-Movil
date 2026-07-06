@@ -1,7 +1,7 @@
 // Constantes de dominio (copiadas 1:1 de Gestor_Bancario_Frontend para mantener
 // los literales exactos que espera el backend). Case-sensitive.
 
-export { COLORS, SPACING, FONT_SIZE, RADIUS, SHADOWS } from './theme';
+export { SPACING, FONT_SIZE, RADIUS, SHADOWS } from './theme';
 export { ENDPOINTS } from './endpoints';
 
 // --- Roles ---

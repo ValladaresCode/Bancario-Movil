@@ -4,10 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Button, Input } from '../../../shared/components';
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { useAuth } from '../hooks/useAuth';
 
 export function VerifyEmailScreen({ navigation, route }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const email = route?.params?.email || '';
   const { verifyEmail, resendVerification, loading } = useAuth();
   const [token, setToken] = useState('');
@@ -41,7 +44,7 @@ export function VerifyEmailScreen({ navigation, route }) {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.iconWrap}>
           <View style={styles.iconCircle}>
-            <MaterialIcons name="mark-email-unread" size={40} color={COLORS.primary} />
+            <MaterialIcons name="mark-email-read" size={64} color={colors.primary} />
           </View>
         </View>
         <Text style={styles.title}>Verifica tu correo</Text>
@@ -73,29 +76,29 @@ export function VerifyEmailScreen({ navigation, route }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.background },
   content: { padding: SPACING.xl, flexGrow: 1, justifyContent: 'center' },
   iconWrap: { alignItems: 'center', marginBottom: SPACING.lg },
   iconCircle: {
     width: 80,
     height: 80,
     borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.brand, textAlign: 'center' },
+  title: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: colors.text, textAlign: 'center' },
   subtitle: {
     fontSize: FONT_SIZE.sm,
     fontFamily: FONTS.body,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginVertical: SPACING.lg,
     lineHeight: 20,
   },
-  bold: { fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
+  bold: { fontFamily: FONTS.semibold, fontWeight: '700', color: colors.text },
   resend: { alignItems: 'center', marginTop: SPACING.lg },
-  link: { color: COLORS.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
-  muted: { color: COLORS.textSecondary, fontFamily: FONTS.body, fontSize: FONT_SIZE.sm },
+  link: { color: colors.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
+  muted: { color: colors.textSecondary, fontFamily: FONTS.body, fontSize: FONT_SIZE.sm },
 });

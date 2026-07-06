@@ -3,10 +3,13 @@ import { Alert, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { Button, Card, Selector } from '../../../shared/components';
 import { ACCOUNT_TYPE_OPTIONS, CURRENCY_OPTIONS } from '../../../shared/constants';
-import { COLORS, FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { useAccounts } from '../hooks/useAccounts';
 
 export function RequestAccountScreen({ navigation }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const { requestAccount } = useAccounts();
   const [tipoCuenta, setTipoCuenta] = useState(ACCOUNT_TYPE_OPTIONS[0].value);
   const [moneda, setMoneda] = useState(CURRENCY_OPTIONS[0].value);
@@ -40,9 +43,9 @@ export function RequestAccountScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: SPACING.lg },
-  title: { fontSize: FONT_SIZE.xl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.text },
-  subtitle: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary, marginTop: SPACING.xs, marginBottom: SPACING.lg },
+  title: { fontSize: FONT_SIZE.xl, fontFamily: FONTS.displayBold, fontWeight: '800', color: colors.text },
+  subtitle: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: colors.textSecondary, marginTop: SPACING.xs, marginBottom: SPACING.lg },
 });

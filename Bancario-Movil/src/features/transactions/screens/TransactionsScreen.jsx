@@ -3,11 +3,14 @@ import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Badge, Button, Card, EmptyState, LoadingSpinner } from '../../../shared/components';
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useTransactions } from '../hooks/useTransactions';
 
 export function TransactionsScreen({ navigation }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const { accounts } = useAccounts();
   const myAccountNumbers = useMemo(() => accounts.map((a) => String(a.numeroCuenta)), [accounts]);
   const { transactions, loading, error, refetch } = useTransactions(myAccountNumbers);
@@ -22,7 +25,7 @@ export function TransactionsScreen({ navigation }) {
         data={transactions}
         keyExtractor={(item, index) => String(item.id || index)}
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={COLORS.primary} />}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.primary} />}
         ListHeaderComponent={
           <Button
             title="+ Nueva transacción"
@@ -36,7 +39,7 @@ export function TransactionsScreen({ navigation }) {
         renderItem={({ item }) => (
           <Card style={styles.card}>
             <View style={styles.iconWrap}>
-              <MaterialIcons name={item.icon} size={22} color={item.incoming ? COLORS.success : COLORS.danger} />
+              <MaterialIcons name={item.icon} size={22} color={item.incoming ? colors.success : colors.danger} />
             </View>
             <View style={styles.middle}>
               <Text style={styles.tipo}>{item.tipoLabel}</Text>
@@ -44,7 +47,7 @@ export function TransactionsScreen({ navigation }) {
               <Text style={styles.date}>{item.fecha}</Text>
             </View>
             <View style={styles.right}>
-              <Text style={[styles.monto, { color: item.incoming ? COLORS.success : COLORS.danger }]}>
+              <Text style={[styles.monto, { color: item.incoming ? colors.success : colors.danger }]}>
                 {item.montoFmt}
               </Text>
               {item.estado ? <Badge label={item.estado} tone={item.estadoTone} /> : null}
@@ -56,8 +59,8 @@ export function TransactionsScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   list: { padding: SPACING.lg, gap: SPACING.sm },
   newBtn: { marginBottom: SPACING.sm },
   card: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
@@ -65,14 +68,14 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   middle: { flex: 1 },
-  tipo: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
-  muted: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textSecondary },
-  date: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginTop: SPACING.xs },
+  tipo: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: colors.text },
+  muted: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: colors.textSecondary },
+  date: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: colors.textMuted, marginTop: SPACING.xs },
   right: { alignItems: 'flex-end', gap: SPACING.xs },
   monto: { fontSize: FONT_SIZE.md, fontFamily: FONTS.bold, fontWeight: '800' },
 });

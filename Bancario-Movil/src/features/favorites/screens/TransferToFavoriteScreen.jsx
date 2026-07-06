@@ -4,12 +4,15 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 're
 import { Button, Card, GradientCard, Input, Selector } from '../../../shared/components';
 import { notify } from '../../../shared/utils/confirm';
 import { CURRENCY_OPTIONS, TRANSACTION_LIMITS, TRANSACTION_TYPES } from '../../../shared/constants';
-import { COLORS, FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { formatCurrency, maskAccountNumber } from '../../../shared/utils/format';
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useTransactions } from '../../transactions/hooks/useTransactions';
 
 export function TransferToFavoriteScreen({ navigation, route }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const favorite = route?.params?.favorite;
   const { accounts } = useAccounts();
   const { createTransaction } = useTransactions();
@@ -29,7 +32,6 @@ export function TransferToFavoriteScreen({ navigation, route }) {
     [accounts]
   );
 
-  // Limpia los campos editables tras una transferencia exitosa.
   const resetForm = () => {
     setMonto('');
     setDescripcion('');
@@ -48,7 +50,6 @@ export function TransferToFavoriteScreen({ navigation, route }) {
     }
     if (!descripcion.trim()) return notify('Atención', 'La descripción es requerida.');
 
-    // Paso 2 (real): se ejecuta como TRANSFERENCIA hacia la cuenta del favorito.
     setSubmitting(true);
     const result = await createTransaction({
       tipoTransaccion: TRANSACTION_TYPES.TRANSFERENCIA,
@@ -85,7 +86,6 @@ export function TransferToFavoriteScreen({ navigation, route }) {
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        {/* Tarjeta destino con gradiente de marca (navy → acento), texto en blanco. */}
         <GradientCard contentStyle={styles.destCard}>
           <Text style={styles.destLabel}>Transferir a</Text>
           <Text style={styles.destAlias}>{favorite.alias}</Text>
@@ -117,15 +117,15 @@ export function TransferToFavoriteScreen({ navigation, route }) {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: COLORS.background },
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: SPACING.lg, gap: SPACING.md },
   destCard: { gap: SPACING.xs },
-  destLabel: { color: COLORS.white, opacity: 0.85, fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium },
-  destAlias: { color: COLORS.white, fontSize: FONT_SIZE.xl, fontFamily: FONTS.displayBold, fontWeight: '800' },
-  destCuenta: { color: COLORS.white, opacity: 0.9, fontSize: FONT_SIZE.sm, fontFamily: FONTS.body },
-  warn: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium, color: COLORS.warning, marginBottom: SPACING.lg },
-  limits: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginBottom: SPACING.lg },
-  muted: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textMuted },
+  destLabel: { color: colors.white, opacity: 0.85, fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium },
+  destAlias: { color: colors.white, fontSize: FONT_SIZE.xl, fontFamily: FONTS.displayBold, fontWeight: '800' },
+  destCuenta: { color: colors.white, opacity: 0.9, fontSize: FONT_SIZE.sm, fontFamily: FONTS.body },
+  warn: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium, color: colors.warning, marginBottom: SPACING.lg },
+  limits: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: colors.textMuted, marginBottom: SPACING.lg },
+  muted: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: colors.textMuted },
 });

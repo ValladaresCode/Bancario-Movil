@@ -3,11 +3,14 @@ import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Badge, Card, EmptyState, GradientCard, LoadingSpinner } from '../../../shared/components';
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { formatCurrency } from '../../../shared/utils/format';
 import { useServices } from '../hooks/useServices';
 
 export function ServiceDetailScreen({ route }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const id = route?.params?.id;
   const { getServiceById } = useServices();
   const [service, setService] = useState(null);
@@ -37,7 +40,7 @@ export function ServiceDetailScreen({ route }) {
         <Image source={{ uri: service.imageUrl }} style={styles.image} />
       ) : (
         <View style={[styles.image, styles.imagePlaceholder]}>
-          <MaterialIcons name="local-offer" size={40} color={COLORS.primary} />
+          <MaterialIcons name="local-offer" size={40} color={colors.primary} />
         </View>
       )}
 
@@ -55,7 +58,7 @@ export function ServiceDetailScreen({ route }) {
         </Text>
         {service.discount ? (
           <View style={styles.discountPill}>
-            <MaterialIcons name="sell" size={14} color={COLORS.white} />
+            <MaterialIcons name="sell" size={14} color={colors.white} />
             <Text style={styles.discount}>Descuento {service.discount}%</Text>
           </View>
         ) : null}
@@ -71,15 +74,15 @@ export function ServiceDetailScreen({ route }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: SPACING.lg, gap: SPACING.md },
-  image: { width: '100%', height: 180, borderRadius: RADIUS.lg, backgroundColor: COLORS.primaryLight },
+  image: { width: '100%', height: 180, borderRadius: RADIUS.lg, backgroundColor: colors.primaryLight },
   imagePlaceholder: { alignItems: 'center', justifyContent: 'center' },
-  name: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.text },
+  name: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: colors.text },
   metaRow: { flexDirection: 'row', gap: SPACING.sm },
-  priceLabel: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium, color: COLORS.white, opacity: 0.85 },
-  price: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.white, marginTop: SPACING.xs },
+  priceLabel: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium, color: colors.white, opacity: 0.85 },
+  price: { fontSize: FONT_SIZE.xxl, fontFamily: FONTS.displayBold, fontWeight: '800', color: colors.white, marginTop: SPACING.xs },
   discountPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -91,7 +94,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     backgroundColor: 'rgba(255, 255, 255, 0.18)',
   },
-  discount: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.semibold, color: COLORS.white, fontWeight: '700' },
-  sectionTitle: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text, marginBottom: SPACING.xs },
-  body: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary, lineHeight: 20 },
+  discount: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.semibold, color: colors.white, fontWeight: '700' },
+  sectionTitle: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: colors.text, marginBottom: SPACING.xs },
+  body: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: colors.textSecondary, lineHeight: 20 },
 });

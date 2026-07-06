@@ -2,7 +2,8 @@ import { Component } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../constants/theme';
+import { useThemeStore } from '../hooks/useThemeStore';
 
 // Captura errores de render de la pantalla hija para que NUNCA quede una página
 // en blanco: muestra un fallback con el mensaje del error y un botón de reintento.
@@ -21,11 +22,14 @@ export class ErrorBoundary extends Component {
   reset = () => this.setState({ error: null });
 
   render() {
+    const { colors } = this.props;
+    const styles = createStyles(colors);
+
     if (this.state.error) {
       return (
         <View style={styles.container}>
           <View style={styles.iconCircle}>
-            <MaterialIcons name="error-outline" size={36} color={COLORS.danger} />
+            <MaterialIcons name="error-outline" size={36} color={colors.danger} />
           </View>
           <Text style={styles.title}>Algo salió mal</Text>
           <Text style={styles.message}>No se pudo mostrar esta pantalla.</Text>
@@ -47,8 +51,9 @@ export class ErrorBoundary extends Component {
 // HOC para envolver un componente de pantalla con el ErrorBoundary.
 export function withErrorBoundary(ScreenComponent) {
   function Wrapped(props) {
+    const { colors } = useThemeStore();
     return (
-      <ErrorBoundary>
+      <ErrorBoundary colors={colors}>
         <ScreenComponent {...props} />
       </ErrorBoundary>
     );
@@ -57,39 +62,39 @@ export function withErrorBoundary(ScreenComponent) {
   return Wrapped;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: SPACING.xl,
     gap: SPACING.sm,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   iconCircle: {
     width: 64,
     height: 64,
     borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.dangerBg,
+    backgroundColor: colors.dangerBg,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: SPACING.xs,
   },
-  title: { fontSize: FONT_SIZE.lg, fontFamily: FONTS.displayBold, fontWeight: '700', color: COLORS.text },
-  message: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary, textAlign: 'center' },
+  title: { fontSize: FONT_SIZE.lg, fontFamily: FONTS.displayBold, fontWeight: '700', color: colors.text },
+  message: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: colors.textSecondary, textAlign: 'center' },
   detail: {
     fontSize: FONT_SIZE.xs,
     fontFamily: FONTS.body,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     textAlign: 'center',
     marginTop: SPACING.xs,
   },
   btn: {
     marginTop: SPACING.md,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: RADIUS.md,
     paddingHorizontal: SPACING.xl,
     paddingVertical: SPACING.sm,
   },
-  btnText: { color: COLORS.white, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
+  btnText: { color: colors.white, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
 });

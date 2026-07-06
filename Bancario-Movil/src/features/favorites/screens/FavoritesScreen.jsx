@@ -4,11 +4,14 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 import { Badge, Button, Card, EmptyState, Input, LoadingSpinner, Selector } from '../../../shared/components';
 import { ACCOUNT_TYPE_OPTIONS } from '../../../shared/constants';
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { maskAccountNumber } from '../../../shared/utils/format';
 import { useFavorites } from '../hooks/useFavorites';
 
 export function FavoritesScreen({ navigation }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const { favorites, loading, error, refetch, addFavorite, removeFavorite } = useFavorites();
   const [showForm, setShowForm] = useState(false);
   const [cuenta, setCuenta] = useState('');
@@ -57,7 +60,7 @@ export function FavoritesScreen({ navigation }) {
         data={favorites}
         keyExtractor={(item) => String(item._id)}
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={COLORS.primary} />}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.primary} />}
         ListHeaderComponent={
           <View style={styles.headerArea}>
             <Button
@@ -81,7 +84,7 @@ export function FavoritesScreen({ navigation }) {
         renderItem={({ item }) => (
           <Card style={styles.card}>
             <View style={styles.iconWrap}>
-              <MaterialIcons name="star" size={22} color={COLORS.warning} />
+              <MaterialIcons name="star" size={22} color={colors.warning} />
             </View>
             <View style={styles.middle}>
               <Text style={styles.alias}>{item.alias}</Text>
@@ -95,10 +98,10 @@ export function FavoritesScreen({ navigation }) {
                 onPress={() => navigation.navigate('TransferToFavorite', { favorite: item })}
                 style={styles.transferBtn}
               >
-                <MaterialIcons name="send" size={18} color={COLORS.primary} />
+                <MaterialIcons name="send" size={18} color={colors.primary} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => onDelete(item)} style={styles.deleteBtn}>
-                <MaterialIcons name="delete-outline" size={18} color={COLORS.danger} />
+                <MaterialIcons name="delete-outline" size={18} color={colors.danger} />
               </TouchableOpacity>
             </View>
           </Card>
@@ -108,8 +111,8 @@ export function FavoritesScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   list: { padding: SPACING.lg, gap: SPACING.sm },
   headerArea: { gap: SPACING.sm, marginBottom: SPACING.sm },
   form: { gap: SPACING.xs },
@@ -118,20 +121,20 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.warningBg,
+    backgroundColor: colors.warningBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   middle: { flex: 1 },
-  alias: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
-  muted: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textSecondary, marginTop: SPACING.xs },
+  alias: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: colors.text },
+  muted: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: colors.textSecondary, marginTop: SPACING.xs },
   badgeRow: { marginTop: SPACING.xs },
   actions: { flexDirection: 'row', gap: SPACING.sm },
   transferBtn: {
     width: 38,
     height: 38,
     borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -139,7 +142,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.dangerBg,
+    backgroundColor: colors.dangerBg,
     alignItems: 'center',
     justifyContent: 'center',
   },

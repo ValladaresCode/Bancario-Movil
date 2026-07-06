@@ -2,11 +2,14 @@ import { FlatList, Image, RefreshControl, StyleSheet, Text, TouchableOpacity, Vi
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Button, Card, EmptyState, LoadingSpinner } from '../../../shared/components';
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { formatCurrency } from '../../../shared/utils/format';
 import { useServices } from '../hooks/useServices';
 
 export function ServicesScreen({ navigation }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const { services, loading, error, refetch } = useServices();
 
   if (loading && services.length === 0) {
@@ -19,7 +22,7 @@ export function ServicesScreen({ navigation }) {
         data={services}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={COLORS.primary} />}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.primary} />}
         ListHeaderComponent={
           <Button
             title="Ver promociones"
@@ -34,12 +37,11 @@ export function ServicesScreen({ navigation }) {
         renderItem={({ item }) => (
           <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('ServiceDetail', { id: item.id })}>
             <Card style={styles.card}>
-              {/* Imagen del servicio o círculo de icono tintado como respaldo */}
               {item.imageUrl ? (
                 <Image source={{ uri: item.imageUrl }} style={styles.image} />
               ) : (
                 <View style={[styles.image, styles.imagePlaceholder]}>
-                  <MaterialIcons name="local-offer" size={28} color={COLORS.primary} />
+                  <MaterialIcons name="local-offer" size={28} color={colors.primary} />
                 </View>
               )}
               <View style={styles.info}>
@@ -49,7 +51,7 @@ export function ServicesScreen({ navigation }) {
                   {item.price !== undefined ? formatCurrency(item.price, item.currency) : 'Precio no definido'}
                 </Text>
               </View>
-              <MaterialIcons name="chevron-right" size={24} color={COLORS.textMuted} />
+              <MaterialIcons name="chevron-right" size={24} color={colors.textMuted} />
             </Card>
           </TouchableOpacity>
         )}
@@ -58,15 +60,15 @@ export function ServicesScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   list: { padding: SPACING.lg, gap: SPACING.sm },
   promoBtn: { marginBottom: SPACING.sm },
   card: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
-  image: { width: 64, height: 64, borderRadius: RADIUS.md, backgroundColor: COLORS.primaryLight },
+  image: { width: 64, height: 64, borderRadius: RADIUS.md, backgroundColor: colors.primaryLight },
   imagePlaceholder: { alignItems: 'center', justifyContent: 'center' },
   info: { flex: 1 },
-  name: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
-  category: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: COLORS.textMuted, marginTop: SPACING.xs },
-  price: { fontSize: FONT_SIZE.lg, fontFamily: FONTS.displayBold, fontWeight: '800', color: COLORS.primary, marginTop: SPACING.xs },
+  name: { fontSize: FONT_SIZE.md, fontFamily: FONTS.semibold, fontWeight: '700', color: colors.text },
+  category: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: colors.textMuted, marginTop: SPACING.xs },
+  price: { fontSize: FONT_SIZE.lg, fontFamily: FONTS.displayBold, fontWeight: '800', color: colors.primary, marginTop: SPACING.xs },
 });

@@ -2,11 +2,14 @@ import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../constants/theme';
+import { useThemeStore } from '../hooks/useThemeStore';
 
 // Wrapper de TextInput con label, error e icono opcional.
 // Reenvía ...props (secureTextEntry, keyboardType, etc.).
 export function Input({ label, error, leftIcon, style, ...props }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const [focused, setFocused] = useState(false);
 
   return (
@@ -17,12 +20,12 @@ export function Input({ label, error, leftIcon, style, ...props }) {
           <MaterialIcons
             name={leftIcon}
             size={20}
-            color={focused ? COLORS.primary : COLORS.textMuted}
+            color={focused ? colors.primary : colors.textMuted}
             style={styles.icon}
           />
         ) : null}
         <TextInput
-          placeholderTextColor={COLORS.textMuted}
+          placeholderTextColor={colors.textMuted}
           style={styles.input}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
@@ -34,13 +37,13 @@ export function Input({ label, error, leftIcon, style, ...props }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   wrapper: { marginBottom: SPACING.lg },
   label: {
     fontSize: FONT_SIZE.sm,
     fontFamily: FONTS.semibold,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: SPACING.xs,
   },
   field: {
@@ -48,30 +51,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 52,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: RADIUS.md,
     paddingHorizontal: SPACING.md,
-    backgroundColor: COLORS.surfaceAlt,
+    backgroundColor: colors.surfaceAlt,
   },
   fieldFocused: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.surface,
+    borderColor: colors.primary,
+    backgroundColor: colors.surface,
   },
-  fieldError: { borderColor: COLORS.danger },
+  fieldError: { borderColor: colors.danger },
   icon: { marginRight: SPACING.sm },
   input: {
     flex: 1,
     height: '100%',
     fontSize: FONT_SIZE.md,
     fontFamily: FONTS.body,
-    color: COLORS.text,
+    color: colors.text,
     // react-native-web: quita el outline azul del navegador al enfocar.
     outlineStyle: 'none',
   },
   error: {
     fontSize: FONT_SIZE.xs,
     fontFamily: FONTS.medium,
-    color: COLORS.danger,
+    color: colors.danger,
     marginTop: SPACING.xs,
   },
 });

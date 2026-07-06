@@ -1,20 +1,23 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Badge, Button, Card, GradientCard } from '../../../shared/components';
-import { COLORS, FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
+import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { formatDate } from '../../../shared/utils/format';
 
-function DetailRow({ label, value }) {
-  return (
-    <View style={styles.detailRow}>
-      <Text style={styles.detailLabel}>{label}</Text>
-      <Text style={styles.detailValue}>{value}</Text>
-    </View>
-  );
-}
-
 export function AccountDetailScreen({ route, navigation }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const account = route?.params?.account;
+
+  function DetailRow({ label, value }) {
+    return (
+      <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{label}</Text>
+        <Text style={styles.detailValue}>{value}</Text>
+      </View>
+    );
+  }
 
   if (!account) {
     return (
@@ -54,21 +57,21 @@ export function AccountDetailScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: SPACING.lg, gap: SPACING.md },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.background },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
   heroCard: { alignItems: 'center', gap: SPACING.sm },
   heroLabel: { color: 'rgba(255,255,255,0.85)', fontFamily: FONTS.medium, fontSize: FONT_SIZE.sm },
-  heroSaldo: { color: COLORS.white, fontSize: FONT_SIZE.xxxl, fontFamily: FONTS.displayBold, fontWeight: '800' },
+  heroSaldo: { color: colors.white, fontSize: FONT_SIZE.xxxl, fontFamily: FONTS.displayBold, fontWeight: '800' },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: SPACING.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
-  detailLabel: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: COLORS.textSecondary },
-  detailValue: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.semibold, fontWeight: '700', color: COLORS.text },
+  detailLabel: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: colors.textSecondary },
+  detailValue: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.semibold, fontWeight: '700', color: colors.text },
   action: { marginTop: SPACING.sm },
 });

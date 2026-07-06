@@ -1,9 +1,12 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { COLORS, FONTS, FONT_SIZE, RADIUS, SPACING } from '../constants/theme';
+import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../constants/theme';
+import { useThemeStore } from '../hooks/useThemeStore';
 
 // Selector de chips horizontal para opciones [{ value, label }].
 export function Selector({ label, options = [], value, onChange, horizontal = true }) {
+  const { colors } = useThemeStore();
+  const styles = createStyles(colors);
   const Container = horizontal ? ScrollView : View;
   const containerProps = horizontal
     ? { horizontal: true, showsHorizontalScrollIndicator: false, contentContainerStyle: styles.row }
@@ -31,13 +34,13 @@ export function Selector({ label, options = [], value, onChange, horizontal = tr
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   wrapper: { marginBottom: SPACING.lg },
   label: {
     fontSize: FONT_SIZE.sm,
     fontFamily: FONTS.semibold,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: SPACING.sm,
   },
   row: { gap: SPACING.sm, paddingRight: SPACING.sm },
@@ -47,10 +50,10 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
     borderRadius: RADIUS.pill,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
-  chipSelected: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  chipText: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.semibold, fontWeight: '600', color: COLORS.textSecondary },
-  chipTextSelected: { color: COLORS.white },
+  chipSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
+  chipText: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.semibold, fontWeight: '600', color: colors.textSecondary },
+  chipTextSelected: { color: colors.white },
 });
