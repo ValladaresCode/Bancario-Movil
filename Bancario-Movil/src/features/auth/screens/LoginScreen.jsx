@@ -24,7 +24,7 @@ export function LoginScreen({ navigation }) {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues: { email: '', password: '' } });
+  } = useForm({ defaultValues: { email: 'adminb@gestor.local', password: 'ADMINB' } });
 
   const onSubmit = async (values) => {
     const result = await login({ email: values.email.trim(), password: values.password });
