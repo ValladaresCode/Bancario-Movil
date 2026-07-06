@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Card, GradientCard, LoadingSpinner } from '../../../shared/components';
@@ -21,6 +22,12 @@ export function DashboardScreen({ navigation }) {
   const styles = createStyles(colors);
   const { accounts, loading, refetch } = useAccounts();
   const user = useAuthStore((state) => state.user);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   // Totales por moneda (no se pueden sumar monedas distintas).
   const totalsByCurrency = useMemo(() => {

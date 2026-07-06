@@ -2,9 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { TouchableOpacity } from 'react-native';
-
-import { FONTS, FONT_SIZE, SPACING } from '../shared/constants/theme';
+import { FONTS, FONT_SIZE } from '../shared/constants/theme';
 import { useThemeStore } from '../shared/hooks/useThemeStore';
 import { withErrorBoundary } from '../shared/components';
 
@@ -59,38 +57,13 @@ const getStackScreenOptions = (colors) => ({
   contentStyle: { backgroundColor: colors.background },
 });
 
-// Botón de modo oscuro en el header
-function ThemeToggleButton() {
-  const { colors, isDark, toggleTheme } = useThemeStore();
-  return (
-    <TouchableOpacity
-      onPress={toggleTheme}
-      style={{ marginRight: SPACING.xs, padding: SPACING.xs }}
-      activeOpacity={0.7}
-    >
-      <MaterialIcons
-        name={isDark ? 'light-mode' : 'dark-mode'}
-        size={24}
-        color={colors.white}
-      />
-    </TouchableOpacity>
-  );
-}
-
 // --- Stack: Inicio ---
 const HomeStackNav = createNativeStackNavigator();
 function HomeStack() {
   const { colors } = useThemeStore();
   return (
     <HomeStackNav.Navigator screenOptions={getStackScreenOptions(colors)}>
-      <HomeStackNav.Screen
-        name="Dashboard"
-        component={S.Dashboard}
-        options={{
-          title: 'Inicio',
-          headerRight: () => <ThemeToggleButton />,
-        }}
-      />
+      <HomeStackNav.Screen name="Dashboard" component={S.Dashboard} options={{ title: 'Inicio' }} />
     </HomeStackNav.Navigator>
   );
 }
