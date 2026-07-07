@@ -46,6 +46,36 @@ export const listFavorites = async (req, res) => {
   }
 };
 
+export const updateFavorite = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { id } = req.params;
+    const { alias } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'El ID del usuario es requerido' });
+    }
+
+    if (!alias || !String(alias).trim()) {
+      return res.status(400).json({ success: false, message: 'El alias es requerido' });
+    }
+
+    const fav = await Favorite.findOneAndUpdate(
+      { _id: id, userId },
+      { alias: String(alias).trim() },
+      { new: true, runValidators: true }
+    );
+
+    if (!fav) {
+      return res.status(404).json({ success: false, message: 'Favorito no encontrado' });
+    }
+
+    return res.json({ success: true, favorite: fav });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
 export const deleteFavorite = async (req, res) => {
   try {
     const userId = req.userId;

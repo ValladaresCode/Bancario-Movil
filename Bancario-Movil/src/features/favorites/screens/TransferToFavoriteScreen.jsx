@@ -1,26 +1,23 @@
 import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { Button, Card, GradientCard, Input, Selector } from '../../../shared/components';
-import { notify } from '../../../shared/utils/confirm';
-import { CURRENCY_OPTIONS, TRANSACTION_LIMITS, TRANSACTION_TYPES } from '../../../shared/constants';
+import { TRANSACTION_TYPES } from '../../../shared/constants';
 import { FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
 import { useThemeStore } from '../../../shared/hooks/useThemeStore';
+import { notify } from '../../../shared/utils/confirm';
 import { formatCurrency, maskAccountNumber } from '../../../shared/utils/format';
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useTransactions } from '../../transactions/hooks/useTransactions';
+import { FavoriteSummaryCard, TransferForm } from '../components';
 
+// Transferencia rápida hacia un favorito. El formulario y su validación de
+// límites viven en ../components/TransferForm; aquí solo se envía al backend.
 export function TransferToFavoriteScreen({ navigation, route }) {
   const { colors } = useThemeStore();
   const styles = createStyles(colors);
   const favorite = route?.params?.favorite;
   const { accounts } = useAccounts();
   const { createTransaction } = useTransactions();
-
-  const [cuentaOrigen, setCuentaOrigen] = useState('');
-  const [monto, setMonto] = useState('');
-  const [moneda, setMoneda] = useState(CURRENCY_OPTIONS[0].value);
-  const [descripcion, setDescripcion] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const accountOptions = useMemo(
@@ -32,32 +29,15 @@ export function TransferToFavoriteScreen({ navigation, route }) {
     [accounts]
   );
 
-  const resetForm = () => {
-    setMonto('');
-    setDescripcion('');
-    setCuentaOrigen('');
-  };
-
-  const onSubmit = async () => {
-    const montoNum = Number(monto);
-    if (!cuentaOrigen) return notify('Atención', 'Selecciona la cuenta de origen.');
-    if (!montoNum || montoNum <= 0) return notify('Atención', 'Ingresa un monto válido.');
-    if (montoNum > TRANSACTION_LIMITS.PER_TRANSACTION) {
-      return notify(
-        'Límite excedido',
-        `El monto máximo por transacción es ${formatCurrency(TRANSACTION_LIMITS.PER_TRANSACTION, 'GTQ')}.`
-      );
-    }
-    if (!descripcion.trim()) return notify('Atención', 'La descripción es requerida.');
-
+  const onTransfer = async ({ cuentaOrigen, monto, moneda, descripcion }) => {
     setSubmitting(true);
     const result = await createTransaction({
       tipoTransaccion: TRANSACTION_TYPES.TRANSFERENCIA,
       cuentaOrigen,
       cuentaDestino: favorite?.cuenta,
-      monto: montoNum,
+      monto,
       moneda,
-      descripcion: descripcion.trim(),
+      descripcion,
     });
     setSubmitting(false);
 
@@ -65,13 +45,8 @@ export function TransferToFavoriteScreen({ navigation, route }) {
       notify('No se pudo transferir', result.error);
       return;
     }
-    notify(
-      'Transferencia realizada',
-      `Enviaste ${formatCurrency(montoNum, moneda)} a ${favorite?.alias}.`,
-      () => {
-        resetForm();
-        navigation.goBack();
-      }
+    notify('Transferencia realizada', `Enviaste ${formatCurrency(monto, moneda)} a ${favorite?.alias}.`, () =>
+      navigation.goBack()
     );
   };
 
@@ -86,32 +61,8 @@ export function TransferToFavoriteScreen({ navigation, route }) {
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <GradientCard contentStyle={styles.destCard}>
-          <Text style={styles.destLabel}>Transferir a</Text>
-          <Text style={styles.destAlias}>{favorite.alias}</Text>
-          <Text style={styles.destCuenta}>{maskAccountNumber(favorite.cuenta)} · {favorite.tipo}</Text>
-        </GradientCard>
-
-        <Card>
-          {accountOptions.length > 0 ? (
-            <Selector label="Cuenta de origen" options={accountOptions} value={cuentaOrigen} onChange={setCuentaOrigen} />
-          ) : (
-            <Text style={styles.warn}>No tienes cuentas disponibles como origen.</Text>
-          )}
-          <Input label="Monto" placeholder="0.00" keyboardType="numeric" value={monto} onChangeText={setMonto} />
-          <Selector label="Moneda" options={CURRENCY_OPTIONS} value={moneda} onChange={setMoneda} />
-          <Input
-            label="Descripción (requerida)"
-            placeholder="Motivo de la transferencia"
-            value={descripcion}
-            onChangeText={setDescripcion}
-          />
-          <Text style={styles.limits}>
-            Máx. {formatCurrency(TRANSACTION_LIMITS.PER_TRANSACTION, 'GTQ')} por transacción ·{' '}
-            {formatCurrency(TRANSACTION_LIMITS.PER_DAY, 'GTQ')} por día.
-          </Text>
-          <Button title="Transferir" gradient onPress={onSubmit} loading={submitting} />
-        </Card>
+        <FavoriteSummaryCard favorite={favorite} />
+        <TransferForm accountOptions={accountOptions} submitting={submitting} onSubmit={onTransfer} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -121,11 +72,5 @@ const createStyles = (colors) => StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.background },
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: SPACING.lg, gap: SPACING.md },
-  destCard: { gap: SPACING.xs },
-  destLabel: { color: colors.white, opacity: 0.85, fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium },
-  destAlias: { color: colors.white, fontSize: FONT_SIZE.xl, fontFamily: FONTS.displayBold, fontWeight: '800' },
-  destCuenta: { color: colors.white, opacity: 0.9, fontSize: FONT_SIZE.sm, fontFamily: FONTS.body },
-  warn: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.medium, color: colors.warning, marginBottom: SPACING.lg },
-  limits: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.body, color: colors.textMuted, marginBottom: SPACING.lg },
   muted: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: colors.textMuted },
 });

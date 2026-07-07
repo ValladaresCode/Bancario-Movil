@@ -38,6 +38,20 @@ export function useFavorites() {
     [fetchFavorites]
   );
 
+  const updateFavorite = useCallback(
+    async (id, { alias }) => {
+      try {
+        const res = await bankClient.put(`/favorites/${id}`, { alias });
+        const updated = res.data?.favorite || { alias };
+        setFavorites((current) => current.map((item) => (item._id === id ? { ...item, ...updated } : item)));
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: getApiError(err, 'No fue posible actualizar el alias') };
+      }
+    },
+    []
+  );
+
   const removeFavorite = useCallback(
     async (id) => {
       try {
@@ -51,5 +65,5 @@ export function useFavorites() {
     []
   );
 
-  return { favorites, loading, error, refetch: fetchFavorites, addFavorite, removeFavorite };
+  return { favorites, loading, error, refetch: fetchFavorites, addFavorite, updateFavorite, removeFavorite };
 }

@@ -7,7 +7,7 @@ import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { pickProfileImage } from '../../../shared/utils/imagePicker';
 import { notify } from '../../../shared/utils/confirm';
 import { useProfile } from '../hooks/useProfile';
-import { ProfileHeader } from './ProfileHeader';
+import { ProfileHeader } from '../components';
 
 export function EditProfileScreen({ navigation }) {
   const { colors } = useThemeStore();

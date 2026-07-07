@@ -10,7 +10,7 @@ const getAuthToken = () => {
 
 export const API_CONFIG = {
   authBaseUrl: stripTrailingSlash(
-    import.meta.env.VITE_AUTH_API_URL || 'http://localhost:3005/api/v1'
+    import.meta.env.VITE_AUTH_API_URL || 'http://localhost:4000/api/v1'
   ),
   bankBaseUrl: stripTrailingSlash(
     import.meta.env.VITE_BANK_API_URL || 'http://localhost:3006/gestionBancaria/api/v1'
