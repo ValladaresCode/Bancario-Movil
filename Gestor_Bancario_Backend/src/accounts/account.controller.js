@@ -43,9 +43,17 @@ export const createAccount = async (req, res) => {
  * SOLICITAR CREACION DE CUENTA (CLIENTE)
  */
 export const requestAccountCreation = async (req, res) => {
-    return res.status(403).json({
-        success: false,
-        message: 'Los clientes no tienen permitido solicitar cuentas adicionales.',
+    const idUsuario = req.userId;
+    const tieneCuenta = await Account.findOne({ userId: idUsuario });
+    if (tieneCuenta) {
+        return res.status(403).json({
+            success: false,
+            message: 'Los clientes no tienen permitido solicitar cuentas adicionales.',
+        });
+    }
+    return res.status(200).json({
+        success: true,
+        message: 'Solicitud de creacion de cuenta enviada correctamente',
     });
 };
 

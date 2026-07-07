@@ -5,6 +5,7 @@ import './src/users/user.model.js';
 import './src/users/user-update-request.model.js';
 import './src/auth/role.model.js';
 import './src/auth/signup-request.model.js';
+import './src/auth/refresh-token.model.js';
 import { seedData } from './helpers/data-seeder.js';
 
 // Configurar variables de entorno

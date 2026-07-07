@@ -244,10 +244,12 @@ export const sendPasswordResetEmail = async (
     const frontendUrl =
       config.app.frontendUrl || 'http://localhost:3000';
 
-    const resetUrl =
-      `${frontendUrl}/auth/reset-password?token=${encodeURIComponent(
-        resetToken
-      )}`;
+    const encodedToken = encodeURIComponent(resetToken);
+
+    // Enlace web (escritorio / navegador; tambien sirve desplegado).
+    const webUrl = `${frontendUrl}/auth/reset-password?token=${encodedToken}`;
+    // Deep link de la app movil (abre la pantalla de nueva contraseña en el telefono).
+    const appUrl = `${config.app.mobileScheme}://reset-password?token=${encodedToken}`;
 
     const html = createEmailTemplate({
       title: 'Restablece tu contraseña',
@@ -266,12 +268,18 @@ export const sendPasswordResetEmail = async (
         </p>
 
         <p>
-          Si realizaste esta acción,
-          continúa desde el siguiente botón.
+          Usa el botón para restablecer tu contraseña.
+        </p>
+
+        <p>
+          ¿Abriste este correo en tu <strong>teléfono</strong>?
+          Abre directamente la app:
+          <br />
+          <a href="${appUrl}">Abrir en la app Bancario Móvil</a>
         </p>
 
         <div class="url-box">
-          ${resetUrl}
+          ${webUrl}
         </div>
 
         <p>
@@ -280,7 +288,7 @@ export const sendPasswordResetEmail = async (
       `,
 
       buttonText: 'CAMBIAR CONTRASEÑA',
-      buttonUrl: resetUrl,
+      buttonUrl: webUrl,
     });
 
     await transporter.sendMail({

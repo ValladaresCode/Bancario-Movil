@@ -35,6 +35,9 @@ export function WelcomeScreen({ navigation }) {
             <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('Login')}>
               <Text style={styles.primaryButtonText}>Iniciar sesión</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate('Register')}>
+              <Text style={styles.secondaryButtonText}>Crear cuenta</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </LinearGradient>

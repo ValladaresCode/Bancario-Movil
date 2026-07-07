@@ -5,6 +5,7 @@ import { useThemeStore } from '../shared/hooks/useThemeStore';
 import { useAuthStore } from '../shared/store/authStore';
 import { AuthStack } from './AuthStack';
 import { MainTabs } from './MainTabs';
+import { linking } from './linking';
 
 // Decide Auth vs Main según el authStore, con guarda anti-parpadeo de hidratación.
 export function AppNavigator() {
@@ -36,7 +37,15 @@ export function AppNavigator() {
   }
 
   return (
-    <NavigationContainer theme={navTheme}>
+    <NavigationContainer
+      theme={navTheme}
+      linking={linking}
+      fallback={
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      }
+    >
       {isAuthenticated ? <MainTabs /> : <AuthStack />}
     </NavigationContainer>
   );

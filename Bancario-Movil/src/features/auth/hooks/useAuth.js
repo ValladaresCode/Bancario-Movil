@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { authClient, buildFormData, getApiError } from '../../../shared/api';
 import { useAuthStore } from '../../../shared/store/authStore';
@@ -7,6 +7,15 @@ import { useAuthStore } from '../../../shared/store/authStore';
 export function useAuth() {
   const [loading, setLoading] = useState(false);
   const loginToStore = useAuthStore((state) => state.login);
+
+  // Evita setState tras desmontar (la screen puede navegar antes de resolver la petición).
+  const mountedRef = useRef(true);
+  useEffect(() => () => {
+    mountedRef.current = false;
+  }, []);
+  const stopLoading = () => {
+    if (mountedRef.current) setLoading(false);
+  };
 
   const login = useCallback(
     async ({ email, password }) => {
@@ -23,7 +32,7 @@ export function useAuth() {
       } catch (error) {
         return { ok: false, error: getApiError(error, 'No se pudo iniciar sesión') };
       } finally {
-        setLoading(false);
+        stopLoading();
       }
     },
     [loginToStore]
@@ -51,7 +60,7 @@ export function useAuth() {
     } catch (error) {
       return { ok: false, error: getApiError(error, 'No se pudo crear la cuenta') };
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, []);
 
@@ -63,7 +72,7 @@ export function useAuth() {
     } catch (error) {
       return { ok: false, error: getApiError(error, 'No se pudo verificar el correo') };
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, []);
 
@@ -75,7 +84,7 @@ export function useAuth() {
     } catch (error) {
       return { ok: false, error: getApiError(error, 'No se pudo reenviar el correo') };
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, []);
 
@@ -87,7 +96,7 @@ export function useAuth() {
     } catch (error) {
       return { ok: false, error: getApiError(error, 'No se pudo enviar el enlace') };
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, []);
 
@@ -99,7 +108,7 @@ export function useAuth() {
     } catch (error) {
       return { ok: false, error: getApiError(error, 'No se pudo restablecer la contraseña') };
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   }, []);
 

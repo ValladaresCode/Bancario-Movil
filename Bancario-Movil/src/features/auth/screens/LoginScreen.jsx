@@ -24,7 +24,7 @@ export function LoginScreen({ navigation }) {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({ defaultValues: { email: 'adminb@gestor.local', password: 'ADMINB' } });
+  } = useForm({ defaultValues: { email: '', password: '' } });
 
   const onSubmit = async (values) => {
     const result = await login({ email: values.email.trim(), password: values.password });
@@ -73,6 +73,11 @@ export function LoginScreen({ navigation }) {
             </TouchableOpacity>
 
             <Button title="Iniciar sesión" gradient onPress={handleSubmit(onSubmit)} loading={loading} />
+
+            <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.signupRow}>
+              <Text style={styles.muted}>¿No tienes cuenta? </Text>
+              <Text style={styles.link}>Crear cuenta</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -109,4 +114,6 @@ const createStyles = (colors) => StyleSheet.create({
   },
   linkRight: { alignSelf: 'flex-end', marginBottom: SPACING.lg },
   link: { color: colors.primary, fontFamily: FONTS.bold, fontWeight: '700', fontSize: FONT_SIZE.sm },
+  signupRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: SPACING.lg },
+  muted: { color: colors.textSecondary, fontFamily: FONTS.body, fontSize: FONT_SIZE.sm },
 });

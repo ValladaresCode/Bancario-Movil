@@ -158,6 +158,34 @@ router.post('/login', authRateLimit, validateLogin, authController.login);
 
 /**
  * @swagger
+ * /api/v1/auth/refresh:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Renueva el access token (rotacion de refresh token)
+ *     description: Lee el refresh token de la cookie HttpOnly (web) o del body (movil), lo rota y devuelve un nuevo access token.
+ *     responses:
+ *       200:
+ *         description: Token renovado
+ *       401:
+ *         description: Refresh token invalido, expirado o reutilizado
+ */
+router.post('/refresh', authRateLimit, authController.refresh);
+
+/**
+ * @swagger
+ * /api/v1/auth/logout:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Cierra la sesion
+ *     description: Revoca la familia del refresh token presentado y limpia la cookie.
+ *     responses:
+ *       200:
+ *         description: Sesion cerrada
+ */
+router.post('/logout', authController.logout);
+
+/**
+ * @swagger
  * /api/v1/auth/verify-email:
  *   post:
  *     tags: [Authentication]

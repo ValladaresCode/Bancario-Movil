@@ -201,8 +201,8 @@ export const loginUserHelper = async (email, password) => {
     const role = user.UserRoles?.[0]?.Role?.Name || 'USER_ROLE';
     const token = await generateJWT(user.Id.toString(), { role });
 
-    // Como ya no hay expiración de 30 mins, simulamos una sesión infinita (100 años) para el frontend
-    const expiresAt = new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000);
+    // Expiración real del access token (coincide con el claim `exp` del JWT).
+    const expiresAt = new Date(Date.now() + getExpirationTime(config.jwt.expiresIn || '12h'));
 
     // Build compact userDetails object
     const fullUser = buildUserResponse(user);

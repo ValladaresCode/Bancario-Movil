@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { Button, Input } from '../../../shared/components';
+import { notify } from '../../../shared/utils/confirm';
 import { FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
 import { useThemeStore } from '../../../shared/hooks/useThemeStore';
 import { useAuth } from '../hooks/useAuth';
@@ -23,26 +25,31 @@ export function ForgotPasswordScreen({ navigation }) {
     }
     const result = await forgotPassword(email.trim());
     if (!result.ok) {
-      Alert.alert('Error', result.error);
+      notify('Error', result.error);
       return;
     }
-    Alert.alert('Revisa tu correo', 'Te enviamos un enlace/código para restablecer tu contraseña.');
+    // Feedback claro + revela el formulario para pegar el código (fallback al deep link).
     setShowReset(true);
+    notify(
+      'Revisa tu correo',
+      'Te enviamos un enlace para restablecer tu contraseña. Ábrelo en este teléfono para continuar en la app, o pega aquí el código.'
+    );
   };
 
   const onReset = async () => {
     if (!token.trim() || !newPassword) {
-      Alert.alert('Atención', 'Completa el código y la nueva contraseña.');
+      notify('Atención', 'Completa el código y la nueva contraseña.');
       return;
     }
     const result = await resetPassword(token.trim(), newPassword);
     if (!result.ok) {
-      Alert.alert('Error', result.error);
+      notify('Error', result.error);
       return;
     }
-    Alert.alert('Listo', 'Tu contraseña fue restablecida. Inicia sesión.', [
-      { text: 'Ir al login', onPress: () => navigation.navigate('Login') },
-    ]);
+    // Éxito: limpia el flujo y regresa al Login.
+    notify('Listo', 'Tu contraseña fue restablecida. Inicia sesión.', () =>
+      navigation.navigate('Login')
+    );
   };
 
   return (

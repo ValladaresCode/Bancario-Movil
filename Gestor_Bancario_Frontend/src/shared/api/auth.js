@@ -1,148 +1,111 @@
-import { API_CONFIG, requestFormData, requestJson } from './api.js'
+import { axiosAuth } from './api.js'
+
+// Toda la comunicacion con el AuthService pasa por axiosAuth:
+// - withCredentials envia/recibe la cookie HttpOnly del refresh token.
+// - el interceptor de request inyecta el access token (Bearer + x-token).
+// - el interceptor de response refresca en 401 y reintenta.
 
 export async function loginWithAuthService({ email, password }) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/auth/login`, {
-    method: 'POST',
-    body: { email, password },
-  })
+  const { data } = await axiosAuth.post('/auth/login', { email, password })
+  return data
 }
 
 export async function registerWithAuthService(formData) {
-  // Keep function name for compatibility, but route registration through signup requests.
-  return requestFormData(`${API_CONFIG.authBaseUrl}/auth/signup-request`, {
-    method: 'POST',
-    body: formData,
-  })
+  // Se enruta el registro como solicitud de alta (signup request).
+  const { data } = await axiosAuth.post('/auth/signup-request', formData)
+  return data
 }
 
 export async function submitSignupRequestWithAuthService(formData) {
-  return requestFormData(`${API_CONFIG.authBaseUrl}/auth/signup-request`, {
-    method: 'POST',
-    body: formData,
-  })
+  const { data } = await axiosAuth.post('/auth/signup-request', formData)
+  return data
 }
 
-export async function getSignupRequestsWithAuthService(token) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/auth/signup-requests`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+export async function getSignupRequestsWithAuthService() {
+  const { data } = await axiosAuth.get('/auth/signup-requests')
+  return data
 }
 
 export async function checkSignupRequestStatus(email) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/auth/signup-requests/status/${encodeURIComponent(email)}`)
+  const { data } = await axiosAuth.get(
+    `/auth/signup-requests/status/${encodeURIComponent(email)}`
+  )
+  return data
 }
 
-export async function approveSignupRequestWithAuthService(token, requestId) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/auth/signup-requests/${requestId}/approve`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+export async function approveSignupRequestWithAuthService(_token, requestId) {
+  const { data } = await axiosAuth.post(`/auth/signup-requests/${requestId}/approve`)
+  return data
 }
 
-export async function rejectSignupRequestWithAuthService(token, requestId) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/auth/signup-requests/${requestId}/reject`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+export async function rejectSignupRequestWithAuthService(_token, requestId) {
+  const { data } = await axiosAuth.post(`/auth/signup-requests/${requestId}/reject`)
+  return data
 }
 
 export async function verifyEmailWithAuthService(token) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/auth/verify-email`, {
-    method: 'POST',
-    body: { token },
-  })
+  const { data } = await axiosAuth.post('/auth/verify-email', { token })
+  return data
 }
 
 export async function verifyEmailLinkWithAuthService(token) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/auth/verify-email?token=${encodeURIComponent(token)}`)
+  const { data } = await axiosAuth.get('/auth/verify-email', { params: { token } })
+  return data
 }
 
 export async function resendVerificationWithAuthService(email) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/auth/resend-verification`, {
-    method: 'POST',
-    body: { email },
-  })
+  const { data } = await axiosAuth.post('/auth/resend-verification', { email })
+  return data
 }
 
 export async function forgotPasswordWithAuthService(email) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/auth/forgot-password`, {
-    method: 'POST',
-    body: { email },
-  })
+  const { data } = await axiosAuth.post('/auth/forgot-password', { email })
+  return data
 }
 
 export async function resetPasswordWithAuthService(token, newPassword) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/auth/reset-password`, {
-    method: 'POST',
-    body: { token, newPassword },
-  })
+  const { data } = await axiosAuth.post('/auth/reset-password', { token, newPassword })
+  return data
 }
 
-export async function getProfileWithAuthService(token) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/auth/profile`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+export async function logoutWithAuthService() {
+  const { data } = await axiosAuth.post('/auth/logout')
+  return data
 }
 
-export async function getProfileByIdWithAuthService(token, userId) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/auth/profile/by-id`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: { userId },
-  })
+export async function getProfileWithAuthService() {
+  const { data } = await axiosAuth.get('/auth/profile')
+  return data
 }
 
-export async function updateProfileWithAuthService(token, formData) {
-  return requestFormData(`${API_CONFIG.authBaseUrl}/users/me`, {
-    method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  })
+export async function getProfileByIdWithAuthService(_token, userId) {
+  const { data } = await axiosAuth.post('/auth/profile/by-id', { userId })
+  return data
 }
 
-export async function getUpdateRequestsWithAuthService(token, status) {
-  const statusQuery = status ? `?status=${encodeURIComponent(status)}` : ''
-  return requestJson(`${API_CONFIG.authBaseUrl}/users/update-requests${statusQuery}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+export async function updateProfileWithAuthService(_token, formData) {
+  const { data } = await axiosAuth.patch('/users/me', formData)
+  return data
 }
 
-export async function approveUpdateRequestWithAuthService(token, requestId) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/users/update-requests/${requestId}/approve`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+export async function getUpdateRequestsWithAuthService(_token, status) {
+  const { data } = await axiosAuth.get('/users/update-requests', {
+    params: status ? { status } : undefined,
   })
+  return data
 }
 
-export async function rejectUpdateRequestWithAuthService(token, requestId) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/users/update-requests/${requestId}/reject`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+export async function approveUpdateRequestWithAuthService(_token, requestId) {
+  const { data } = await axiosAuth.post(`/users/update-requests/${requestId}/approve`)
+  return data
 }
 
-export async function getAllUsersWithAuthService(token) {
-  return requestJson(`${API_CONFIG.authBaseUrl}/users/all`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+export async function rejectUpdateRequestWithAuthService(_token, requestId) {
+  const { data } = await axiosAuth.post(`/users/update-requests/${requestId}/reject`)
+  return data
+}
+
+export async function getAllUsersWithAuthService() {
+  const { data } = await axiosAuth.get('/users/all')
+  return data
 }

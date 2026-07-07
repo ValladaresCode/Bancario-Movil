@@ -2,6 +2,7 @@
 
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { dbConnection } from './db.js';
@@ -10,6 +11,7 @@ import '../src/users/user.model.js';
 import '../src/users/user-update-request.model.js';
 import '../src/auth/role.model.js';
 import '../src/auth/signup-request.model.js';
+import '../src/auth/refresh-token.model.js';
 import { requestLimit } from '../middlewares/request-limit.js';
 import { corsOptions } from './cors-configuration.js';
 import { helmetConfiguration } from './helmet-configuration.js';
@@ -27,6 +29,7 @@ const BASE_PATH = '/api/v1';
 const middlewares = (app) => {
   app.use(express.urlencoded({ extended: false, limit: '10mb' }));
   app.use(express.json({ limit: '10mb' }));
+  app.use(cookieParser());
   app.use(cors(corsOptions));
   app.use(helmet(helmetConfiguration));
   app.use(requestLimit);
