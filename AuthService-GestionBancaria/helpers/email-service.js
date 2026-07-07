@@ -268,12 +268,17 @@ export const sendPasswordResetEmail = async (
         </p>
 
         <p>
-          Usa el botón para restablecer tu contraseña.
+          Si estás en tu computadora, usa el botón de abajo.
         </p>
+
+        <div class="code-box">
+          <p class="code-box-label">¿Prefieres continuar en la app? Copia y pega este código</p>
+          <span class="code-box-value">${resetToken}</span>
+        </div>
 
         <p>
           ¿Abriste este correo en tu <strong>teléfono</strong>?
-          Abre directamente la app:
+          Abre directamente la app (el código ya viene incluido):
           <br />
           <a href="${appUrl}">Abrir en la app Bancario Móvil</a>
         </p>
@@ -283,7 +288,7 @@ export const sendPasswordResetEmail = async (
         </div>
 
         <p>
-          Este enlace expirará en 1 hora.
+          Este código expirará en 1 hora.
         </p>
       `,
 

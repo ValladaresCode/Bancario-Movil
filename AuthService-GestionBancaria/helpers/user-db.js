@@ -225,6 +225,10 @@ export const updatePasswordResetToken = async (userId, token, expiry) => {
       {
         PasswordResetToken: token,
         PasswordResetTokenExpiry: expiry,
+        // Nuevo ciclo de reset: limpiar el flag de uso del token anterior,
+        // si no, el endpoint de status y findUserByPasswordResetToken
+        // rechazarían este token nuevo como si ya estuviera usado.
+        PasswordResetTokenUsedAt: null,
       },
       {
         where: { UserId: userId },
@@ -313,6 +317,9 @@ export const findUserByPasswordResetToken = async (token) => {
             PasswordResetTokenExpiry: {
               [Op.gt]: new Date(), // Token no expirado
             },
+            // Previene replay: un token ya usado no puede volver a canjearse
+            // aunque siga dentro de su ventana de expiración.
+            PasswordResetTokenUsedAt: null,
           },
         },
         {
@@ -348,11 +355,11 @@ export const updateUserPassword = async (userId, hashedPassword) => {
       }
     );
 
-    // Limpiar token de reset
+    // Marcar el token como usado (NO nulificarlo): así el endpoint de status
+    // puede reportar 'used' en vez de perder el rastro del token.
     await UserPasswordReset.update(
       {
-        PasswordResetToken: null,
-        PasswordResetTokenExpiry: null,
+        PasswordResetTokenUsedAt: new Date(),
       },
       {
         where: { UserId: userId },
@@ -365,5 +372,28 @@ export const updateUserPassword = async (userId, hashedPassword) => {
     await transaction.rollback();
     console.error('Error actualizando contraseña:', error);
     throw new Error('Error al actualizar contraseña');
+  }
+};
+
+/**
+ * Estado de un token de reset sin consumirlo, para polling desde clientes.
+ * No filtra por expiry en el WHERE (a propósito) para poder distinguir
+ * 'expired' de 'invalid' en JS.
+ */
+export const getPasswordResetTokenStatus = async (token) => {
+  try {
+    const row = await UserPasswordReset.findOne({
+      where: { PasswordResetToken: token },
+    });
+
+    if (!row) return 'invalid';
+    if (row.PasswordResetTokenUsedAt) return 'used';
+    if (!row.PasswordResetTokenExpiry || row.PasswordResetTokenExpiry.getTime() <= Date.now()) {
+      return 'expired';
+    }
+    return 'pending';
+  } catch (error) {
+    console.error('Error consultando estado de token de reset:', error);
+    throw new Error('Error al consultar estado de token de reset');
   }
 };

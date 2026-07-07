@@ -1,4 +1,4 @@
-import { body, validationResult } from 'express-validator';
+import { body, query, validationResult } from 'express-validator';
 
 /**
  * Middleware para procesar resultados de validación
@@ -142,6 +142,19 @@ export const validateResetPassword = [
     .withMessage('La nueva contraseña es obligatoria')
     .isLength({ min: 8 })
     .withMessage('La nueva contraseña debe tener al menos 8 caracteres'),
+
+  handleValidationErrors,
+];
+
+/**
+ * Validaciones para consultar el estado de un token de reset (polling)
+ */
+export const validateResetPasswordStatus = [
+  query('token')
+    .notEmpty()
+    .withMessage('El token de recuperación es requerido')
+    .isLength({ min: 20 })
+    .withMessage('El token de recuperación no tiene un formato válido'),
 
   handleValidationErrors,
 ];

@@ -112,6 +112,17 @@ export function useAuth() {
     }
   }, []);
 
+  // Polling silencioso (no toca `loading`, no debe mostrar spinner en el botón).
+  // Devuelve el status ('pending'|'used'|'expired'|'invalid') o null si la petición falló.
+  const checkResetPasswordStatus = useCallback(async (token) => {
+    try {
+      const { data } = await authClient.get('/auth/reset-password/status', { params: { token } });
+      return data?.data?.status || null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   return {
     loading,
     login,
@@ -120,5 +131,6 @@ export function useAuth() {
     resendVerification,
     forgotPassword,
     resetPassword,
+    checkResetPasswordStatus,
   };
 }

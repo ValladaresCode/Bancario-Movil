@@ -10,6 +10,7 @@ import {
   updateUserPassword,
   findUserByEmailVerificationToken,
   findUserByPasswordResetToken,
+  getPasswordResetTokenStatus,
 } from './user-db.js';
 import {
   consumeSignupRequestVerificationToken,
@@ -477,4 +478,13 @@ export const resetPasswordHelper = async (token, newPassword) => {
 
     throw error;
   }
+};
+
+// Estado de un token de reset (para polling de clientes). No consume el token.
+export const passwordResetStatusHelper = async (token) => {
+  const status = await getPasswordResetTokenStatus(token);
+  return {
+    success: true,
+    data: { status },
+  };
 };

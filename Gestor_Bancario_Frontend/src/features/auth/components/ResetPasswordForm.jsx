@@ -8,11 +8,23 @@ export const ResetPasswordForm = () => {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
   const tokenFromUrl = (searchParams.get('token') || '').trim()
+
+  const handleCopyToken = async () => {
+    if (!tokenFromUrl) return
+    try {
+      await navigator.clipboard.writeText(tokenFromUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard puede fallar por permisos del navegador; sin acción, el usuario puede seleccionar el texto manualmente.
+    }
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -75,11 +87,27 @@ export const ResetPasswordForm = () => {
           className="rounded-[2rem] border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.02] p-6 shadow-[0_0_80px_rgba(255,255,255,0.03)] backdrop-blur-2xl"
         >
           {/* TOKEN */}
-          <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/55">
-            {tokenFromUrl
-              ? 'Token de recuperación detectado correctamente.'
-              : 'No se encontró un token válido en la URL.'}
+          <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/55">
+            <span>
+              {tokenFromUrl
+                ? 'Token de recuperación detectado correctamente.'
+                : 'No se encontró un token válido en la URL.'}
+            </span>
+            {tokenFromUrl ? (
+              <button
+                type="button"
+                onClick={handleCopyToken}
+                className="shrink-0 rounded-xl border border-white/15 bg-white/[0.04] px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white/70 transition hover:bg-white/10"
+              >
+                {copied ? 'Copiado ✓' : 'Copiar código'}
+              </button>
+            ) : null}
           </div>
+          {tokenFromUrl ? (
+            <p className="-mt-3 mb-6 text-xs text-white/35">
+              ¿Prefieres terminar en la app? Copia el código y pégalo en Bancario Móvil.
+            </p>
+          ) : null}
 
           {/* PASSWORD */}
           <label className="block">

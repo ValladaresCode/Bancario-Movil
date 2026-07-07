@@ -5,6 +5,7 @@ import {
   resendVerificationEmailHelper,
   forgotPasswordHelper,
   resetPasswordHelper,
+  passwordResetStatusHelper,
 } from '../../helpers/auth-operations.js';
 import { getUserProfileHelper } from '../../helpers/profile-operations.js';
 import { asyncHandler } from '../../middlewares/server-genericError-handler.js';
@@ -295,6 +296,14 @@ export const resetPassword = asyncHandler(async (req, res) => {
       error: error.message,
     });
   }
+});
+
+// Estado de un token de reset, para que los clientes hagan polling sin
+// consumir el token (detecta si ya se usó desde otro dispositivo).
+export const getResetPasswordStatus = asyncHandler(async (req, res) => {
+  const token = req.query?.token;
+  const result = await passwordResetStatusHelper(token);
+  return res.status(200).json(result);
 });
 
 export const getProfile = asyncHandler(async (req, res) => {

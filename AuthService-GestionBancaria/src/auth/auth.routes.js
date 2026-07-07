@@ -14,6 +14,7 @@ import {
   validateResendVerification,
   validateForgotPassword,
   validateResetPassword,
+  validateResetPasswordStatus,
 } from '../../middlewares/validation.js';
 import {
   submitSignupRequest,
@@ -318,6 +319,23 @@ router.post(
   authRateLimit,
   validateResetPassword,
   authController.resetPassword
+);
+
+/**
+ * @swagger
+ * /api/v1/auth/reset-password/status:
+ *   get:
+ *     tags: [Authentication]
+ *     summary: Consulta el estado de un token de reset (sin consumirlo)
+ *     description: Usado para polling desde clientes (detecta si el token ya fue usado desde otro dispositivo). Sin authRateLimit, igual que /signup-requests/status, para no compartir cupo con login/refresh.
+ *     responses:
+ *       200:
+ *         description: Estado del token (pending | used | expired | invalid)
+ */
+router.get(
+  '/reset-password/status',
+  validateResetPasswordStatus,
+  authController.getResetPasswordStatus
 );
 
 /**
