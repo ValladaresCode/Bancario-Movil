@@ -1,5 +1,7 @@
+import { useCallback } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { Badge, Button, Card, EmptyState, LoadingSpinner } from '../../../shared/components';
 import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
@@ -11,6 +13,12 @@ export function AccountsScreen({ navigation }) {
   const { colors } = useThemeStore();
   const styles = createStyles(colors);
   const { accounts, loading, error, refetch } = useAccounts();
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   // Navega a Nueva Transacción con esta cuenta precargada como ORIGEN.
   const goTransfer = (item) =>

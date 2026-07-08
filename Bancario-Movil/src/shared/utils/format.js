@@ -63,3 +63,15 @@ export const getOptionLabel = (value, options = []) => {
   const match = options.find((option) => option.value === value);
   return match?.label || value || 'N/D';
 };
+
+// Normaliza para búsqueda: minúsculas, sin acentos, sin espacios.
+const DIACRITICS_REGEX = new RegExp('[\\u0300-\\u036f]', 'g');
+
+export const normalizeText = (value) => {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(DIACRITICS_REGEX, '')
+    .toLowerCase()
+    .replace(/\s+/g, '')
+    .trim();
+};

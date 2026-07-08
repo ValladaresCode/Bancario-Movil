@@ -74,8 +74,18 @@ export function ResetPasswordScreen({ navigation, route }) {
   }, [token, checkResetPasswordStatus, navigation]);
 
   const onReset = async () => {
-    if (!token.trim()) {
+    const trimmedToken = token.trim();
+    if (!trimmedToken) {
       notify('Atención', 'Falta el código de recuperación. Abre el enlace de tu correo.');
+      return;
+    }
+    // El token real mide ~43 caracteres. Si es más corto, casi siempre es una
+    // selección incompleta al copiar (el doble-toque corta en los guiones del código).
+    if (trimmedToken.length < 40) {
+      notify(
+        'Código incompleto',
+        'El código parece incompleto. En el correo, mantén presionado y arrastra para seleccionarlo completo (no toques dos veces).'
+      );
       return;
     }
     if (!newPassword || newPassword.length < 8) {
@@ -86,7 +96,7 @@ export function ResetPasswordScreen({ navigation, route }) {
       notify('Atención', 'Las contraseñas no coinciden.');
       return;
     }
-    const result = await resetPassword(token.trim(), newPassword);
+    const result = await resetPassword(trimmedToken, newPassword);
     if (!result.ok) {
       notify('Error', result.error);
       return;

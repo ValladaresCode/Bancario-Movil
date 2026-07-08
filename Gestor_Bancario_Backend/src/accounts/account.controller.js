@@ -40,36 +40,29 @@ export const createAccount = async (req, res) => {
 };
 
 /**
- * SOLICITAR CREACION DE CUENTA (CLIENTE)
+ * SOLICITAR CREACIÓN DE CUENTA
  */
 export const requestAccountCreation = async (req, res) => {
     try {
-        const idUsuario = req.userId;
-        const tieneCuenta = await Account.findOne({ userId: idUsuario });
-        if (tieneCuenta) {
-            return res.status(403).json({
-                success: false,
-                message: 'Los clientes no tienen permitido solicitar cuentas adicionales.',
-            });
-        }
-
         const accountRequest = new AccountRequest({
-            userId: idUsuario,
+            userId: req.userId,
             tipoCuenta: req.body.tipoCuenta,
-            moneda: req.body.moneda,
+            moneda: req.body.moneda
         });
+
         await accountRequest.save();
 
-        return res.status(201).json({
+        res.status(201).json({
             success: true,
-            message: 'Solicitud de creacion de cuenta enviada correctamente',
-            data: accountRequest,
+            message: 'Solicitud de cuenta creada exitosamente',
+            data: accountRequest
         });
+
     } catch (error) {
-        return res.status(400).json({
+        res.status(400).json({
             success: false,
-            message: 'Error al solicitar la creacion de cuenta',
-            error: error.message,
+            message: 'Error al crear la solicitud de cuenta',
+            error: error.message
         });
     }
 };

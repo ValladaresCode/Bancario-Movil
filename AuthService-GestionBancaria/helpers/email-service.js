@@ -248,8 +248,6 @@ export const sendPasswordResetEmail = async (
 
     // Enlace web (escritorio / navegador; tambien sirve desplegado).
     const webUrl = `${frontendUrl}/auth/reset-password?token=${encodedToken}`;
-    // Deep link de la app movil (abre la pantalla de nueva contraseña en el telefono).
-    const appUrl = `${config.app.mobileScheme}://reset-password?token=${encodedToken}`;
 
     const html = createEmailTemplate({
       title: 'Restablece tu contraseña',
@@ -274,14 +272,11 @@ export const sendPasswordResetEmail = async (
         <div class="code-box">
           <p class="code-box-label">¿Prefieres continuar en la app? Copia y pega este código</p>
           <span class="code-box-value">${resetToken}</span>
+          <p class="code-box-hint">
+            Mantén presionado sobre el código y arrastra para seleccionarlo completo
+            (no toques dos veces: el código tiene guiones que cortan la selección a la mitad).
+          </p>
         </div>
-
-        <p>
-          ¿Abriste este correo en tu <strong>teléfono</strong>?
-          Abre directamente la app (el código ya viene incluido):
-          <br />
-          <a href="${appUrl}">Abrir en la app Bancario Móvil</a>
-        </p>
 
         <div class="url-box">
           ${webUrl}

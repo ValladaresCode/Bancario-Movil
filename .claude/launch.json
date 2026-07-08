@@ -12,6 +12,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["-C", "Gestor_Bancario_Frontend", "dev", "--host", "--port", "5174"],
       "port": 5174
+    },
+    {
+      "name": "mobile-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["-C", "Bancario-Movil", "web"],
+      "port": 8081
     }
   ]
 }

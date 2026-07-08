@@ -40,6 +40,10 @@ export const CURRENCY_OPTIONS = [
   { value: 'JPY', label: 'JPY — Yen japonés' },
 ];
 
+// Monedas con histórico real disponible (Frankfurter/ECB no cubre GTQ ni COP).
+// Debe reflejar HISTORY_SUPPORTED_CURRENCIES en Gestor_Bancario_Backend/helpers/currency-logic.js.
+export const CURRENCY_HISTORY_SUPPORTED = ['USD', 'EUR', 'MXN', 'JPY'];
+
 // --- Tipos de transacción ---
 export const TRANSACTION_TYPES = {
   DEPOSITO: 'DEPOSITO',

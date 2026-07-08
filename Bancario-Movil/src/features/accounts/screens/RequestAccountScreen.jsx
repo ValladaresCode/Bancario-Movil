@@ -24,7 +24,7 @@ export function RequestAccountScreen({ navigation }) {
       return;
     }
     Alert.alert('Solicitud enviada', 'Tu cuenta quedó pendiente de aprobación por un administrador.', [
-      { text: 'Entendido', onPress: () => navigation.goBack() },
+      { text: 'Entendido', onPress: () => navigation.navigate('Accounts') },
     ]);
   };
 
