@@ -29,4 +29,6 @@ process.on('unhandledRejection', (err, promise) => {
 });
 
 // Inicializar servidor
-initServer();
+// IMPORTANTE: await es obligatorio. Sin él, el módulo termina antes de que
+// app.listen() sea llamado → el event loop queda vacío → proceso termina (código 0).
+await initServer();
