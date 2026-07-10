@@ -88,7 +88,7 @@ export function RegisterScreen({ navigation }) {
           <FormField
             control={control}
             name="password"
-            rules={{ required: 'La contraseña es requerida', minLength: { value: 6, message: 'Mínimo 6 caracteres' } }}
+            rules={{ required: 'La contraseña es requerida', minLength: { value: 8, message: 'Mínimo 8 caracteres' } }}
             label="Contraseña"
             leftIcon="lock-outline"
             secureTextEntry
@@ -106,23 +106,46 @@ export function RegisterScreen({ navigation }) {
           <FormField
             control={control}
             name="fechaNacimiento"
-            label="Fecha de nacimiento (opcional)"
+            rules={{
+              required: 'La fecha de nacimiento es obligatoria',
+              pattern: {
+                value: /^\d{4}-\d{2}-\d{2}$/,
+                message: 'Usa formato AAAA-MM-DD',
+              },
+            }}
+            label="Fecha de nacimiento"
             leftIcon="event"
             placeholder="AAAA-MM-DD"
+            error={errors.fechaNacimiento?.message}
           />
           <FormField
             control={control}
             name="dpi"
-            label="DPI (opcional)"
+            rules={{
+              required: 'El DPI es obligatorio',
+              pattern: { value: /^\d{13}$/, message: 'El DPI debe tener 13 dígitos' },
+            }}
+            label="DPI"
             leftIcon="badge"
             keyboardType="number-pad"
+            error={errors.dpi?.message}
           />
           <FormField
             control={control}
             name="ingresosMensuales"
-            label="Ingresos mensuales (opcional)"
+            rules={{
+              required: 'Los ingresos mensuales son obligatorios',
+              validate: (value) => {
+                const n = Number(value);
+                if (Number.isNaN(n)) return 'Debe ser un número válido';
+                if (n < 0) return 'No puede ser negativo';
+                return true;
+              },
+            }}
+            label="Ingresos mensuales"
             leftIcon="payments"
             keyboardType="numeric"
+            error={errors.ingresosMensuales?.message}
           />
 
           <Button title="Crear cuenta" gradient onPress={handleSubmit(onSubmit)} loading={loading} />

@@ -48,6 +48,7 @@ export function WelcomeScreen({ navigation }) {
 const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.brand,
   },
   overlay: {
     flex: 1,
