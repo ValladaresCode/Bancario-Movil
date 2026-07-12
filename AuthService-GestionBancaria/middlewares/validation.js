@@ -60,7 +60,27 @@ export const validateRegister = [
     .notEmpty()
     .withMessage('La fecha de nacimiento es obligatoria')
     .isISO8601()
-    .withMessage('Debe proporcionar una fecha de nacimiento válida'),
+    .withMessage('Debe proporcionar una fecha de nacimiento válida')
+    // 18+ se valida aquí (cubre /register y /signup-request): rechazar en el
+    // submit, nunca después de que un admin ya aprobó la solicitud.
+    .custom((value) => {
+      // Todo en UTC: 'YYYY-MM-DD' se parsea como UTC; mezclar getters locales
+      // corre el cumpleaños un día en zonas negativas (Guatemala, UTC-6).
+      const birthDate = new Date(value);
+      const today = new Date();
+      let age = today.getUTCFullYear() - birthDate.getUTCFullYear();
+      const m = today.getUTCMonth() - birthDate.getUTCMonth();
+      if (
+        m < 0 ||
+        (m === 0 && today.getUTCDate() < birthDate.getUTCDate())
+      ) {
+        age--;
+      }
+      if (age < 18) {
+        throw new Error('Debes ser mayor de 18 años para registrarte');
+      }
+      return true;
+    }),
 
   body('dpi')
     .notEmpty()
@@ -73,8 +93,10 @@ export const validateRegister = [
     .withMessage('Los ingresos mensuales son obligatorios')
     .isNumeric()
     .withMessage('Los ingresos mensuales deben ser un número')
-    .isFloat({ min: 0 })
-    .withMessage('Los ingresos mensuales no pueden ser negativos'),
+    // min alineado con UserProfile.IngresosMensuales (min: 0.01): con 0 el
+    // validador pasaba pero el modelo reventaba recién al crear el usuario.
+    .isFloat({ min: 0.01 })
+    .withMessage('Los ingresos mensuales deben ser mayores a 0'),
 
   handleValidationErrors,
 ];

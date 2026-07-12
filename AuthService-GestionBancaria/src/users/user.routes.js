@@ -20,6 +20,7 @@ import { User } from './user.model.js';
 import { UserProfile, UserEmail } from './user.model.js';
 import { UserRole, Role } from '../auth/role.model.js';
 import { ADMIN_ROLE } from '../../helpers/role-constants.js';
+import { buildUserResponse } from '../../utils/user-helpers.js';
 
 const router = Router();
 
@@ -86,7 +87,11 @@ router.get('/all', validateJWT, async (req, res) => {
     ],
   });
 
-  return res.status(200).json({ success: true, users });
+  // DTO SIEMPRE: los objetos Sequelize crudos exponen el hash de contraseña
+  // y el token de verificación de email, y su shape difiere del resto de la API.
+  return res
+    .status(200)
+    .json({ success: true, users: users.map(buildUserResponse) });
 });
 
 export default router;

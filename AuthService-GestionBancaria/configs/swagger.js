@@ -355,7 +355,7 @@ const swaggerDefinition = {
                 summary: "Lista todos los usuarios con perfiles y roles (Requiere Rol Admin)",
                 security: [{ bearerAuth: [] }],
                 responses: {
-                    "200": { description: "Lista completa de usuarios con perfil, email y roles" },
+                    "200": { description: "Lista de usuarios (DTO plano: id, name, email, phone, profilePicture, role, isActive, isEmailVerified, fechaNacimiento, dpi, ingresosMensuales, direccion, nombreTrabajo)" },
                     "403": { description: "Acceso restringido solo para administradores" }
                 }
             }

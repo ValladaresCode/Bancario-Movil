@@ -1,5 +1,5 @@
 import { SignupRequest } from '../src/auth/signup-request.model.js';
-import { checkUserExists } from './user-db.js';
+import { checkUserExists, checkDpiExists } from './user-db.js';
 import { hashPassword } from '../utils/password-utils.js';
 import { generateEmailVerificationToken } from '../utils/auth-helpers.js';
 import { sendVerificationEmail } from './email-service.js';
@@ -68,6 +68,14 @@ export const createSignupRequest = async ({
   }
 
   if (normalizedDpi) {
+    // Contra usuarios ya existentes: user_profiles.dpi es UNIQUE y la colisión
+    // detectada recién al verificar el email deja la solicitud varada.
+    if (await checkDpiExists(normalizedDpi)) {
+      const err = new Error('El DPI ya está registrado por otro usuario');
+      err.status = 409;
+      throw err;
+    }
+
     const existingByDpi = await SignupRequest.findOne({
       where: { Dpi: normalizedDpi },
     });
@@ -94,7 +102,7 @@ export const createSignupRequest = async ({
       existingAny.Name = normalizedName
       existingAny.PasswordHash = passwordHash
       existingAny.Phone = normalizedPhone
-      existingAny.FechaNacimiento = normalizedFechaNacimiento || new Date('2000-01-01')
+      existingAny.FechaNacimiento = normalizedFechaNacimiento
       existingAny.Dpi = normalizedDpi || null
       existingAny.IngresosMensuales = normalizedIngresosMensuales
       existingAny.ProfilePicture = resolvedProfilePicture || null
@@ -119,7 +127,7 @@ export const createSignupRequest = async ({
     Email: normalizedEmail,
     PasswordHash: passwordHash,
     Phone: normalizedPhone,
-    FechaNacimiento: normalizedFechaNacimiento || new Date('2000-01-01'),
+    FechaNacimiento: normalizedFechaNacimiento,
     Dpi: normalizedDpi || null,
     IngresosMensuales: normalizedIngresosMensuales,
     ProfilePicture: resolvedProfilePicture || null,
@@ -164,6 +172,15 @@ export const approveSignupRequest = async (id, approverId) => {
 
   if (await checkUserExists(request.Email)) {
     const err = new Error('Ya existe un usuario con este email');
+    err.status = 409;
+    throw err;
+  }
+
+  // Mismo re-chequeo que el email: entre el submit y la aprobación pudo
+  // crearse un usuario con este DPI; mejor rechazar aquí que dejar la
+  // solicitud aprobada y varada cuando el usuario haga clic en el enlace.
+  if (request.Dpi && (await checkDpiExists(request.Dpi))) {
+    const err = new Error('El DPI ya está registrado por otro usuario');
     err.status = 409;
     throw err;
   }

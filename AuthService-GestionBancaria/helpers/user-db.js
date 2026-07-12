@@ -76,6 +76,24 @@ export const checkUserExists = async (email) => {
   }
 };
 
+/**
+ * Verifica si un DPI ya pertenece a un usuario existente.
+ * user_profiles.dpi es UNIQUE: sin este chequeo previo, la colisión explota
+ * recién al crear el usuario (post-aprobación), dejando la solicitud varada.
+ */
+export const checkDpiExists = async (dpi) => {
+  if (!dpi) return false;
+  try {
+    const existingProfile = await UserProfile.findOne({
+      where: { Dpi: dpi },
+    });
+    return !!existingProfile;
+  } catch (error) {
+    console.error('Error verificando DPI:', error);
+    throw new Error('Error al verificar DPI');
+  }
+};
+
 export const createNewUser = async (userData) => {
   const transaction = await User.sequelize.transaction();
 
@@ -161,6 +179,14 @@ export const createNewUser = async (userData) => {
   } catch (error) {
     await transaction.rollback();
     console.error('Error creando usuario:', error);
+    // Las violaciones de unicidad (email, dpi) deben llegar al cliente como
+    // 409 con el campo, no como 500 genérico imposible de diagnosticar.
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      const field = error.errors?.[0]?.path || 'campo único';
+      const err = new Error(`Ya existe un usuario con este ${field}`);
+      err.status = 409;
+      throw err;
+    }
     throw new Error('Error al crear usuario');
   }
 };

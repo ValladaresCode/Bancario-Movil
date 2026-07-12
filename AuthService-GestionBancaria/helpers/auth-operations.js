@@ -48,22 +48,7 @@ export const registerUserHelper = async (userData) => {
   try {
     const { email, password, name, phone, fechaNacimiento, dpi, ingresosMensuales, profilePicture } = userData;
 
-    // Validación de edad mínima (18 años)
-    if (fechaNacimiento) {
-      const birthDate = new Date(fechaNacimiento);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      
-      if (age < 18) {
-        throw new Error('Debes ser mayor de 18 años para registrarte.');
-      }
-    }
-
-    // Validation is now handled by express-validator middleware in routes
+    // Edad 18+ y formato de campos ya validados por validateRegister en la ruta
     const userExists = await checkUserExists(email);
     if (userExists) {
       throw new Error(
@@ -225,6 +210,9 @@ export const verifyEmailHelper = async (token) => {
         name: signupRequest.Name,
         email: signupRequest.Email,
         phone: signupRequest.Phone,
+        fechaNacimiento: signupRequest.FechaNacimiento,
+        dpi: signupRequest.Dpi,
+        ingresosMensuales: signupRequest.IngresosMensuales,
         profilePicture: requestProfilePicture,
         hashedPassword: signupRequest.PasswordHash,
       });
