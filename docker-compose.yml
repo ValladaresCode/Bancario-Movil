@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build:
+      context: ./AuthService-GestionBancaria
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "3900:3900"
+    env_file:
+      - ./AuthService-GestionBancaria/.env
+    restart: unless-stopped
+    networks:
+      - bancario-network
+
+  bank-service:
+    build:
+      context: ./Gestor_Bancario_Backend
+      dockerfile: Dockerfile
+    container_name: bank-service
+    ports:
+      - "3006:3006"
+    env_file:
+      - ./Gestor_Bancario_Backend/.env
+    restart: unless-stopped
+    networks:
+      - bancario-network
+
+  frontend:
+    build:
+      context: ./Gestor_Bancario_Frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_AUTH_API_URL: http://localhost:3900/api/v1
+        VITE_ACCOUNT_URL: http://localhost:3006/gestionBancaria/api/v1
+    container_name: frontend-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    networks:
+      - bancario-network
+    # Las variables de entorno de Vite (.env) normalmente se inyectan en tiempo de construcción.
+    # Si requieres pasarlas, puedes usar build.args o tener el .env en la carpeta.
+    # En este caso, el COPY . . copiará el .env al contenedor para el build process de Vite.
+
+  mobile-web:
+    build:
+      context: ./Bancario-Movil
+      dockerfile: Dockerfile
+    container_name: mobile-web
+    ports:
+      - "8081:8081"
+    env_file:
+      - ./Bancario-Movil/.env
+    restart: unless-stopped
+    networks:
+      - bancario-network
+
+networks:
+  bancario-network:
+    driver: bridge

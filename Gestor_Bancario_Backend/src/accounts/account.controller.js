@@ -40,63 +40,29 @@ export const createAccount = async (req, res) => {
 };
 
 /**
- * SOLICITAR CREACION DE CUENTA (CLIENTE)
+ * SOLICITAR CREACIÓN DE CUENTA
  */
 export const requestAccountCreation = async (req, res) => {
     try {
-        const { tipoCuenta, moneda } = req.body || {};
-
-        if (!tipoCuenta || !['AHORRO', 'MONETARIA'].includes(tipoCuenta)) {
-            return res.status(400).json({
-                success: false,
-                message: 'El tipo de cuenta es requerido y debe ser AHORRO o MONETARIA',
-            });
-        }
-
-        if (!moneda || !['GTQ', 'USD', 'EUR', 'MXN', 'COP', 'JPY'].includes(moneda)) {
-            return res.status(400).json({
-                success: false,
-                message: 'La moneda es requerida y debe ser una moneda valida',
-            });
-        }
-
-        if (req.body?.saldo !== undefined || req.body?.estado !== undefined) {
-            return res.status(400).json({
-                success: false,
-                message: 'No puedes enviar saldo ni estado al solicitar una cuenta',
-            });
-        }
-
-        const pendingRequest = await AccountRequest.findOne({
+        const accountRequest = new AccountRequest({
             userId: req.userId,
-            status: 'PENDING',
-        }).lean();
-
-        if (pendingRequest) {
-            return res.status(409).json({
-                success: false,
-                message: 'Ya tienes una solicitud pendiente de aprobacion',
-                data: pendingRequest,
-            });
-        }
-
-        const request = await AccountRequest.create({
-            userId: req.userId,
-            tipoCuenta,
-            moneda,
-            status: 'PENDING',
+            tipoCuenta: req.body.tipoCuenta,
+            moneda: req.body.moneda
         });
 
-        return res.status(201).json({
+        await accountRequest.save();
+
+        res.status(201).json({
             success: true,
-            message: 'Solicitud enviada. Un administrador debe aprobarla.',
-            data: request,
+            message: 'Solicitud de cuenta creada exitosamente',
+            data: accountRequest
         });
+
     } catch (error) {
-        return res.status(500).json({
+        res.status(400).json({
             success: false,
             message: 'Error al crear la solicitud de cuenta',
-            error: error.message,
+            error: error.message
         });
     }
 };

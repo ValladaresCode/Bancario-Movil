@@ -14,6 +14,7 @@ import {
   validateResendVerification,
   validateForgotPassword,
   validateResetPassword,
+  validateResetPasswordStatus,
 } from '../../middlewares/validation.js';
 import {
   submitSignupRequest,
@@ -158,6 +159,34 @@ router.post('/login', authRateLimit, validateLogin, authController.login);
 
 /**
  * @swagger
+ * /api/v1/auth/refresh:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Renueva el access token (rotacion de refresh token)
+ *     description: Lee el refresh token de la cookie HttpOnly (web) o del body (movil), lo rota y devuelve un nuevo access token.
+ *     responses:
+ *       200:
+ *         description: Token renovado
+ *       401:
+ *         description: Refresh token invalido, expirado o reutilizado
+ */
+router.post('/refresh', authRateLimit, authController.refresh);
+
+/**
+ * @swagger
+ * /api/v1/auth/logout:
+ *   post:
+ *     tags: [Authentication]
+ *     summary: Cierra la sesion
+ *     description: Revoca la familia del refresh token presentado y limpia la cookie.
+ *     responses:
+ *       200:
+ *         description: Sesion cerrada
+ */
+router.post('/logout', authController.logout);
+
+/**
+ * @swagger
  * /api/v1/auth/verify-email:
  *   post:
  *     tags: [Authentication]
@@ -290,6 +319,23 @@ router.post(
   authRateLimit,
   validateResetPassword,
   authController.resetPassword
+);
+
+/**
+ * @swagger
+ * /api/v1/auth/reset-password/status:
+ *   get:
+ *     tags: [Authentication]
+ *     summary: Consulta el estado de un token de reset (sin consumirlo)
+ *     description: Usado para polling desde clientes (detecta si el token ya fue usado desde otro dispositivo). Sin authRateLimit, igual que /signup-requests/status, para no compartir cupo con login/refresh.
+ *     responses:
+ *       200:
+ *         description: Estado del token (pending | used | expired | invalid)
+ */
+router.get(
+  '/reset-password/status',
+  validateResetPasswordStatus,
+  authController.getResetPasswordStatus
 );
 
 /**

@@ -58,7 +58,9 @@ const seed = async () => {
           Imagen: 'default.jpg',
           FechaNacimiento: new Date('1990-01-01'),
           Dpi: `100000000000${usersToSeed.indexOf(u)}`,
-          IngresosMensuales: 10000.00
+          IngresosMensuales: 10000.00,
+          Direccion: 'Ciudad de Guatemala',
+          NombreTrabajo: 'Desarrollador'
         });
         await UserEmail.create({ UserId: user.Id, EmailVerified: true });
         await UserPasswordReset.create({ UserId: user.Id });

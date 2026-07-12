@@ -137,6 +137,16 @@ export const UserProfile = sequelize.define(
         }
       }
     },
+    Direccion: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'direccion',
+    },
+    NombreTrabajo: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'nombre_trabajo',
+    },
   },
   {
     tableName: 'user_profiles',
@@ -214,6 +224,13 @@ export const UserPasswordReset = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
       field: 'password_reset_token_expiry',
+    },
+    // Marca cuándo se consumió el token (sin nulificarlo) para poder distinguir
+    // 'usado' de 'nunca existió' vía el endpoint de status. NULL = aún no usado.
+    PasswordResetTokenUsedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'password_reset_token_used_at',
     },
   },
   {

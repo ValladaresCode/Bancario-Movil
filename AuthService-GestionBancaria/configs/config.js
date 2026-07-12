@@ -7,9 +7,27 @@ export const config = {
   // JWT Configuration
   jwt: {
     secret: process.env.JWT_SECRET,
-    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN,
+    // Vida del access token. generate-jwt.js lee config.jwt.expiresIn.
+    // Default alto (12h) para coexistir con el movil hasta que tenga su propio refresh.
+    expiresIn:
+      process.env.ACCESS_TOKEN_EXPIRES_IN ||
+      process.env.JWT_EXPIRES_IN ||
+      '12h',
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
     issuer: process.env.JWT_ISSUER,
     audience: process.env.JWT_AUDIENCE,
+  },
+
+  // Refresh token cookie (HttpOnly). Se envia/lee solo bajo /api/v1/auth.
+  cookie: {
+    name: 'refreshToken',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    // 'none' exige Secure (prod, cross-site). En dev 'lax' basta (mismo site localhost).
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias en ms
+    path: '/api/v1/auth',
+    domain: process.env.COOKIE_DOMAIN || undefined,
   },
 
   // SMTP Configuration (aligned with .NET SmtpSettings)
@@ -87,6 +105,8 @@ export const config = {
   app: {
     frontendUrl: process.env.FRONTEND_URL,
     backendUrl: process.env.BACKEND_URL || process.env.API_URL,
+    // Scheme de deep linking de la app movil (para enlaces universales de reset).
+    mobileScheme: process.env.MOBILE_APP_SCHEME || 'bancariomovil',
   },
 
   // Security Settings (aligned with .NET Security config)

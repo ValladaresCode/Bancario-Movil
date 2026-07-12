@@ -15,7 +15,41 @@ export const createSignupRequest = async ({
   ingresosMensuales,
   profilePicture,
 }) => {
-  const normalizedEmail = email.toLowerCase();
+  const normalizedName = typeof name === 'string' ? name.trim() : '';
+  const normalizedEmail =
+    typeof email === 'string' ? email.trim().toLowerCase() : '';
+  const normalizedPassword =
+    typeof password === 'string' ? password : '';
+  const normalizedPhone =
+    typeof phone === 'string' ? phone.trim() : '';
+  const normalizedFechaNacimiento =
+    typeof fechaNacimiento === 'string'
+      ? fechaNacimiento.trim()
+      : fechaNacimiento;
+  const normalizedDpi =
+    typeof dpi === 'string' ? dpi.trim() : dpi ? String(dpi).trim() : '';
+
+  const normalizedIngresosMensuales =
+    ingresosMensuales === undefined ||
+    ingresosMensuales === null ||
+    ingresosMensuales === ''
+      ? null
+      : Number(ingresosMensuales);
+
+  if (!normalizedName || !normalizedEmail || !normalizedPassword || !normalizedPhone) {
+    const err = new Error('Faltan campos obligatorios para crear la solicitud');
+    err.status = 400;
+    throw err;
+  }
+
+  if (
+    normalizedIngresosMensuales !== null &&
+    Number.isNaN(normalizedIngresosMensuales)
+  ) {
+    const err = new Error('Los ingresos mensuales deben ser un número válido');
+    err.status = 400;
+    throw err;
+  }
 
   if (await checkUserExists(normalizedEmail)) {
     const err = new Error('Ya existe un usuario con este email');
@@ -32,19 +66,30 @@ export const createSignupRequest = async ({
     throw err;
   }
 
-  const passwordHash = await hashPassword(password);
+  if (normalizedDpi) {
+    const existingByDpi = await SignupRequest.findOne({
+      where: { Dpi: normalizedDpi },
+    });
+    if (existingByDpi && existingByDpi.Email !== normalizedEmail) {
+      const err = new Error('El DPI ya está registrado en otra solicitud');
+      err.status = 409;
+      throw err;
+    }
+  }
+
+  const passwordHash = await hashPassword(normalizedPassword);
 
   // If there is an existing signup request for this email that was rejected,
   // allow reusing it by updating its data and marking it as PENDING again.
   const existingAny = await SignupRequest.findOne({ where: { Email: normalizedEmail } });
   if (existingAny) {
     if (existingAny.Status === 'REJECTED') {
-      existingAny.Name = name
+      existingAny.Name = normalizedName
       existingAny.PasswordHash = passwordHash
-      existingAny.Phone = phone
-      existingAny.FechaNacimiento = fechaNacimiento
-      existingAny.Dpi = dpi
-      existingAny.IngresosMensuales = ingresosMensuales
+      existingAny.Phone = normalizedPhone
+      existingAny.FechaNacimiento = normalizedFechaNacimiento || new Date('2000-01-01')
+      existingAny.Dpi = normalizedDpi || null
+      existingAny.IngresosMensuales = normalizedIngresosMensuales
       existingAny.ProfilePicture = profilePicture || null
       existingAny.Status = 'PENDING'
       existingAny.ApprovedBy = null
@@ -63,13 +108,13 @@ export const createSignupRequest = async ({
   }
 
   const request = await SignupRequest.create({
-    Name: name,
+    Name: normalizedName,
     Email: normalizedEmail,
     PasswordHash: passwordHash,
-    Phone: phone,
-    FechaNacimiento: fechaNacimiento,
-    Dpi: dpi,
-    IngresosMensuales: ingresosMensuales,
+    Phone: normalizedPhone,
+    FechaNacimiento: normalizedFechaNacimiento || new Date('2000-01-01'),
+    Dpi: normalizedDpi || null,
+    IngresosMensuales: normalizedIngresosMensuales,
     ProfilePicture: profilePicture || null,
     Status: 'PENDING',
   });

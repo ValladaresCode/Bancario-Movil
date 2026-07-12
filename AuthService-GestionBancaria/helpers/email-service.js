@@ -244,10 +244,10 @@ export const sendPasswordResetEmail = async (
     const frontendUrl =
       config.app.frontendUrl || 'http://localhost:3000';
 
-    const resetUrl =
-      `${frontendUrl}/auth/reset-password?token=${encodeURIComponent(
-        resetToken
-      )}`;
+    const encodedToken = encodeURIComponent(resetToken);
+
+    // Enlace web (escritorio / navegador; tambien sirve desplegado).
+    const webUrl = `${frontendUrl}/auth/reset-password?token=${encodedToken}`;
 
     const html = createEmailTemplate({
       title: 'Restablece tu contraseña',
@@ -266,21 +266,29 @@ export const sendPasswordResetEmail = async (
         </p>
 
         <p>
-          Si realizaste esta acción,
-          continúa desde el siguiente botón.
+          Si estás en tu computadora, usa el botón de abajo.
         </p>
 
+        <div class="code-box">
+          <p class="code-box-label">¿Prefieres continuar en la app? Copia y pega este código</p>
+          <span class="code-box-value">${resetToken}</span>
+          <p class="code-box-hint">
+            Mantén presionado sobre el código y arrastra para seleccionarlo completo
+            (no toques dos veces: el código tiene guiones que cortan la selección a la mitad).
+          </p>
+        </div>
+
         <div class="url-box">
-          ${resetUrl}
+          ${webUrl}
         </div>
 
         <p>
-          Este enlace expirará en 1 hora.
+          Este código expirará en 1 hora.
         </p>
       `,
 
       buttonText: 'CAMBIAR CONTRASEÑA',
-      buttonUrl: resetUrl,
+      buttonUrl: webUrl,
     });
 
     await transporter.sendMail({

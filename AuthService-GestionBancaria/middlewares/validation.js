@@ -1,4 +1,4 @@
-import { body, validationResult } from 'express-validator';
+import { body, query, validationResult } from 'express-validator';
 
 /**
  * Middleware para procesar resultados de validación
@@ -147,6 +147,19 @@ export const validateResetPassword = [
 ];
 
 /**
+ * Validaciones para consultar el estado de un token de reset (polling)
+ */
+export const validateResetPasswordStatus = [
+  query('token')
+    .notEmpty()
+    .withMessage('El token de recuperación es requerido')
+    .isLength({ min: 20 })
+    .withMessage('El token de recuperación no tiene un formato válido'),
+
+  handleValidationErrors,
+];
+
+/**
  * Validaciones para actualizar perfil
  */
 export const validateUpdateUser = [
@@ -162,6 +175,33 @@ export const validateUpdateUser = [
     .optional()
     .matches(/^\d{8}$/)
     .withMessage('El número de teléfono debe tener exactamente 8 dígitos'),
+
+  body('name')
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('El nombre no puede exceder 100 caracteres')
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
+    .withMessage('El nombre solo puede contener letras y espacios'),
+
+  body('direccion')
+    .optional()
+    .trim()
+    .isLength({ max: 255 })
+    .withMessage('La dirección no puede exceder 255 caracteres'),
+
+  body('nombreTrabajo')
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('El nombre de trabajo no puede exceder 100 caracteres'),
+
+  body('ingresosMensuales')
+    .optional()
+    .isNumeric()
+    .withMessage('Los ingresos mensuales deben ser un número')
+    .isFloat({ min: 0 })
+    .withMessage('Los ingresos mensuales no pueden ser negativos'),
 
   body('newPassword')
     .optional()

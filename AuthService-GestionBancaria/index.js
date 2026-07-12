@@ -5,6 +5,7 @@ import './src/users/user.model.js';
 import './src/users/user-update-request.model.js';
 import './src/auth/role.model.js';
 import './src/auth/signup-request.model.js';
+import './src/auth/refresh-token.model.js';
 import { seedData } from './helpers/data-seeder.js';
 
 // Configurar variables de entorno
@@ -28,4 +29,6 @@ process.on('unhandledRejection', (err, promise) => {
 });
 
 // Inicializar servidor
-initServer();
+// IMPORTANTE: await es obligatorio. Sin él, el módulo termina antes de que
+// app.listen() sea llamado → el event loop queda vacío → proceso termina (código 0).
+await initServer();

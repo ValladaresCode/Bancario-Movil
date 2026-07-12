@@ -141,6 +141,47 @@ body {
 }
 
 /* =========================================
+   CODE BOX (token de reset, para copiar/pegar en la app)
+   Nota: el correo no puede ejecutar JS, asi que no hay boton
+   "copiar" real; este bloque esta pensado para seleccionar el
+   texto a mano (tap-and-hold en movil, click-arrastrar en escritorio).
+========================================= */
+
+.code-box {
+  margin-top: 25px;
+  padding: 20px;
+  background: #0b0b0b;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  text-align: center;
+}
+
+.code-box-label {
+  color: #9ca3af;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 10px;
+}
+
+.code-box-value {
+  display: inline-block;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  word-break: break-all;
+  user-select: all;
+}
+
+.code-box-hint {
+  margin: 12px 0 0;
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+/* =========================================
    ALERT BOX
 ========================================= */
 

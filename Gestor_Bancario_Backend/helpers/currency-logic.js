@@ -75,6 +75,29 @@ export const convert = async (amount, from, to) => {
   return Number((amt * rate).toFixed(2));
 };
 
+// Frankfurter (ECB) es la única fuente gratuita con histórico real por rango de fechas,
+// pero no cubre GTQ ni COP — el histórico solo se ofrece para este subconjunto.
+export const HISTORY_SUPPORTED_CURRENCIES = ['USD', 'EUR', 'MXN', 'JPY'];
+
+const formatDate = (date) => date.toISOString().slice(0, 10);
+
+export const getHistoricalRates = async (base, target, days = 30) => {
+  const end = new Date();
+  const start = new Date();
+  start.setDate(start.getDate() - days);
+
+  const url = `https://api.frankfurter.app/${formatDate(start)}..${formatDate(end)}?from=${base}&to=${target}`;
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if (!data || !data.rates) return [];
+
+  return Object.entries(data.rates)
+    .map(([date, rateObj]) => ({ date, rate: rateObj[target] }))
+    .filter((point) => Number.isFinite(point.rate))
+    .sort((a, b) => (a.date < b.date ? -1 : 1));
+};
+
 export const getAllRates = async (baseCurrency = 'USD') => {
   const base = baseCurrency.toUpperCase();
   const currencies = Object.keys(LOCAL_RATES_USD_BASE);

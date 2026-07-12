@@ -72,6 +72,12 @@ const gracefulShutdown = async (signal) => {
 };
 
 // Handle different termination signals
+// SIGINT: Ctrl+C — aplica en todos los entornos.
+// SIGTERM: En producción es la señal estándar de apagado del proceso manager.
+//          En desarrollo, nodemon usa SIGTERM/SIGUSR2 en Windows para reiniciar:
+//          interceptarlo causa que el proceso salga con código 0 (clean exit)
+//          y nodemon queda esperando cambios en lugar de mantener el servidor activo.
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGUSR2', () => gracefulShutdown('SIGUSR2')); // For nodemon restarts
+if (process.env.NODE_ENV === 'production') {
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+}

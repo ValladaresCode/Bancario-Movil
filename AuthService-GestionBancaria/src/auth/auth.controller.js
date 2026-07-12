@@ -5,9 +5,32 @@ import {
   resendVerificationEmailHelper,
   forgotPasswordHelper,
   resetPasswordHelper,
+  passwordResetStatusHelper,
 } from '../../helpers/auth-operations.js';
 import { getUserProfileHelper } from '../../helpers/profile-operations.js';
 import { asyncHandler } from '../../middlewares/server-genericError-handler.js';
+import {
+  issueRefreshToken,
+  rotateRefreshToken,
+  revokeByToken,
+} from '../../helpers/refresh-token-service.js';
+import { generateJWT } from '../../helpers/generate-jwt.js';
+import { findUserById } from '../../helpers/user-db.js';
+import { config } from '../../configs/config.js';
+
+// Opciones de la cookie HttpOnly del refresh token (derivadas de config).
+const refreshCookieOptions = () => ({
+  httpOnly: config.cookie.httpOnly,
+  secure: config.cookie.secure,
+  sameSite: config.cookie.sameSite,
+  path: config.cookie.path,
+  domain: config.cookie.domain,
+  maxAge: config.cookie.maxAge,
+});
+
+// El cliente movil manda 'x-client-type: mobile' para recibir el refresh token
+// en el body (SecureStore). La web lo ignora y usa la cookie HttpOnly.
+const isMobileClient = (req) => req.headers['x-client-type'] === 'mobile';
 
 export const register = asyncHandler(async (req, res) => {
   try {
@@ -49,7 +72,16 @@ export const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     const result = await loginUserHelper(email, password);
 
-    res.status(200).json(result);
+    // Emitir refresh token (nueva familia) y entregarlo en cookie HttpOnly.
+    const { plaintext } = await issueRefreshToken(result.userDetails.id, { req });
+    res.cookie(config.cookie.name, plaintext, refreshCookieOptions());
+
+    // Dual: el movil recibe el refresh token en el body; la web NO (usa cookie).
+    const payload = isMobileClient(req)
+      ? { ...result, refreshToken: plaintext }
+      : result;
+
+    res.status(200).json(payload);
   } catch (error) {
     console.error('Error in login controller:', error);
 
@@ -67,6 +99,64 @@ export const login = asyncHandler(async (req, res) => {
       error: error.message,
     });
   }
+});
+
+// Rota el refresh token (RTR) y devuelve un nuevo access token.
+// Lee el refresh token de la cookie HttpOnly (web) o del body (movil).
+export const refresh = asyncHandler(async (req, res) => {
+  try {
+    const presented = req.cookies?.[config.cookie.name] || req.body?.refreshToken;
+
+    const { userId, family, newPlaintext } = await rotateRefreshToken(
+      presented,
+      req
+    );
+
+    // Regenerar el access token con el claim de rol actual del usuario.
+    const user = await findUserById(userId);
+    if (!user || !user.IsActive) {
+      res.clearCookie(config.cookie.name, refreshCookieOptions());
+      return res.status(401).json({
+        success: false,
+        message: 'Usuario no valido o inactivo',
+      });
+    }
+
+    const role = user.UserRoles?.[0]?.Role?.Name || 'USER_ROLE';
+    const token = await generateJWT(user.Id.toString(), { role });
+
+    // Setear la cookie rotada.
+    res.cookie(config.cookie.name, newPlaintext, refreshCookieOptions());
+
+    const body = {
+      success: true,
+      message: 'Token renovado',
+      token,
+    };
+    // Dual: el movil necesita el nuevo refresh token en el body.
+    if (isMobileClient(req)) body.refreshToken = newPlaintext;
+
+    return res.status(200).json(body);
+  } catch (error) {
+    console.error('Error in refresh controller:', error);
+    return res.status(error.status || 401).json({
+      success: false,
+      message: error.message || 'No se pudo renovar el token',
+    });
+  }
+});
+
+// Logout: revoca la familia de la sesion actual y limpia la cookie.
+export const logout = asyncHandler(async (req, res) => {
+  try {
+    const presented = req.cookies?.[config.cookie.name] || req.body?.refreshToken;
+    await revokeByToken(presented);
+  } catch (error) {
+    console.error('Error in logout controller:', error);
+  } finally {
+    res.clearCookie(config.cookie.name, refreshCookieOptions());
+  }
+  return res.status(200).json({ success: true, message: 'Sesion cerrada' });
 });
 
 export const verifyEmail = asyncHandler(async (req, res) => {
@@ -206,6 +296,14 @@ export const resetPassword = asyncHandler(async (req, res) => {
       error: error.message,
     });
   }
+});
+
+// Estado de un token de reset, para que los clientes hagan polling sin
+// consumir el token (detecta si ya se usó desde otro dispositivo).
+export const getResetPasswordStatus = asyncHandler(async (req, res) => {
+  const token = req.query?.token;
+  const result = await passwordResetStatusHelper(token);
+  return res.status(200).json(result);
 });
 
 export const getProfile = asyncHandler(async (req, res) => {

@@ -81,9 +81,12 @@ const isEmailTaken = async (email, userId) => {
 
 const applyUserUpdates = async ({
   userId,
+  name,
   email,
   phone,
   ingresosMensuales,
+  direccion,
+  nombreTrabajo,
   passwordHash,
   profilePicture,
   sensitiveChanged,
@@ -95,6 +98,9 @@ const applyUserUpdates = async ({
   const transaction = await User.sequelize.transaction();
   try {
     const userUpdates = {};
+    if (name) {
+      userUpdates.Name = name;
+    }
     if (email) {
       userUpdates.Email = email.toLowerCase();
     }
@@ -118,6 +124,12 @@ const applyUserUpdates = async ({
     }
     if (ingresosMensuales !== undefined && ingresosMensuales !== null) {
       profileUpdates.IngresosMensuales = ingresosMensuales;
+    }
+    if (direccion !== undefined && direccion !== null) {
+      profileUpdates.Direccion = direccion;
+    }
+    if (nombreTrabajo !== undefined && nombreTrabajo !== null) {
+      profileUpdates.NombreTrabajo = nombreTrabajo;
     }
     if (profilePicture) {
       profileUpdates.Imagen = profilePicture;
@@ -183,25 +195,35 @@ const applyUserUpdates = async ({
 };
 
 export const requestUserUpdate = async ({ user, input }) => {
+  const nameRaw = (input.name || '').trim();
+  const name = nameRaw ? nameRaw : null;
   const emailRaw = (input.email || '').trim();
   const email = emailRaw ? emailRaw.toLowerCase() : null;
   const phone = (input.phone || '').trim();
   const ingresosMensuales = input.ingresosMensuales !== undefined ? input.ingresosMensuales : null;
+  const direccion = input.direccion !== undefined ? input.direccion : null;
+  const nombreTrabajo = input.nombreTrabajo !== undefined ? input.nombreTrabajo : null;
   const newPassword = input.newPassword || null;
   const currentPassword = input.currentPassword || null;
   const profilePictureInput = input.profilePicture || null;
 
+  const currentName = user.Name || '';
   const currentEmail = (user.Email || '').toLowerCase();
   const currentPhone = user.UserProfile?.Phone || '';
   const currentIngresosMensuales = user.UserProfile?.IngresosMensuales;
+  const currentDireccion = user.UserProfile?.Direccion || '';
+  const currentNombreTrabajo = user.UserProfile?.NombreTrabajo || '';
 
+  const nameChanged = name && name !== currentName;
   const emailChanged = email && email !== currentEmail;
   const phoneChanged = phone && phone !== currentPhone;
   const ingresosMensualesChanged = ingresosMensuales !== null && Number(ingresosMensuales) !== Number(currentIngresosMensuales);
+  const direccionChanged = direccion !== null && direccion !== currentDireccion;
+  const nombreTrabajoChanged = nombreTrabajo !== null && nombreTrabajo !== currentNombreTrabajo;
   const passwordChanged = !!newPassword;
   const profilePictureChanged = !!profilePictureInput;
 
-  if (!emailChanged && !phoneChanged && !passwordChanged && !profilePictureChanged && !ingresosMensualesChanged) {
+  if (!emailChanged && !phoneChanged && !passwordChanged && !profilePictureChanged && !ingresosMensualesChanged && !nameChanged && !direccionChanged && !nombreTrabajoChanged) {
     const err = new Error('No hay cambios para actualizar');
     err.status = 400;
     throw err;
@@ -250,9 +272,12 @@ export const requestUserUpdate = async ({ user, input }) => {
   if (requiresAdmin) {
     const request = await UserUpdateRequest.create({
       UserId: user.Id,
+      Name: nameChanged ? name : null,
       Email: emailChanged ? email : null,
       Phone: phoneChanged ? phone : null,
       IngresosMensuales: ingresosMensualesChanged ? ingresosMensuales : null,
+      Direccion: direccionChanged ? direccion : null,
+      NombreTrabajo: nombreTrabajoChanged ? nombreTrabajo : null,
       PasswordHash: passwordChanged ? passwordHash : null,
       ProfilePicture: profilePictureChanged ? profilePicture : null,
       Status: 'PENDING',
@@ -267,9 +292,12 @@ export const requestUserUpdate = async ({ user, input }) => {
   const sensitiveChanged = sensitiveCount > 0;
   const { updatedUser, verificationToken } = await applyUserUpdates({
     userId: user.Id,
+    name: nameChanged ? name : null,
     email: emailChanged ? email : null,
     phone: phoneChanged ? phone : null,
     ingresosMensuales: ingresosMensualesChanged ? ingresosMensuales : null,
+    direccion: direccionChanged ? direccion : null,
+    nombreTrabajo: nombreTrabajoChanged ? nombreTrabajo : null,
     passwordHash: passwordChanged ? passwordHash : null,
     profilePicture: profilePictureChanged ? profilePicture : null,
     sensitiveChanged,
@@ -326,9 +354,12 @@ export const approveUserUpdateRequest = async (id, approverId) => {
 
   const { updatedUser, verificationToken } = await applyUserUpdates({
     userId: request.UserId,
+    name: request.Name ? request.Name : null,
     email: request.Email ? request.Email : null,
     phone: request.Phone ? request.Phone : null,
     ingresosMensuales: request.IngresosMensuales !== undefined && request.IngresosMensuales !== null ? request.IngresosMensuales : null,
+    direccion: request.Direccion ? request.Direccion : null,
+    nombreTrabajo: request.NombreTrabajo ? request.NombreTrabajo : null,
     passwordHash: request.PasswordHash ? request.PasswordHash : null,
     profilePicture: request.ProfilePicture ? request.ProfilePicture : null,
     sensitiveChanged,

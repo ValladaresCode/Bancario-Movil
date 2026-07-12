@@ -1,5 +1,5 @@
 import { Role } from '../src/auth/role.model.js';
-import { User, UserProfile, UserEmail } from '../src/users/user.model.js';
+import { User, UserProfile, UserEmail, UserPasswordReset } from '../src/users/user.model.js';
 import { UserRole } from '../src/auth/role.model.js';
 import { USER_ROLE, ADMIN_ROLE, EMPLOYEE_ROLE } from './role-constants.js';
 import { generateUserId } from './uuid-generator.js';
@@ -52,6 +52,13 @@ export const seedData = async () => {
         EmailVerificationTokenExpiry: null,
       });
 
+      // Mismo patrón que createNewUser (user-db.js): fila vacía, requerida por
+      // el flujo de forgot/reset password (updatePasswordResetToken hace UPDATE,
+      // no upsert; sin esta fila el reset queda silenciosamente roto).
+      await UserPasswordReset.create({
+        UserId: userId,
+      });
+
       await UserRole.create({
         Id: userRoleId,
         UserId: userId,
@@ -97,6 +104,11 @@ export const seedData = async () => {
         EmailVerified: true,
         EmailVerificationToken: null,
         EmailVerificationTokenExpiry: null,
+      });
+
+      // Ver comentario equivalente en el bloque de admin arriba.
+      await UserPasswordReset.create({
+        UserId: userId,
       });
 
       await UserRole.create({
