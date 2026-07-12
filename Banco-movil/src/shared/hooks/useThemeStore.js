@@ -1,35 +1,62 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LIGHT_COLORS, DARK_COLORS } from '../constants/theme';
 
-export const useThemeStore = create(
-  persist(
-    (set, get) => ({
-      isDark: false,
-      colors: LIGHT_COLORS,
-      toggleTheme: () => {
-        const { isDark } = get();
-        set({
-          isDark: !isDark,
-          colors: !isDark ? DARK_COLORS : LIGHT_COLORS,
-        });
-      },
-      setTheme: (isDark) => {
-        set({
-          isDark,
-          colors: isDark ? DARK_COLORS : LIGHT_COLORS,
-        });
-      },
-    }),
-    {
-      name: 'bancario-theme-storage',
-      storage: createJSONStorage(() => AsyncStorage),
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          state.colors = state.isDark ? DARK_COLORS : LIGHT_COLORS;
-        }
-      },
-    }
-  )
-);
+const STORAGE_KEY = 'bancario-theme-storage';
+
+const readPersistedTheme = async () => {
+  try {
+    const rawValue = await AsyncStorage.getItem(STORAGE_KEY);
+    if (!rawValue) return null;
+
+    const parsed = JSON.parse(rawValue);
+    return Boolean(parsed?.state?.isDark);
+  } catch {
+    return null;
+  }
+};
+
+const writePersistedTheme = async (isDark) => {
+  try {
+    await AsyncStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        state: { isDark },
+        version: 0,
+      })
+    );
+  } catch {
+    // noop
+  }
+};
+
+export const useThemeStore = create((set, get) => ({
+  isDark: false,
+  colors: LIGHT_COLORS,
+  toggleTheme: async () => {
+    const { isDark } = get();
+    const nextIsDark = !isDark;
+    await writePersistedTheme(nextIsDark);
+    set({
+      isDark: nextIsDark,
+      colors: nextIsDark ? DARK_COLORS : LIGHT_COLORS,
+    });
+  },
+  setTheme: async (isDark) => {
+    await writePersistedTheme(isDark);
+    set({
+      isDark,
+      colors: isDark ? DARK_COLORS : LIGHT_COLORS,
+    });
+  },
+}));
+
+void (async () => {
+  const isDark = await readPersistedTheme();
+  if (typeof isDark === 'boolean') {
+    useThemeStore.setState({
+      isDark,
+      colors: isDark ? DARK_COLORS : LIGHT_COLORS,
+    });
+  }
+})();

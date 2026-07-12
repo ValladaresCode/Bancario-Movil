@@ -1,9 +1,49 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 
 const TOKEN_KEY = 'accessToken';
+const STORAGE_KEY = 'auth-storage';
+
+const authStorage = AsyncStorage;
+
+const readPersistedAuthState = async () => {
+  try {
+    const rawValue = await authStorage.getItem(STORAGE_KEY);
+    if (!rawValue) return null;
+
+    const parsed = JSON.parse(rawValue);
+    return {
+      token: parsed?.state?.token ?? null,
+      user: parsed?.state?.user ?? null,
+      isAuthenticated: Boolean(parsed?.state?.isAuthenticated),
+    };
+  } catch {
+    return null;
+  }
+};
+
+const writePersistedAuthState = async ({ token, user, isAuthenticated }) => {
+  try {
+    await authStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        state: { token, user, isAuthenticated },
+        version: 0,
+      })
+    );
+  } catch {
+    // noop
+  }
+};
+
+const clearPersistedAuthState = async () => {
+  try {
+    await authStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // noop
+  }
+};
 
 // Guarda el token en SecureStore (dato sensible). No bloquea el flujo si falla.
 const persistTokenSecurely = async (token) => {
@@ -22,44 +62,37 @@ const clearTokenSecurely = async () => {
   }
 };
 
-export const useAuthStore = create(
-  persist(
-    (set, get) => ({
-      token: null,
-      user: null, // { id, name, profilePicture, role }
-      isAuthenticated: false,
-      _hasHydrated: false,
+export const useAuthStore = create((set, get) => ({
+  token: null,
+  user: null, // { id, name, profilePicture, role }
+  isAuthenticated: false,
+  _hasHydrated: false,
 
-      // Llamado tras login exitoso: { token, user: userDetails }
-      login: async ({ token, user }) => {
-        await persistTokenSecurely(token);
-        set({ token, user, isAuthenticated: true });
-      },
+  // Llamado tras login exitoso: { token, user: userDetails }
+  login: async ({ token, user }) => {
+    await Promise.all([
+      persistTokenSecurely(token),
+      writePersistedAuthState({ token, user, isAuthenticated: true }),
+    ]);
+    set({ token, user, isAuthenticated: true });
+  },
 
-      logout: async () => {
-        await clearTokenSecurely();
-        set({ token: null, user: null, isAuthenticated: false });
-      },
+  logout: async () => {
+    await Promise.all([clearTokenSecurely(), clearPersistedAuthState()]);
+    set({ token: null, user: null, isAuthenticated: false });
+  },
 
-      // Merge parcial del perfil (PATCH /users/me).
-      setUser: (patch) =>
-        set((state) => ({ user: { ...(state.user || {}), ...patch } })),
+  // Merge parcial del perfil (PATCH /users/me).
+  setUser: (patch) =>
+    set((state) => ({ user: { ...(state.user || {}), ...patch } })),
 
-      setHasHydrated: (value) => set({ _hasHydrated: value }),
-    }),
-    {
-      name: 'auth-storage',
-      storage: createJSONStorage(() => AsyncStorage),
-      // Solo persistimos lo necesario para rehidratar la sesión.
-      partialize: (state) => ({
-        token: state.token,
-        user: state.user,
-        isAuthenticated: state.isAuthenticated,
-      }),
-      onRehydrateStorage: () => (state) => {
-        // Marca la hidratación como completa para el anti-parpadeo del AppNavigator.
-        state?.setHasHydrated(true);
-      },
-    }
-  )
-);
+  setHasHydrated: (value) => set({ _hasHydrated: value }),
+}));
+
+void (async () => {
+  const persisted = await readPersistedAuthState();
+  if (persisted) {
+    useAuthStore.setState(persisted);
+  }
+  useAuthStore.getState().setHasHydrated(true);
+})();
