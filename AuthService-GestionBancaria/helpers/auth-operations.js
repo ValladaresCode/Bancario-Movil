@@ -266,6 +266,9 @@ export const verifyEmailHelper = async (token) => {
         name: signupRequest.Name,
         email: signupRequest.Email,
         phone: signupRequest.Phone,
+        fechaNacimiento: signupRequest.FechaNacimiento,
+        dpi: signupRequest.Dpi,
+        ingresosMensuales: signupRequest.IngresosMensuales,
         profilePicture: signupRequest.ProfilePicture,
         hashedPassword: signupRequest.PasswordHash,
       });
