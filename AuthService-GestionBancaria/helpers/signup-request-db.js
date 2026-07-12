@@ -3,6 +3,7 @@ import { checkUserExists } from './user-db.js';
 import { hashPassword } from '../utils/password-utils.js';
 import { generateEmailVerificationToken } from '../utils/auth-helpers.js';
 import { sendVerificationEmail } from './email-service.js';
+import { resolveProfilePictureInput } from './cloudinary-service.js';
 import { Op } from 'sequelize';
 
 export const createSignupRequest = async ({
@@ -79,6 +80,12 @@ export const createSignupRequest = async ({
 
   const passwordHash = await hashPassword(normalizedPassword);
 
+  // Subir la foto a Cloudinary AHORA (no al aprobar): el path local de multer
+  // no sobrevive redeploys y la aprobación puede tardar días. Se guarda el
+  // nombre limpio del asset, igual que en el registro directo.
+  const resolvedProfilePicture =
+    await resolveProfilePictureInput(profilePicture);
+
   // If there is an existing signup request for this email that was rejected,
   // allow reusing it by updating its data and marking it as PENDING again.
   const existingAny = await SignupRequest.findOne({ where: { Email: normalizedEmail } });
@@ -90,7 +97,7 @@ export const createSignupRequest = async ({
       existingAny.FechaNacimiento = normalizedFechaNacimiento || new Date('2000-01-01')
       existingAny.Dpi = normalizedDpi || null
       existingAny.IngresosMensuales = normalizedIngresosMensuales
-      existingAny.ProfilePicture = profilePicture || null
+      existingAny.ProfilePicture = resolvedProfilePicture || null
       existingAny.Status = 'PENDING'
       existingAny.ApprovedBy = null
       existingAny.ApprovedAt = null
@@ -115,7 +122,7 @@ export const createSignupRequest = async ({
     FechaNacimiento: normalizedFechaNacimiento || new Date('2000-01-01'),
     Dpi: normalizedDpi || null,
     IngresosMensuales: normalizedIngresosMensuales,
-    ProfilePicture: profilePicture || null,
+    ProfilePicture: resolvedProfilePicture || null,
     Status: 'PENDING',
   });
 
