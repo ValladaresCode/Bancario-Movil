@@ -72,8 +72,8 @@ export const DARK_COLORS = {
   accentStrong: '#020617',
 
   // Superficies / fondo
-  background: '#0f172a', // slate-900
-  surface: '#1e293b', // slate-800
+  background: '#161618', // darker background to match mockup
+  surface: '#212124', // slightly lighter for cards
   surfaceAlt: '#334155', // slate-700
   overlay: 'rgba(2, 6, 23, 0.7)',
 
@@ -122,15 +122,14 @@ export const GRADIENTS = {
   endVertical: { x: 0, y: 1 },
 };
 
-// Familias tipográficas de marca (cargadas en App.jsx).
-// Con fontFamily personalizada, el peso va "horneado" en la familia.
+// Familias tipográficas de sistema: SF Pro Display (títulos) y SF Pro Text (cuerpo).
 export const FONTS = {
-  body: 'SpaceGrotesk_400Regular',
-  medium: 'SpaceGrotesk_500Medium',
-  semibold: 'SpaceGrotesk_600SemiBold',
-  bold: 'SpaceGrotesk_700Bold',
-  display: 'Literata_600SemiBold', // títulos serif
-  displayBold: 'Literata_700Bold',
+  body: 'SF Pro Text',
+  medium: 'SF Pro Text',
+  semibold: 'SF Pro Text',
+  bold: 'SF Pro Text',
+  display: 'SF Pro Display',
+  displayBold: 'SF Pro Display',
 };
 
 export const SPACING = {

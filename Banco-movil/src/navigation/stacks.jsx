@@ -6,10 +6,11 @@ import { S } from './screens';
 
 // Opciones de header devueltas dinámicamente según el tema
 const getStackScreenOptions = (colors) => ({
-  headerStyle: { backgroundColor: colors.brand },
-  headerTintColor: colors.white,
-  headerTitleStyle: { fontFamily: FONTS.displayBold, fontWeight: '700', fontSize: FONT_SIZE.lg },
-  headerShadowVisible: true,
+  headerTitleAlign: 'left',
+  headerStyle: { backgroundColor: colors.background },
+  headerTintColor: colors.text,
+  headerShadowVisible: false,
+  headerTitleStyle: { fontFamily: FONTS.displayBold, fontSize: FONT_SIZE.xxxl, fontWeight: '800' },
   contentStyle: { backgroundColor: colors.background },
 });
 

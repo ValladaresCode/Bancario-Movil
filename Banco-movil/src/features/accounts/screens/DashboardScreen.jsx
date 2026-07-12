@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, Text } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { LoadingSpinner } from '../../../shared/components';
@@ -42,7 +42,10 @@ export function DashboardScreen({ navigation }) {
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.primary} />}
     >
-      <Text style={styles.greeting}>Hola, {user?.name || 'cliente'} 👋</Text>
+      <View style={styles.greetingContainer}>
+        <Text style={styles.greeting}>Hola, {user?.name || 'Marcos'} </Text>
+        <Text style={styles.subGreeting}>Bienvenido de nuevo</Text>
+      </View>
 
       <BalanceSummaryCard totalsByCurrency={totalsByCurrency} accountCount={accounts.length} />
 
@@ -67,7 +70,9 @@ export function DashboardScreen({ navigation }) {
 const createStyles = (colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: SPACING.lg, gap: SPACING.md },
-  greeting: { fontSize: FONT_SIZE.xl, fontFamily: FONTS.displayBold, fontWeight: '800', color: colors.text },
+  greetingContainer: { marginBottom: SPACING.xs, gap: 2 },
+  greeting: { fontSize: FONT_SIZE.xl, fontFamily: FONTS.bold, color: colors.text },
+  subGreeting: { fontSize: FONT_SIZE.sm, fontFamily: FONTS.body, color: colors.textSecondary },
   sectionTitle: {
     fontSize: FONT_SIZE.lg,
     fontFamily: FONTS.displayBold,

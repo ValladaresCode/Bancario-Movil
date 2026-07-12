@@ -62,7 +62,7 @@ export function ServicesScreen({ navigation }) {
 
 const createStyles = (colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  list: { padding: SPACING.lg, gap: SPACING.sm },
+  list: { padding: SPACING.lg, gap: SPACING.md },
   promoBtn: { marginBottom: SPACING.sm },
   card: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
   image: { width: 64, height: 64, borderRadius: RADIUS.md, backgroundColor: colors.primaryLight },

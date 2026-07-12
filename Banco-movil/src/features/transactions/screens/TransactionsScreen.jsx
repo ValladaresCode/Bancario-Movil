@@ -61,7 +61,7 @@ export function TransactionsScreen({ navigation }) {
 
 const createStyles = (colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  list: { padding: SPACING.lg, gap: SPACING.sm },
+  list: { padding: SPACING.lg, gap: SPACING.md },
   newBtn: { marginBottom: SPACING.sm },
   card: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
   iconWrap: {

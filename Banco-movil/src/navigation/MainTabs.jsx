@@ -1,18 +1,19 @@
+import { StyleSheet, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { FONTS, FONT_SIZE } from '../shared/constants/theme';
+import { FONTS, FONT_SIZE, SPACING } from '../shared/constants/theme';
 import { useThemeStore } from '../shared/hooks/useThemeStore';
 import { AccountsStack, CatalogStack, HomeStack, ProfileStack, TransactionsStack } from './stacks';
 
 const Tab = createBottomTabNavigator();
 
 const TAB_ICONS = {
-  Inicio: 'home',
-  Cuentas: 'account-balance',
-  Movimientos: 'swap-horiz',
-  Servicios: 'local-offer',
-  Perfil: 'person',
+  Inicio: { active: 'home-filled', inactive: 'home' },
+  Cuentas: { active: 'account-balance', inactive: 'account-balance' },
+  Movimientos: { active: 'swap-horiz', inactive: 'swap-horiz' },
+  Servicios: { active: 'local-offer', inactive: 'local-offer' },
+  Perfil: { active: 'person', inactive: 'person-outline' },
 };
 
 // Pantalla raíz de cada tab. Al tocar el tab volvemos aquí, así Perfil siempre
@@ -33,25 +34,38 @@ const resetTabOnPress = ({ navigation, route }) => ({
 });
 
 export function MainTabs() {
-  const { colors } = useThemeStore();
+  const { colors, isDark } = useThemeStore();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textMuted,
+        tabBarInactiveTintColor: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.35)',
         tabBarStyle: {
           backgroundColor: colors.surface,
-          borderTopColor: colors.border,
-          borderTopWidth: 1,
-          height: 66,
-          paddingTop: 6,
-          paddingBottom: 10,
+          borderTopWidth: 0,
+          height: 70,
+          paddingTop: 8,
+          paddingBottom: 12,
+          elevation: 20,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: isDark ? 0.3 : 0.08,
+          shadowRadius: 12,
         },
-        tabBarLabelStyle: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.semibold, fontWeight: '600' },
-        tabBarIcon: ({ color, size, focused }) => (
-          <MaterialIcons name={TAB_ICONS[route.name] || 'circle'} size={focused ? size + 1 : size} color={color} />
-        ),
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontFamily: FONTS.medium,
+          fontWeight: '500',
+          marginTop: 2,
+        },
+        tabBarIcon: ({ color, size, focused }) => {
+          const icons = TAB_ICONS[route.name] || { active: 'circle', inactive: 'circle' };
+          const iconName = focused ? icons.active : icons.inactive;
+          return (
+            <MaterialIcons name={iconName} size={focused ? 26 : 24} color={color} />
+          );
+        },
       })}
     >
       <Tab.Screen name="Inicio" component={HomeStack} listeners={resetTabOnPress} />
