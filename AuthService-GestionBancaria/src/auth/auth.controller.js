@@ -35,9 +35,7 @@ const isMobileClient = (req) => req.headers['x-client-type'] === 'mobile';
 export const register = asyncHandler(async (req, res) => {
   try {
     const uploadedFile =
-      req.file ||
-      req.files?.profilePicture?.[0] ||
-      req.files?.imagen?.[0];
+      req.file || req.files?.profilePicture?.[0] || req.files?.imagen?.[0];
 
     const userData = {
       ...req.body,
@@ -73,7 +71,9 @@ export const login = asyncHandler(async (req, res) => {
     const result = await loginUserHelper(email, password);
 
     // Emitir refresh token (nueva familia) y entregarlo en cookie HttpOnly.
-    const { plaintext } = await issueRefreshToken(result.userDetails.id, { req });
+    const { plaintext } = await issueRefreshToken(result.userDetails.id, {
+      req,
+    });
     res.cookie(config.cookie.name, plaintext, refreshCookieOptions());
 
     // Dual: el movil recibe el refresh token en el body; la web NO (usa cookie).
@@ -105,12 +105,10 @@ export const login = asyncHandler(async (req, res) => {
 // Lee el refresh token de la cookie HttpOnly (web) o del body (movil).
 export const refresh = asyncHandler(async (req, res) => {
   try {
-    const presented = req.cookies?.[config.cookie.name] || req.body?.refreshToken;
+    const presented =
+      req.cookies?.[config.cookie.name] || req.body?.refreshToken;
 
-    const { userId, family, newPlaintext } = await rotateRefreshToken(
-      presented,
-      req
-    );
+    const { userId, newPlaintext } = await rotateRefreshToken(presented, req);
 
     // Regenerar el access token con el claim de rol actual del usuario.
     const user = await findUserById(userId);
@@ -149,7 +147,8 @@ export const refresh = asyncHandler(async (req, res) => {
 // Logout: revoca la familia de la sesion actual y limpia la cookie.
 export const logout = asyncHandler(async (req, res) => {
   try {
-    const presented = req.cookies?.[config.cookie.name] || req.body?.refreshToken;
+    const presented =
+      req.cookies?.[config.cookie.name] || req.body?.refreshToken;
     await revokeByToken(presented);
   } catch (error) {
     console.error('Error in logout controller:', error);

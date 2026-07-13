@@ -51,6 +51,8 @@ export function useAuth() {
           fechaNacimiento: form.fechaNacimiento,
           dpi: form.dpi,
           ingresosMensuales: form.ingresosMensuales,
+          direccion: form.direccion,
+          nombreTrabajo: form.nombreTrabajo,
         },
         form.profilePicture ? { uri: form.profilePicture, field: 'profilePicture' } : null
       );

@@ -28,7 +28,10 @@ const fileFilter = (req, file, cb) => {
   const fileExtension = path.extname(file.originalname).toLowerCase();
   const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.jfif'];
 
-  if (config.upload.allowedTypes.includes(file.mimetype) || allowedExtensions.includes(fileExtension)) {
+  if (
+    config.upload.allowedTypes.includes(file.mimetype) ||
+    allowedExtensions.includes(fileExtension)
+  ) {
     cb(null, true);
   } else {
     cb(

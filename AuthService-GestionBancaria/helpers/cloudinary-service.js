@@ -1,9 +1,9 @@
+import crypto from 'crypto';
+import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
 import { config } from '../configs/config.js';
 import fs from 'fs/promises';
-
-// FIX: Bypass SSL (Cloudinary, etc.)
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+import fsSync from 'fs';
 
 // Configurar Cloudinary
 cloudinary.config({
@@ -12,11 +12,19 @@ cloudinary.config({
   api_secret: config.cloudinary.apiSecret,
 });
 
+// Extensiones de imagen conocidas. Se usan para detectar public_ids legacy
+// que quedaron guardados CON extensión (bug histórico: la extensión dentro
+// del public_id hace que la URL de entrega la interprete como formato y dé 404).
+const IMAGE_EXT_REGEX = /\.(jpe?g|png|webp|gif|jfif)$/i;
+
 export const uploadImage = async (filePath, fileName) => {
   try {
     const folder = config.cloudinary.folder;
+    // El public_id NUNCA debe llevar extensión: Cloudinary trata el último
+    // ".xxx" de la URL de entrega como formato solicitado, no como parte del id.
+    const publicId = fileName.replace(IMAGE_EXT_REGEX, '');
     const options = {
-      public_id: fileName,
+      public_id: publicId,
       folder: folder,
       resource_type: 'image',
       transformation: [
@@ -38,7 +46,7 @@ export const uploadImage = async (filePath, fileName) => {
       throw new Error(`Error uploading image: ${result.error.message}`);
     }
 
-    return fileName;
+    return publicId;
   } catch (error) {
     console.error('Error uploading to Cloudinary:', error?.message || error);
 
@@ -81,13 +89,18 @@ export const getFullImageUrl = (imagePath) => {
   const baseUrl = config.cloudinary.baseUrl;
   const folder = config.cloudinary.folder;
 
-  const pathToUse = !imagePath
-    ? config.cloudinary.defaultAvatarPath
-    : imagePath.includes('/')
-      ? imagePath
-      : `${folder}/${imagePath}`;
+  const pathToUse = imagePath.includes('/')
+    ? imagePath
+    : `${folder}/${imagePath}`;
 
-  return `${baseUrl}${pathToUse}`;
+  // Compatibilidad legacy: si el valor guardado termina en extensión, el
+  // public_id real en Cloudinary la incluye (ej. "profile-x.jpeg"). La URL
+  // debe repetir la extensión ("profile-x.jpeg.jpeg") para que Cloudinary
+  // separe id y formato correctamente; si no, responde 404.
+  const extMatch = pathToUse.match(IMAGE_EXT_REGEX);
+  const finalPath = extMatch ? `${pathToUse}${extMatch[0]}` : pathToUse;
+
+  return `${baseUrl}${finalPath}`;
 };
 
 export const getDefaultAvatarUrl = () => {
@@ -111,10 +124,64 @@ export const getDefaultAvatarPath = () => {
   return defaultPath;
 };
 
+/**
+ * Normaliza cualquier entrada de foto de perfil a un nombre de archivo limpio
+ * listo para guardar en BD (sin folder, sin baseUrl, sin extensión).
+ * - Path local (multer): sube a Cloudinary y devuelve el public_id corto.
+ * - URL completa o path con folder: extrae el nombre.
+ * Devuelve null si no hay imagen o si la subida falla.
+ * Único punto de entrada para registro, solicitudes de signup y updates.
+ */
+export const resolveProfilePictureInput = async (profilePicture) => {
+  if (!profilePicture || typeof profilePicture !== 'string') {
+    return null;
+  }
+
+  if (!config.cloudinary.cloudName || !config.cloudinary.apiKey) {
+    console.warn('Cloudinary config missing. Skipping profile image upload.');
+    return null;
+  }
+
+  const uploadPath = config.upload.uploadPath;
+  const isLocalFile =
+    profilePicture.includes('uploads/') ||
+    profilePicture.includes('uploads\\') ||
+    profilePicture.includes(uploadPath) ||
+    profilePicture.startsWith('./') ||
+    fsSync.existsSync(profilePicture);
+
+  if (isLocalFile) {
+    const ext = path.extname(profilePicture);
+    const randomHex = crypto.randomBytes(6).toString('hex');
+    const cloudinaryFileName = `profile-${randomHex}${ext}`;
+    try {
+      return await uploadImage(profilePicture, cloudinaryFileName);
+    } catch (error) {
+      console.error(
+        'Error uploading profile picture:',
+        error?.message || error
+      );
+      return null;
+    }
+  }
+
+  const baseUrl = config.cloudinary.baseUrl || '';
+  const folder = config.cloudinary.folder || '';
+  let normalized = profilePicture;
+  if (baseUrl && normalized.startsWith(baseUrl)) {
+    normalized = normalized.slice(baseUrl.length);
+  }
+  if (folder && normalized.startsWith(`${folder}/`)) {
+    normalized = normalized.slice(folder.length + 1);
+  }
+  return normalized.split('/').pop();
+};
+
 export default {
   uploadImage,
   deleteImage,
   getFullImageUrl,
   getDefaultAvatarUrl,
   getDefaultAvatarPath,
+  resolveProfilePictureInput,
 };

@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import {
   checkUserExists,
   createNewUser,
@@ -24,10 +23,8 @@ import { verifyPassword } from '../utils/password-utils.js';
 import { buildUserResponse } from '../utils/user-helpers.js';
 import { sendVerificationEmail } from './email-service.js';
 import { generateJWT } from './generate-jwt.js';
-import path from 'path';
-import { uploadImage } from './cloudinary-service.js';
+import { resolveProfilePictureInput } from './cloudinary-service.js';
 import { config } from '../configs/config.js';
-import fs from 'fs';
 
 const getExpirationTime = (timeString) => {
   const timeValue = parseInt(timeString);
@@ -49,76 +46,26 @@ const getExpirationTime = (timeString) => {
 
 export const registerUserHelper = async (userData) => {
   try {
-    const { email, password, name, phone, fechaNacimiento, dpi, ingresosMensuales, profilePicture } = userData;
+    const {
+      email,
+      password,
+      name,
+      phone,
+      fechaNacimiento,
+      dpi,
+      ingresosMensuales,
+      direccion,
+      nombreTrabajo,
+      profilePicture,
+    } = userData;
 
-    // Validación de edad mínima (18 años)
-    if (fechaNacimiento) {
-      const birthDate = new Date(fechaNacimiento);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      
-      if (age < 18) {
-        throw new Error('Debes ser mayor de 18 años para registrarte.');
-      }
-    }
-
-    // Validation is now handled by express-validator middleware in routes
+    // Edad 18+ y formato de campos ya validados por validateRegister en la ruta
     const userExists = await checkUserExists(email);
     if (userExists) {
-      throw new Error(
-        'Ya existe un usuario con este email'
-      );
+      throw new Error('Ya existe un usuario con este email');
     }
-    let profilePictureToStore = profilePicture;
-    if (profilePicture) {
-      const uploadPath = config.upload.uploadPath;
-
-      const isLocalFile =
-        profilePicture.includes('uploads/') ||
-        profilePicture.includes('uploads\\') ||
-        profilePicture.includes(uploadPath) ||
-        profilePicture.startsWith('./') ||
-        fs.existsSync(profilePicture);
-
-      if (isLocalFile) {
-        try {
-          const ext = path.extname(profilePicture);
-          const randomHex = crypto.randomBytes(6).toString('hex');
-          const cloudinaryFileName = `profile-${randomHex}${ext}`;
-
-          profilePictureToStore = await uploadImage(
-            profilePicture,
-            cloudinaryFileName
-          );
-        } catch (err) {
-          console.error(
-            'Error uploading profile picture to Cloudinary during registration:',
-            err
-          );
-          profilePictureToStore = null;
-        }
-      } else {
-        try {
-          const baseUrl = config.cloudinary.baseUrl || '';
-          const folder = config.cloudinary.folder || '';
-          let normalized = profilePicture;
-          if (normalized.startsWith(baseUrl)) {
-            normalized = normalized.slice(baseUrl.length);
-          }
-          if (folder && normalized.startsWith(`${folder}/`)) {
-            normalized = normalized.slice(folder.length + 1);
-          }
-          profilePictureToStore = normalized.split('/').pop();
-        } catch (normErr) {
-          console.warn('Could not normalize profile picture path:', normErr);
-          profilePictureToStore = null;
-        }
-      }
-    }
+    const profilePictureToStore =
+      await resolveProfilePictureInput(profilePicture);
 
     // Crear el usuario
     const newUser = await createNewUser({
@@ -129,6 +76,8 @@ export const registerUserHelper = async (userData) => {
       fechaNacimiento,
       dpi,
       ingresosMensuales,
+      direccion,
+      nombreTrabajo,
       profilePicture: profilePictureToStore,
     });
 
@@ -203,7 +152,9 @@ export const loginUserHelper = async (email, password) => {
     const token = await generateJWT(user.Id.toString(), { role });
 
     // Expiración real del access token (coincide con el claim `exp` del JWT).
-    const expiresAt = new Date(Date.now() + getExpirationTime(config.jwt.expiresIn || '12h'));
+    const expiresAt = new Date(
+      Date.now() + getExpirationTime(config.jwt.expiresIn || '12h')
+    );
 
     // Build compact userDetails object
     const fullUser = buildUserResponse(user);
@@ -262,6 +213,12 @@ export const verifyEmailHelper = async (token) => {
         throw new Error('Ya existe un usuario con este email');
       }
 
+      // Re-resolver la foto por si la solicitud es previa al fix y guarda un
+      // path local ya inexistente: en ese caso cae a null → avatar default.
+      const requestProfilePicture = await resolveProfilePictureInput(
+        signupRequest.ProfilePicture
+      );
+
       user = await createNewUser({
         name: signupRequest.Name,
         email: signupRequest.Email,
@@ -269,7 +226,9 @@ export const verifyEmailHelper = async (token) => {
         fechaNacimiento: signupRequest.FechaNacimiento,
         dpi: signupRequest.Dpi,
         ingresosMensuales: signupRequest.IngresosMensuales,
-        profilePicture: signupRequest.ProfilePicture,
+        direccion: signupRequest.Direccion,
+        nombreTrabajo: signupRequest.NombreTrabajo,
+        profilePicture: requestProfilePicture,
         hashedPassword: signupRequest.PasswordHash,
       });
 

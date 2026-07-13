@@ -28,7 +28,9 @@ export const issueRefreshToken = async (userId, { family, req } = {}) => {
   const plaintext = generateRefreshToken();
   const tokenHash = hashToken(plaintext);
   const chain = family || generateShortUUID();
-  const expiresAt = new Date(Date.now() + parseDurationMs(config.jwt.refreshExpiresIn));
+  const expiresAt = new Date(
+    Date.now() + parseDurationMs(config.jwt.refreshExpiresIn)
+  );
 
   await RefreshToken.create({
     UserId: userId,
@@ -75,7 +77,9 @@ export const rotateRefreshToken = async (plaintext, req) => {
   // Reuso de un token ya rotado/revocado => posible robo: revocar toda la familia.
   if (row.Revoked) {
     await revokeFamily(row.Family, 'reuse');
-    const err = new Error('Refresh token reutilizado. Sesion revocada por seguridad.');
+    const err = new Error(
+      'Refresh token reutilizado. Sesion revocada por seguridad.'
+    );
     err.status = 401;
     throw err;
   }

@@ -16,8 +16,17 @@ export async function registerWithAuthService(formData) {
   return data
 }
 
-export async function submitSignupRequestWithAuthService(formData) {
-  const { data } = await axiosAuth.post('/auth/signup-request', formData)
+export async function submitSignupRequestWithAuthService(form) {
+  // Convertir a FormData: la ruta usa multer (multipart) y un objeto plano
+  // se serializaría como JSON, perdiendo el archivo de la foto de perfil.
+  const payload = form instanceof FormData ? form : new FormData()
+  if (!(form instanceof FormData)) {
+    for (const [key, value] of Object.entries(form)) {
+      if (value === null || value === undefined || value === '') continue
+      payload.append(key, value)
+    }
+  }
+  const { data } = await axiosAuth.post('/auth/signup-request', payload)
   return data
 }
 

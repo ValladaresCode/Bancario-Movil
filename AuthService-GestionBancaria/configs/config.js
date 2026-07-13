@@ -44,7 +44,13 @@ export const config = {
   // File Upload Configuration (aligned with .NET FileValidator)
   upload: {
     maxSize: 5 * 1024 * 1024, // 5MB (aligned with .NET)
-    allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/jfif'], // aligned with .NET
+    allowedTypes: [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/jfif',
+    ], // aligned with .NET
     // Ensure we always have a folder to store multipart/form-data uploads
     uploadPath: process.env.UPLOAD_PATH || path.join(process.cwd(), 'uploads'),
   },
@@ -70,15 +76,16 @@ export const config = {
     folder: process.env.CLOUDINARY_FOLDER?.trim(),
   },
 
-  // Rate Limiting (aligned with .NET AuthPolicy and ApiPolicy)
+  // Rate Limiting
   rateLimit: {
-    // General API rate limiting (aligned with .NET ApiPolicy: 20 tokens per minute)
+    // API general: 40 requests por minuto
     windowMs: 1 * 60 * 1000, // 1 minute
     maxRequests: 40,
-    // Auth endpoints rate limiting (aligned with .NET AuthPolicy: 5 requests per minute)
+    // Endpoints de auth: 40/min (igual que la API general; la app móvil aún
+    // no tiene refresh token y reintenta login — bajar recién cuando lo tenga)
     authWindowMs: 1 * 60 * 1000, // 1 minute
     authMaxRequests: 40,
-    // Email endpoints rate limiting (more restrictive for security)
+    // Endpoints de email: 3 cada 15 min (anti-spam de correos)
     emailWindowMs: 15 * 60 * 1000, // 15 minutes
     emailMaxRequests: 3,
   },

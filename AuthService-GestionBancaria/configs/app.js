@@ -69,7 +69,9 @@ export const initServer = async () => {
 
     app.listen(PORT, () => {
       console.log(`GestorBancario Auth Server running on port ${PORT}`);
-      console.log(`Revisar estado: http://localhost:${PORT}${BASE_PATH}/health`);
+      console.log(
+        `Revisar estado: http://localhost:${PORT}${BASE_PATH}/health`
+      );
     });
   } catch (err) {
     console.error(`Error starting Auth Server: ${err.message}`);

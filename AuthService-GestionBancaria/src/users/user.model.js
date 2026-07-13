@@ -57,10 +57,7 @@ export const User = sequelize.define(
   {
     tableName: 'users',
     timestamps: true,
-    indexes: [
-      { fields: ['email'], unique: true },
-      { fields: ['is_active'] },
-    ],
+    indexes: [{ fields: ['email'], unique: true }, { fields: ['is_active'] }],
   }
 );
 
@@ -101,15 +98,16 @@ export const UserProfile = sequelize.define(
         isNumeric: { msg: 'El teléfono solo debe contener números.' },
       },
     },
+    // La obligatoriedad de fecha/dpi/ingresos se valida en las rutas
+    // (validateRegister). Aquí solo formato: los campos son allowNull
+    // porque existen perfiles legacy sin estos datos.
     FechaNacimiento: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: new Date('2000-01-01'),
       field: 'fecha_nacimiento',
       validate: {
-        notEmpty: { msg: 'La fecha de nacimiento es obligatoria.' },
-        isDate: { msg: 'La fecha de nacimiento no es válida.' }
-      }
+        isDate: { msg: 'La fecha de nacimiento no es válida.' },
+      },
     },
     Dpi: {
       type: DataTypes.STRING(13),
@@ -117,25 +115,23 @@ export const UserProfile = sequelize.define(
       unique: true,
       field: 'dpi',
       validate: {
-        notEmpty: { msg: 'El DPI es obligatorio.' },
         len: {
           args: [13, 13],
           msg: 'El DPI debe tener exactamente 13 dígitos.',
         },
         isNumeric: { msg: 'El DPI solo debe contener números.' },
-      }
+      },
     },
     IngresosMensuales: {
       type: DataTypes.DECIMAL(18, 2),
       allowNull: true,
       field: 'ingresos_mensuales',
       validate: {
-        notEmpty: { msg: 'Los ingresos mensuales son obligatorios.' },
         min: {
           args: [0.01],
           msg: 'Los ingresos mensuales deben ser mayores a 0.',
-        }
-      }
+        },
+      },
     },
     Direccion: {
       type: DataTypes.STRING,

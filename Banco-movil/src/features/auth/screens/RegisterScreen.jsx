@@ -36,6 +36,8 @@ export function RegisterScreen({ navigation }) {
       fechaNacimiento: '',
       dpi: '',
       ingresosMensuales: '',
+      direccion: '',
+      nombreTrabajo: '',
     },
   });
 
@@ -146,6 +148,28 @@ export function RegisterScreen({ navigation }) {
             leftIcon="payments"
             keyboardType="numeric"
             error={errors.ingresosMensuales?.message}
+          />
+          <FormField
+            control={control}
+            name="direccion"
+            rules={{
+              required: 'La dirección es obligatoria',
+              maxLength: { value: 255, message: 'Máximo 255 caracteres' },
+            }}
+            label="Dirección"
+            leftIcon="home"
+            error={errors.direccion?.message}
+          />
+          <FormField
+            control={control}
+            name="nombreTrabajo"
+            rules={{
+              required: 'La ocupación es obligatoria',
+              maxLength: { value: 100, message: 'Máximo 100 caracteres' },
+            }}
+            label="Ocupación"
+            leftIcon="work"
+            error={errors.nombreTrabajo?.message}
           />
 
           <Button title="Crear cuenta" gradient onPress={handleSubmit(onSubmit)} loading={loading} />

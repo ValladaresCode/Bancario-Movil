@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "AuthService-GestionBancaria"
+		},
+		{
+			"path": "Banco-movil"
+		},
+		{
+			"path": "Gestor_Bancario_Backend"
+		},
+		{
+			"path": "Gestor_Bancario_Frontend"
+		}
+	]
+}

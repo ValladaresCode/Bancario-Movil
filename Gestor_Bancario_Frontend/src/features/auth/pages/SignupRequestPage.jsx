@@ -10,6 +10,8 @@ const initialForm = {
   fechaNacimiento: '',
   dpi: '',
   ingresosMensuales: '',
+  direccion: '',
+  nombreTrabajo: '',
   profilePicture: null
 }
 
@@ -145,6 +147,22 @@ export const SignupRequestPage = () => {
             <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.08em] text-white/40">Ingresos Mensuales (GTQ)</span>
             <input
               name="ingresosMensuales" type="number" min="0" value={form.ingresosMensuales} onChange={handleChange} required placeholder="Ej. 5000.00"
+              className="w-full rounded-xl border border-white/10 bg-[#1a1a1a] px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-white/35"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.08em] text-white/40">Dirección</span>
+            <input
+              name="direccion" value={form.direccion} onChange={handleChange} required maxLength="255" placeholder="Tu dirección de residencia"
+              className="w-full rounded-xl border border-white/10 bg-[#1a1a1a] px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-white/35"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.08em] text-white/40">Ocupación</span>
+            <input
+              name="nombreTrabajo" value={form.nombreTrabajo} onChange={handleChange} required maxLength="100" placeholder="Ej. Contador"
               className="w-full rounded-xl border border-white/10 bg-[#1a1a1a] px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition focus:border-white/35"
             />
           </label>
