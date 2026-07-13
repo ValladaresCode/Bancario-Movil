@@ -17,6 +17,9 @@ import { TransferToFavoriteScreen } from '../features/favorites/screens/Transfer
 import { CurrenciesScreen } from '../features/currencies/screens/CurrenciesScreen';
 import { ChatListScreen } from '../features/chatbot/screens/ChatListScreen';
 import { ChatScreen } from '../features/chatbot/screens/ChatScreen';
+import { ScanQRScreen } from '../features/qr/screens/ScanQRScreen';
+import { ConfirmScanTransferScreen } from '../features/qr/screens/ConfirmScanTransferScreen';
+import { MyQRScreen } from '../features/qr/screens/MyQRScreen';
 
 // Cada pantalla envuelta en ErrorBoundary: un error de render muestra un fallback
 // con "Reintentar" en lugar de dejar la página totalmente en blanco.
@@ -38,4 +41,7 @@ export const S = {
   Currencies: withErrorBoundary(CurrenciesScreen),
   ChatList: withErrorBoundary(ChatListScreen),
   Chat: withErrorBoundary(ChatScreen),
+  ScanQR: withErrorBoundary(ScanQRScreen),
+  ConfirmScanTransfer: withErrorBoundary(ConfirmScanTransferScreen),
+  MyQR: withErrorBoundary(MyQRScreen),
 };

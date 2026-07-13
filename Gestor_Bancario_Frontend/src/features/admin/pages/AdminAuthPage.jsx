@@ -19,6 +19,8 @@ export const AdminAuthPage = () => {
     actionId: requestsActionId,
     handleRequestAction,
     refreshRequests,
+    approvedToken,
+    clearApprovedToken,
   } = useSignupRequests()
 
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -61,6 +63,8 @@ export const AdminAuthPage = () => {
         actionError={requestsActionError}
         actionId={requestsActionId}
         onAction={handleRequestAction}
+        approvedToken={approvedToken}
+        onClearApprovedToken={clearApprovedToken}
       />
 
       <CreateUserModal

@@ -33,6 +33,7 @@ export function AccountsStack() {
       <AccountsStackNav.Screen name="Accounts" component={S.Accounts} options={{ title: 'Mis Cuentas' }} />
       <AccountsStackNav.Screen name="AccountDetail" component={S.AccountDetail} options={{ title: 'Detalle de Cuenta' }} />
       <AccountsStackNav.Screen name="RequestAccount" component={S.RequestAccount} options={{ title: 'Solicitar Cuenta' }} />
+      <AccountsStackNav.Screen name="MyQR" component={S.MyQR} options={{ title: 'Mi Código QR' }} />
     </AccountsStackNav.Navigator>
   );
 }
@@ -45,6 +46,8 @@ export function TransactionsStack() {
     <TransactionsStackNav.Navigator screenOptions={getStackScreenOptions(colors)}>
       <TransactionsStackNav.Screen name="Transactions" component={S.Transactions} options={{ title: 'Movimientos' }} />
       <TransactionsStackNav.Screen name="NewTransaction" component={S.NewTransaction} options={{ title: 'Nueva Transacción' }} />
+      <TransactionsStackNav.Screen name="ScanQR" component={S.ScanQR} options={{ title: 'Escanear QR' }} />
+      <TransactionsStackNav.Screen name="ConfirmScanTransfer" component={S.ConfirmScanTransfer} options={{ title: 'Confirmar destino' }} />
     </TransactionsStackNav.Navigator>
   );
 }

@@ -36,15 +36,18 @@ export function DashboardScreen({ navigation }) {
     return <LoadingSpinner message="Cargando tu resumen..." />;
   }
 
+  // Extrae la primera palabra de forma segura
+  const firstName = user?.name ? user.name.split(' ')[0] : 'cliente';
+
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.primary} />}
     >
-      <Text style={styles.greeting}>Hola, {user?.name || 'cliente'} 👋</Text>
+      <Text style={styles.greeting}>Hola, {firstName} 👋</Text>
 
-      <BalanceSummaryCard totalsByCurrency={totalsByCurrency} accountCount={accounts.length} />
+      <BalanceSummaryCard totalsByCurrency={totalsByCurrency} accounts={accounts} />
 
       <QuickActions navigation={navigation} />
 

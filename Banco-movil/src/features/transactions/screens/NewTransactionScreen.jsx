@@ -25,14 +25,17 @@ export function NewTransactionScreen({ navigation, route }) {
   const styles = createStyles(colors);
   const presetOrigen = route?.params?.cuentaOrigen;
   const presetMoneda = route?.params?.moneda;
+  // Destino prellenado al llegar desde el escaneo de QR.
+  const presetDestino = route?.params?.cuentaDestino;
+  const presetTipoDestino = route?.params?.tipoCuentaDestino;
 
   const { accounts } = useAccounts();
   const { createTransaction } = useTransactions();
 
   const [tipo, setTipo] = useState(TRANSACTION_TYPES.TRANSFERENCIA);
   const [cuentaOrigen, setCuentaOrigen] = useState(presetOrigen || '');
-  const [cuentaDestino, setCuentaDestino] = useState('');
-  const [tipoCuentaDestino, setTipoCuentaDestino] = useState('');
+  const [cuentaDestino, setCuentaDestino] = useState(presetDestino || '');
+  const [tipoCuentaDestino, setTipoCuentaDestino] = useState(presetTipoDestino || '');
   const [monto, setMonto] = useState('');
   const [moneda, setMoneda] = useState(presetMoneda || CURRENCY_OPTIONS[0].value);
   const [descripcion, setDescripcion] = useState('');

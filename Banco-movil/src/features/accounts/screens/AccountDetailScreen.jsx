@@ -53,6 +53,13 @@ export function AccountDetailScreen({ route, navigation }) {
         }
         style={styles.action}
       />
+
+      <Button
+        title="Mostrar QR de esta cuenta"
+        variant="secondary"
+        onPress={() => navigation.navigate('MyQR', { account })}
+        style={styles.action}
+      />
     </ScrollView>
   );
 }

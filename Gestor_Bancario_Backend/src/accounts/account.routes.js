@@ -12,6 +12,7 @@ import {
     getAccountRequests,
     approveAccountRequest,
     denyAccountRequest,
+    lookupAccountByNumber,
 } from './account.controller.js';
 
 import { validateCreateAccount } from '../../middlewares/validateCreateAccount.js';
@@ -63,6 +64,15 @@ router.get(
     '/account/get',
     validateJWT,
     getAccounts
+);
+
+// Lookup por número para escaneo de QR: confirma la cuenta destino y sus datos
+// públicos (sin saldo) antes de transferir. Segmento estático 'lookup', no
+// colisiona con otras rutas de /account.
+router.get(
+    '/account/lookup/:numeroCuenta',
+    validateJWT,
+    lookupAccountByNumber
 );
 
 router.patch(

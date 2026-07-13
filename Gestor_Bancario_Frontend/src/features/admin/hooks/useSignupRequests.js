@@ -13,6 +13,9 @@ export const useSignupRequests = () => {
   const [error, setError] = useState('')
   const [actionError, setActionError] = useState('')
   const [actionId, setActionId] = useState('')
+  // Token de verificación de la última solicitud aprobada, para copiarlo y
+  // pegarlo directo en la app móvil (evita depender del correo en pruebas).
+  const [approvedToken, setApprovedToken] = useState(null)
 
   const loadRequests = useCallback(async () => {
     if (!session?.token) {
@@ -42,7 +45,12 @@ export const useSignupRequests = () => {
         setActionId(requestId)
         setActionError('')
         if (action === 'approve') {
-          await approveSignupRequestWithAuthService(session?.token, requestId)
+          const response = await approveSignupRequestWithAuthService(session?.token, requestId)
+          const token = response?.data?.verificationToken
+          if (token) {
+            const target = requests.find((item) => item.Id === requestId)
+            setApprovedToken({ email: target?.Email || '', token })
+          }
         } else if (action === 'reject') {
           await rejectSignupRequestWithAuthService(session?.token, requestId)
         }
@@ -53,8 +61,20 @@ export const useSignupRequests = () => {
         setActionId('')
       }
     },
-    [session]
+    [session, requests]
   )
 
-  return { requests, loading, error, actionError, actionId, handleRequestAction, refreshRequests: loadRequests }
+  const clearApprovedToken = useCallback(() => setApprovedToken(null), [])
+
+  return {
+    requests,
+    loading,
+    error,
+    actionError,
+    actionId,
+    handleRequestAction,
+    refreshRequests: loadRequests,
+    approvedToken,
+    clearApprovedToken,
+  }
 }

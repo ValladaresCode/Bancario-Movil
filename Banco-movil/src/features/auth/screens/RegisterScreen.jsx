@@ -108,16 +108,9 @@ export function RegisterScreen({ navigation }) {
           <FormField
             control={control}
             name="fechaNacimiento"
-            rules={{
-              required: 'La fecha de nacimiento es obligatoria',
-              pattern: {
-                value: /^\d{4}-\d{2}-\d{2}$/,
-                message: 'Usa formato AAAA-MM-DD',
-              },
-            }}
+            type="date"
+            rules={{ required: 'La fecha de nacimiento es obligatoria' }}
             label="Fecha de nacimiento"
-            leftIcon="event"
-            placeholder="AAAA-MM-DD"
             error={errors.fechaNacimiento?.message}
           />
           <FormField

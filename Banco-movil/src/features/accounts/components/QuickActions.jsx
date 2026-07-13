@@ -3,11 +3,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 import { FONT_SIZE, FONTS, RADIUS, SPACING } from '../../../shared/constants/theme';
 import { useThemeStore } from '../../../shared/hooks/useThemeStore';
+import { useAccounts } from '../hooks/useAccounts';
 
 const QUICK_ACTIONS = [
   { icon: 'swap-horiz', label: 'Transferir', tab: 'Movimientos', screen: 'NewTransaction' },
+  { icon: 'qr-code', label: 'Mi QR', tab: 'Cuentas', screen: 'MyQR' },
+  { icon: 'qr-code-scanner', label: 'Escanear', tab: 'Movimientos', screen: 'ScanQR' },
   { icon: 'star', label: 'Favoritos', tab: 'Perfil', screen: 'Favorites' },
-  { icon: 'local-offer', label: 'Servicios', tab: 'Servicios', screen: 'Services' },
   { icon: 'currency-exchange', label: 'Divisas', tab: 'Perfil', screen: 'Currencies' },
 ];
 
@@ -15,6 +17,24 @@ const QUICK_ACTIONS = [
 export function QuickActions({ navigation }) {
   const { colors } = useThemeStore();
   const styles = createStyles(colors);
+  const { accounts } = useAccounts();
+
+  const handlePress = (action) => {
+    if (action.screen === 'MyQR') {
+      const primaryAccount = accounts && accounts[0];
+      if (!primaryAccount) {
+        // Redirige defensivamente a la pestaña de Cuentas para solicitar/crear una
+        navigation.navigate('Cuentas', { screen: 'Accounts' });
+        return;
+      }
+      navigation.navigate('Cuentas', {
+        screen: 'MyQR',
+        params: { account: primaryAccount },
+      });
+    } else {
+      navigation.navigate(action.tab, { screen: action.screen });
+    }
+  };
 
   return (
     <View style={styles.actionsRow}>
@@ -23,7 +43,7 @@ export function QuickActions({ navigation }) {
           key={action.label}
           style={styles.action}
           activeOpacity={0.85}
-          onPress={() => navigation.navigate(action.tab, { screen: action.screen })}
+          onPress={() => handlePress(action)}
         >
           <View style={styles.actionIcon}>
             <MaterialIcons name={action.icon} size={24} color={colors.primary} />
