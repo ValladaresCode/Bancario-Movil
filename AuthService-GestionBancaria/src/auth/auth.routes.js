@@ -4,6 +4,7 @@ import { validateJWT } from '../../middlewares/validate-JWT.js';
 import {
   authRateLimit,
   requestLimit,
+  statusPollRateLimit,
 } from '../../middlewares/request-limit.js';
 import { upload, handleUploadError } from '../../helpers/file-upload.js';
 import { requireAdmin } from '../../middlewares/require-admin.js';
@@ -98,12 +99,7 @@ router.post(
   submitSignupRequest
 );
 
-router.get(
-  '/signup-requests',
-  validateJWT,
-  requireAdmin,
-  listPendingRequests
-);
+router.get('/signup-requests', validateJWT, requireAdmin, listPendingRequests);
 
 router.post(
   '/signup-requests/:id/approve',
@@ -119,8 +115,11 @@ router.post(
   rejectRequest
 );
 
+// Excluida del limiter global (skip en requestLimit): usa su propio limiter
+// para que el polling de activación no deje en 429 al resto de la API.
 router.get(
   '/signup-requests/status/:email',
+  statusPollRateLimit,
   checkRequestStatus
 );
 

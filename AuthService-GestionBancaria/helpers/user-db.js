@@ -18,7 +18,7 @@ export const findUserByEmailOrUsername = async (email) => {
   try {
     const user = await User.findOne({
       where: {
-        Email: email.toLowerCase()
+        Email: email.toLowerCase(),
       },
       include: [
         { model: UserProfile, as: 'UserProfile' },
@@ -65,7 +65,7 @@ export const checkUserExists = async (email) => {
   try {
     const existingUser = await User.findOne({
       where: {
-        Email: email.toLowerCase()
+        Email: email.toLowerCase(),
       },
     });
 
@@ -98,8 +98,19 @@ export const createNewUser = async (userData) => {
   const transaction = await User.sequelize.transaction();
 
   try {
-    const { name, email, password, phone, fechaNacimiento, dpi, ingresosMensuales, profilePicture, hashedPassword } =
-      userData;
+    const {
+      name,
+      email,
+      password,
+      phone,
+      fechaNacimiento,
+      dpi,
+      ingresosMensuales,
+      direccion,
+      nombreTrabajo,
+      profilePicture,
+      hashedPassword,
+    } = userData;
 
     // Allow passing a pre-hashed password (e.g., from a pending signup request)
     const passwordToStore = hashedPassword
@@ -118,9 +129,8 @@ export const createNewUser = async (userData) => {
     );
 
     // Crear el perfil del usuario
-    const { getDefaultAvatarPath } = await import(
-      '../helpers/cloudinary-service.js'
-    );
+    const { getDefaultAvatarPath } =
+      await import('../helpers/cloudinary-service.js');
     const defaultAvatarFilename = getDefaultAvatarPath();
 
     await UserProfile.create(
@@ -130,6 +140,8 @@ export const createNewUser = async (userData) => {
         FechaNacimiento: fechaNacimiento,
         Dpi: dpi,
         IngresosMensuales: ingresosMensuales,
+        Direccion: direccion || null,
+        NombreTrabajo: nombreTrabajo || null,
         Imagen: profilePicture || defaultAvatarFilename,
       },
       { transaction }
@@ -414,7 +426,10 @@ export const getPasswordResetTokenStatus = async (token) => {
 
     if (!row) return 'invalid';
     if (row.PasswordResetTokenUsedAt) return 'used';
-    if (!row.PasswordResetTokenExpiry || row.PasswordResetTokenExpiry.getTime() <= Date.now()) {
+    if (
+      !row.PasswordResetTokenExpiry ||
+      row.PasswordResetTokenExpiry.getTime() <= Date.now()
+    ) {
       return 'expired';
     }
     return 'pending';

@@ -145,9 +145,11 @@ export const requestUserUpdate = async ({ user, input }) => {
   const emailRaw = (input.email || '').trim();
   const email = emailRaw ? emailRaw.toLowerCase() : null;
   const phone = (input.phone || '').trim();
-  const ingresosMensuales = input.ingresosMensuales !== undefined ? input.ingresosMensuales : null;
+  const ingresosMensuales =
+    input.ingresosMensuales !== undefined ? input.ingresosMensuales : null;
   const direccion = input.direccion !== undefined ? input.direccion : null;
-  const nombreTrabajo = input.nombreTrabajo !== undefined ? input.nombreTrabajo : null;
+  const nombreTrabajo =
+    input.nombreTrabajo !== undefined ? input.nombreTrabajo : null;
   const newPassword = input.newPassword || null;
   const currentPassword = input.currentPassword || null;
   const profilePictureInput = input.profilePicture || null;
@@ -162,13 +164,25 @@ export const requestUserUpdate = async ({ user, input }) => {
   const nameChanged = name && name !== currentName;
   const emailChanged = email && email !== currentEmail;
   const phoneChanged = phone && phone !== currentPhone;
-  const ingresosMensualesChanged = ingresosMensuales !== null && Number(ingresosMensuales) !== Number(currentIngresosMensuales);
+  const ingresosMensualesChanged =
+    ingresosMensuales !== null &&
+    Number(ingresosMensuales) !== Number(currentIngresosMensuales);
   const direccionChanged = direccion !== null && direccion !== currentDireccion;
-  const nombreTrabajoChanged = nombreTrabajo !== null && nombreTrabajo !== currentNombreTrabajo;
+  const nombreTrabajoChanged =
+    nombreTrabajo !== null && nombreTrabajo !== currentNombreTrabajo;
   const passwordChanged = !!newPassword;
   const profilePictureChanged = !!profilePictureInput;
 
-  if (!emailChanged && !phoneChanged && !passwordChanged && !profilePictureChanged && !ingresosMensualesChanged && !nameChanged && !direccionChanged && !nombreTrabajoChanged) {
+  if (
+    !emailChanged &&
+    !phoneChanged &&
+    !passwordChanged &&
+    !profilePictureChanged &&
+    !ingresosMensualesChanged &&
+    !nameChanged &&
+    !direccionChanged &&
+    !nombreTrabajoChanged
+  ) {
     const err = new Error('No hay cambios para actualizar');
     err.status = 400;
     throw err;
@@ -302,7 +316,11 @@ export const approveUserUpdateRequest = async (id, approverId) => {
     name: request.Name ? request.Name : null,
     email: request.Email ? request.Email : null,
     phone: request.Phone ? request.Phone : null,
-    ingresosMensuales: request.IngresosMensuales !== undefined && request.IngresosMensuales !== null ? request.IngresosMensuales : null,
+    ingresosMensuales:
+      request.IngresosMensuales !== undefined &&
+      request.IngresosMensuales !== null
+        ? request.IngresosMensuales
+        : null,
     direccion: request.Direccion ? request.Direccion : null,
     nombreTrabajo: request.NombreTrabajo ? request.NombreTrabajo : null,
     passwordHash: request.PasswordHash ? request.PasswordHash : null,

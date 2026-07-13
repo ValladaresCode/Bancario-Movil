@@ -26,6 +26,8 @@ const emptyForm = {
   fechaNacimiento: '',
   dpi: '',
   ingresosMensuales: '',
+  direccion: '',
+  nombreTrabajo: '',
   profilePicture: null,
 }
 
@@ -83,6 +85,8 @@ export const useUnifiedAuth = ({ initialMode = MODE.LOGIN, onRegistered } = {}) 
       fd.append('fechaNacimiento', form.fechaNacimiento)
       fd.append('dpi', form.dpi)
       fd.append('ingresosMensuales', form.ingresosMensuales)
+      fd.append('direccion', form.direccion)
+      fd.append('nombreTrabajo', form.nombreTrabajo)
       if (form.profilePicture) fd.append('profilePicture', form.profilePicture)
 
       await registerWithAuthService(fd)
@@ -96,6 +100,8 @@ export const useUnifiedAuth = ({ initialMode = MODE.LOGIN, onRegistered } = {}) 
         fechaNacimiento: '',
         dpi: '',
         ingresosMensuales: '',
+        direccion: '',
+        nombreTrabajo: '',
         profilePicture: null,
       }))
       setMode(MODE.WAITING_VERIFICATION)
@@ -165,17 +171,35 @@ export const useUnifiedAuth = ({ initialMode = MODE.LOGIN, onRegistered } = {}) 
   }
 
   // Polling del estado de la solicitud mientras se espera la verificación.
+  // 10s de base (la aprobación es humana: tarda minutos, no segundos), backoff
+  // que respeta el retryAfter de un 429, y pausa cuando la pestaña está oculta
+  // — así el polling nunca agota el rate limit del backend.
   useEffect(() => {
     if (mode !== MODE.WAITING_VERIFICATION) return
     const email = registeredEmail || form.email
     if (!email) return
 
+    const BASE_DELAY_MS = 10_000
+    const MAX_DELAY_MS = 60_000
     let isPolling = true
+    let delayMs = BASE_DELAY_MS
+    let timerId = null
+
+    const schedule = () => {
+      if (!isPolling) return
+      // Pestaña oculta: no programar; visibilitychange reanuda al volver.
+      if (document.visibilityState === 'hidden') return
+      timerId = setTimeout(() => {
+        timerId = null
+        checkStatus()
+      }, delayMs)
+    }
 
     const checkStatus = async () => {
       if (!isPolling) return
       try {
         const res = await checkSignupRequestStatus(email)
+        delayMs = BASE_DELAY_MS
         if (res.status === 'APPROVED' && requestStatus !== 'APPROVED') {
           setRequestStatus('APPROVED')
         } else if (res.status === 'VERIFIED') {
@@ -186,21 +210,36 @@ export const useUnifiedAuth = ({ initialMode = MODE.LOGIN, onRegistered } = {}) 
           setError('Tu solicitud ha sido denegada por el Administrador.')
           isPolling = false
         }
-      } catch {
-        // Ignorar 404 para seguir buscando
+      } catch (err) {
+        // 429: respetar el retryAfter del backend (o duplicar el intervalo).
+        // 404: la solicitud aún no es visible; seguir con el ritmo normal.
+        if (err?.response?.status === 429) {
+          const retryAfterSec = Number(err.response.data?.retryAfter)
+          delayMs = Math.min(
+            retryAfterSec > 0 ? retryAfterSec * 1000 : delayMs * 2,
+            MAX_DELAY_MS
+          )
+        }
+      }
+      schedule()
+    }
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && isPolling && !timerId) {
+        checkStatus()
+      } else if (document.visibilityState === 'hidden' && timerId) {
+        clearTimeout(timerId)
+        timerId = null
       }
     }
 
+    document.addEventListener('visibilitychange', onVisibilityChange)
     checkStatus()
-
-    const interval = setInterval(() => {
-      if (isPolling) checkStatus()
-      else clearInterval(interval)
-    }, 1500)
 
     return () => {
       isPolling = false
-      clearInterval(interval)
+      if (timerId) clearTimeout(timerId)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [mode, registeredEmail, form.email, requestStatus])
 

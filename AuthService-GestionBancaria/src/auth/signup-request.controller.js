@@ -4,17 +4,25 @@ import {
   createSignupRequest,
   listSignupRequests,
   rejectSignupRequest,
-  getSignupRequestByEmail
+  getSignupRequestByEmail,
 } from '../../helpers/signup-request-db.js';
 import { checkUserExists } from '../../helpers/user-db.js';
 
 export const submitSignupRequest = asyncHandler(async (req, res) => {
-  const { name, email, password, phone, fechaNacimiento, dpi, ingresosMensuales } = req.body || {};
+  const {
+    name,
+    email,
+    password,
+    phone,
+    fechaNacimiento,
+    dpi,
+    ingresosMensuales,
+    direccion,
+    nombreTrabajo,
+  } = req.body || {};
 
   const uploadedFile =
-    req.file ||
-    req.files?.profilePicture?.[0] ||
-    req.files?.imagen?.[0];
+    req.file || req.files?.profilePicture?.[0] || req.files?.imagen?.[0];
 
   const profilePicture = uploadedFile ? uploadedFile.path : null;
 
@@ -26,6 +34,8 @@ export const submitSignupRequest = asyncHandler(async (req, res) => {
     fechaNacimiento,
     dpi,
     ingresosMensuales,
+    direccion,
+    nombreTrabajo,
     profilePicture,
   });
 
@@ -83,24 +93,24 @@ export const rejectRequest = asyncHandler(async (req, res) => {
 
 export const checkRequestStatus = asyncHandler(async (req, res) => {
   const { email } = req.params;
-  
+
   // Buscar en User table primero
   const userExists = await checkUserExists(email.toLowerCase());
-  
+
   if (userExists) {
     return res.status(200).json({
       success: true,
-      status: 'VERIFIED'
+      status: 'VERIFIED',
     });
   }
 
   // Si no es usuario, buscar en SignupRequest
   const request = await getSignupRequestByEmail(email.toLowerCase());
-  
+
   if (request) {
     return res.status(200).json({
       success: true,
-      status: request.Status // PENDING, APPROVED, REJECTED
+      status: request.Status, // PENDING, APPROVED, REJECTED
     });
   }
 

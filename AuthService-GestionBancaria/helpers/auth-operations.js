@@ -46,14 +46,23 @@ const getExpirationTime = (timeString) => {
 
 export const registerUserHelper = async (userData) => {
   try {
-    const { email, password, name, phone, fechaNacimiento, dpi, ingresosMensuales, profilePicture } = userData;
+    const {
+      email,
+      password,
+      name,
+      phone,
+      fechaNacimiento,
+      dpi,
+      ingresosMensuales,
+      direccion,
+      nombreTrabajo,
+      profilePicture,
+    } = userData;
 
     // Edad 18+ y formato de campos ya validados por validateRegister en la ruta
     const userExists = await checkUserExists(email);
     if (userExists) {
-      throw new Error(
-        'Ya existe un usuario con este email'
-      );
+      throw new Error('Ya existe un usuario con este email');
     }
     const profilePictureToStore =
       await resolveProfilePictureInput(profilePicture);
@@ -67,6 +76,8 @@ export const registerUserHelper = async (userData) => {
       fechaNacimiento,
       dpi,
       ingresosMensuales,
+      direccion,
+      nombreTrabajo,
       profilePicture: profilePictureToStore,
     });
 
@@ -141,7 +152,9 @@ export const loginUserHelper = async (email, password) => {
     const token = await generateJWT(user.Id.toString(), { role });
 
     // Expiración real del access token (coincide con el claim `exp` del JWT).
-    const expiresAt = new Date(Date.now() + getExpirationTime(config.jwt.expiresIn || '12h'));
+    const expiresAt = new Date(
+      Date.now() + getExpirationTime(config.jwt.expiresIn || '12h')
+    );
 
     // Build compact userDetails object
     const fullUser = buildUserResponse(user);
@@ -213,6 +226,8 @@ export const verifyEmailHelper = async (token) => {
         fechaNacimiento: signupRequest.FechaNacimiento,
         dpi: signupRequest.Dpi,
         ingresosMensuales: signupRequest.IngresosMensuales,
+        direccion: signupRequest.Direccion,
+        nombreTrabajo: signupRequest.NombreTrabajo,
         profilePicture: requestProfilePicture,
         hashedPassword: signupRequest.PasswordHash,
       });

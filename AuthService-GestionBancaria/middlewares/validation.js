@@ -70,10 +70,7 @@ export const validateRegister = [
       const today = new Date();
       let age = today.getUTCFullYear() - birthDate.getUTCFullYear();
       const m = today.getUTCMonth() - birthDate.getUTCMonth();
-      if (
-        m < 0 ||
-        (m === 0 && today.getUTCDate() < birthDate.getUTCDate())
-      ) {
+      if (m < 0 || (m === 0 && today.getUTCDate() < birthDate.getUTCDate())) {
         age--;
       }
       if (age < 18) {
@@ -97,6 +94,20 @@ export const validateRegister = [
     // validador pasaba pero el modelo reventaba recién al crear el usuario.
     .isFloat({ min: 0.01 })
     .withMessage('Los ingresos mensuales deben ser mayores a 0'),
+
+  body('direccion')
+    .trim()
+    .notEmpty()
+    .withMessage('La dirección es obligatoria')
+    .isLength({ max: 255 })
+    .withMessage('La dirección no puede exceder 255 caracteres'),
+
+  body('nombreTrabajo')
+    .trim()
+    .notEmpty()
+    .withMessage('La ocupación es obligatoria')
+    .isLength({ max: 100 })
+    .withMessage('La ocupación no puede exceder 100 caracteres'),
 
   handleValidationErrors,
 ];

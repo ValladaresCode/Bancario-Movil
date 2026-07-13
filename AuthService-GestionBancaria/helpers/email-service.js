@@ -27,9 +27,7 @@ const createTransporter = () => {
   const smtpPort = Number(config.smtp.port) || 587;
   const secure = smtpPort === 465;
 
-  const normalizedPassword = (
-    config.smtp.password || ''
-  ).replace(/\s+/g, '');
+  const normalizedPassword = (config.smtp.password || '').replace(/\s+/g, '');
 
   return nodemailer.createTransport({
     host: config.smtp.host,
@@ -163,28 +161,21 @@ const createEmailTemplate = ({
 // =========================================
 // VERIFICATION EMAIL
 // =========================================
-export const sendVerificationEmail = async (
-  email,
-  name,
-  verificationToken
-) => {
+export const sendVerificationEmail = async (email, name, verificationToken) => {
   if (!transporter) {
     throw new Error('SMTP transporter not configured');
   }
 
   try {
-    const frontendUrl =
-      config.app.frontendUrl || 'http://localhost:3000';
+    const frontendUrl = config.app.frontendUrl || 'http://localhost:3000';
 
-    const verificationUrl =
-      `${frontendUrl}/auth/verify-email?token=${encodeURIComponent(
-        verificationToken
-      )}`;
+    const verificationUrl = `${frontendUrl}/auth/verify-email?token=${encodeURIComponent(
+      verificationToken
+    )}`;
 
     const html = createEmailTemplate({
       title: 'Verifica tu correo',
-      subtitle:
-        'Protegemos tu cuenta con verificación segura.',
+      subtitle: 'Protegemos tu cuenta con verificación segura.',
 
       content: `
         <p>
@@ -231,18 +222,13 @@ export const sendVerificationEmail = async (
 // =========================================
 // PASSWORD RESET EMAIL
 // =========================================
-export const sendPasswordResetEmail = async (
-  email,
-  name,
-  resetToken
-) => {
+export const sendPasswordResetEmail = async (email, name, resetToken) => {
   if (!transporter) {
     throw new Error('SMTP transporter not configured');
   }
 
   try {
-    const frontendUrl =
-      config.app.frontendUrl || 'http://localhost:3000';
+    const frontendUrl = config.app.frontendUrl || 'http://localhost:3000';
 
     const encodedToken = encodeURIComponent(resetToken);
 
@@ -252,8 +238,7 @@ export const sendPasswordResetEmail = async (
     const html = createEmailTemplate({
       title: 'Restablece tu contraseña',
 
-      subtitle:
-        'Recibimos una solicitud para cambiar tus credenciales.',
+      subtitle: 'Recibimos una solicitud para cambiar tus credenciales.',
 
       content: `
         <p>
@@ -308,10 +293,7 @@ export const sendPasswordResetEmail = async (
 // =========================================
 // WELCOME EMAIL
 // =========================================
-export const sendWelcomeEmail = async (
-  email,
-  name
-) => {
+export const sendWelcomeEmail = async (email, name) => {
   if (!transporter) {
     throw new Error('SMTP transporter not configured');
   }
@@ -320,8 +302,7 @@ export const sendWelcomeEmail = async (
     const html = createEmailTemplate({
       title: 'Bienvenido a Kinal Banc',
 
-      subtitle:
-        'Tu cuenta ha sido verificada correctamente.',
+      subtitle: 'Tu cuenta ha sido verificada correctamente.',
 
       content: `
         <p>
@@ -362,10 +343,7 @@ export const sendWelcomeEmail = async (
 // =========================================
 // PASSWORD CHANGED EMAIL
 // =========================================
-export const sendPasswordChangedEmail = async (
-  email,
-  name
-) => {
+export const sendPasswordChangedEmail = async (email, name) => {
   if (!transporter) {
     throw new Error('SMTP transporter not configured');
   }
@@ -374,8 +352,7 @@ export const sendPasswordChangedEmail = async (
     const html = createEmailTemplate({
       title: 'Contraseña actualizada',
 
-      subtitle:
-        'La seguridad de tu cuenta fue actualizada.',
+      subtitle: 'La seguridad de tu cuenta fue actualizada.',
 
       content: `
         <p>

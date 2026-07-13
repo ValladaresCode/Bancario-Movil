@@ -15,7 +15,6 @@ import { validateJWT } from '../../middlewares/validate-JWT.js';
 import { requireAdmin } from '../../middlewares/require-admin.js';
 import { upload, handleUploadError } from '../../helpers/file-upload.js';
 import { validateUpdateUser } from '../../middlewares/validation.js';
-import { findUserById } from '../../helpers/user-db.js';
 import { User } from './user.model.js';
 import { UserProfile, UserEmail } from './user.model.js';
 import { UserRole, Role } from '../auth/role.model.js';
@@ -71,7 +70,10 @@ router.get('/all', validateJWT, async (req, res) => {
   const user = req.user;
   const roles = user.UserRoles?.map((ur) => ur.Role?.Name) || [];
   if (!roles.includes(ADMIN_ROLE)) {
-    return res.status(403).json({ success: false, message: 'Acceso restringido solo para administradores.' });
+    return res.status(403).json({
+      success: false,
+      message: 'Acceso restringido solo para administradores.',
+    });
   }
 
   // Obtener todos los usuarios con relaciones

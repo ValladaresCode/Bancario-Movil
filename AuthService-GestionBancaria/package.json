@@ -46,7 +46,12 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
     "nodemon": "^3.1.10",
+    "prettier": "^3.9.5",
     "sequelize-cli": "^6.6.5"
   }
 }

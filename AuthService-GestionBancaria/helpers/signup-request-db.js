@@ -14,21 +14,25 @@ export const createSignupRequest = async ({
   fechaNacimiento,
   dpi,
   ingresosMensuales,
+  direccion,
+  nombreTrabajo,
   profilePicture,
 }) => {
   const normalizedName = typeof name === 'string' ? name.trim() : '';
   const normalizedEmail =
     typeof email === 'string' ? email.trim().toLowerCase() : '';
-  const normalizedPassword =
-    typeof password === 'string' ? password : '';
-  const normalizedPhone =
-    typeof phone === 'string' ? phone.trim() : '';
+  const normalizedPassword = typeof password === 'string' ? password : '';
+  const normalizedPhone = typeof phone === 'string' ? phone.trim() : '';
   const normalizedFechaNacimiento =
     typeof fechaNacimiento === 'string'
       ? fechaNacimiento.trim()
       : fechaNacimiento;
   const normalizedDpi =
     typeof dpi === 'string' ? dpi.trim() : dpi ? String(dpi).trim() : '';
+  const normalizedDireccion =
+    typeof direccion === 'string' ? direccion.trim() : '';
+  const normalizedNombreTrabajo =
+    typeof nombreTrabajo === 'string' ? nombreTrabajo.trim() : '';
 
   const normalizedIngresosMensuales =
     ingresosMensuales === undefined ||
@@ -37,7 +41,12 @@ export const createSignupRequest = async ({
       ? null
       : Number(ingresosMensuales);
 
-  if (!normalizedName || !normalizedEmail || !normalizedPassword || !normalizedPhone) {
+  if (
+    !normalizedName ||
+    !normalizedEmail ||
+    !normalizedPassword ||
+    !normalizedPhone
+  ) {
     const err = new Error('Faltan campos obligatorios para crear la solicitud');
     err.status = 400;
     throw err;
@@ -96,30 +105,34 @@ export const createSignupRequest = async ({
 
   // If there is an existing signup request for this email that was rejected,
   // allow reusing it by updating its data and marking it as PENDING again.
-  const existingAny = await SignupRequest.findOne({ where: { Email: normalizedEmail } });
+  const existingAny = await SignupRequest.findOne({
+    where: { Email: normalizedEmail },
+  });
   if (existingAny) {
     if (existingAny.Status === 'REJECTED') {
-      existingAny.Name = normalizedName
-      existingAny.PasswordHash = passwordHash
-      existingAny.Phone = normalizedPhone
-      existingAny.FechaNacimiento = normalizedFechaNacimiento
-      existingAny.Dpi = normalizedDpi || null
-      existingAny.IngresosMensuales = normalizedIngresosMensuales
-      existingAny.ProfilePicture = resolvedProfilePicture || null
-      existingAny.Status = 'PENDING'
-      existingAny.ApprovedBy = null
-      existingAny.ApprovedAt = null
-      existingAny.VerificationToken = null
-      existingAny.VerificationTokenExpiry = null
-      await existingAny.save()
-      return existingAny
+      existingAny.Name = normalizedName;
+      existingAny.PasswordHash = passwordHash;
+      existingAny.Phone = normalizedPhone;
+      existingAny.FechaNacimiento = normalizedFechaNacimiento;
+      existingAny.Dpi = normalizedDpi || null;
+      existingAny.IngresosMensuales = normalizedIngresosMensuales;
+      existingAny.Direccion = normalizedDireccion || null;
+      existingAny.NombreTrabajo = normalizedNombreTrabajo || null;
+      existingAny.ProfilePicture = resolvedProfilePicture || null;
+      existingAny.Status = 'PENDING';
+      existingAny.ApprovedBy = null;
+      existingAny.ApprovedAt = null;
+      existingAny.VerificationToken = null;
+      existingAny.VerificationTokenExpiry = null;
+      await existingAny.save();
+      return existingAny;
     }
     // If it's APPROVED or other state, creation will fail due to unique constraint
     // but we intentionally fall through to throw a friendly error instead of
     // hitting a DB unique constraint exception.
-    const err = new Error('Ya existe una solicitud para este email')
-    err.status = 409
-    throw err
+    const err = new Error('Ya existe una solicitud para este email');
+    err.status = 409;
+    throw err;
   }
 
   const request = await SignupRequest.create({
@@ -130,6 +143,8 @@ export const createSignupRequest = async ({
     FechaNacimiento: normalizedFechaNacimiento,
     Dpi: normalizedDpi || null,
     IngresosMensuales: normalizedIngresosMensuales,
+    Direccion: normalizedDireccion || null,
+    NombreTrabajo: normalizedNombreTrabajo || null,
     ProfilePicture: resolvedProfilePicture || null,
     Status: 'PENDING',
   });
@@ -148,7 +163,7 @@ export const listSignupRequests = async ({ status = 'PENDING' } = {}) => {
 
 export const getSignupRequestByEmail = async (email) => {
   return SignupRequest.findOne({
-    where: { Email: email }
+    where: { Email: email },
   });
 };
 

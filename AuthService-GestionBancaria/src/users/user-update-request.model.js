@@ -55,8 +55,8 @@ export const UserUpdateRequest = sequelize.define(
         min: {
           args: [0.01],
           msg: 'Los ingresos mensuales deben ser mayores a 0.',
-        }
-      }
+        },
+      },
     },
     Direccion: {
       type: DataTypes.STRING,

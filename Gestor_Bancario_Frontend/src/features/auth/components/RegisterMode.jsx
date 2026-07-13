@@ -17,6 +17,8 @@ export const RegisterMode = ({ auth, dynamic }) => {
           <InputField label="DPI" name="dpi" type="text" value={form.dpi} onChange={handleChange} required pattern="\d{13}" placeholder="13 dígitos" dynamic={dynamic} />
           <InputField label="Fecha de Nacimiento" name="fechaNacimiento" type="date" value={form.fechaNacimiento} onChange={handleChange} required dynamic={dynamic} />
           <InputField label="Ingresos Mensuales (GTQ)" name="ingresosMensuales" type="number" value={form.ingresosMensuales} onChange={handleChange} required placeholder="Ej. 5000.00" dynamic={dynamic} />
+          <InputField label="Dirección" name="direccion" value={form.direccion} onChange={handleChange} required maxLength="255" placeholder="Tu dirección de residencia" dynamic={dynamic} />
+          <InputField label="Ocupación" name="nombreTrabajo" value={form.nombreTrabajo} onChange={handleChange} required maxLength="100" placeholder="Ej. Contador" dynamic={dynamic} />
           <InputField label="Contraseña" name="password" type="password" value={form.password} onChange={handleChange} required minLength="8" placeholder="Mínimo 8 caracteres" dynamic={dynamic} />
           <InputField label="Foto de perfil (opcional)" name="profilePicture" type="file" accept="image/*" onChange={handleChange} dynamic={dynamic} />
         </div>
