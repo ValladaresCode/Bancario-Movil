@@ -1,0 +1,5 @@
+packages:
+  - AuthService-GestionBancaria
+  - Gestor_Bancario_Backend
+  - Gestor_Bancario_Frontend
+  - Banco-movil

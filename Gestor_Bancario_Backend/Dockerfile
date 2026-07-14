@@ -2,13 +2,14 @@ FROM node:22-alpine
 
 # Habilitar corepack para poder usar pnpm
 RUN corepack enable
+RUN corepack prepare pnpm@10.29.3 --activate
 
 WORKDIR /usr/src/app
 
 COPY package.json pnpm-lock.yaml* ./
 
-# Instalar dependencias con pnpm
-RUN pnpm install
+# Instalar dependencias de producción con lockfile
+RUN pnpm install --frozen-lockfile --prod
 
 COPY . .
 

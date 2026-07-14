@@ -1,0 +1,13 @@
+{
+  "name": "bancario-movil-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.29.3",
+  "scripts": {
+    "dev:auth": "pnpm --filter auth-node dev",
+    "dev:bank": "pnpm --filter Gestor_Bancario dev",
+    "dev:web": "pnpm --filter gestor-bancario-frontend dev",
+    "dev:mobile": "pnpm --filter banco-movil start",
+    "dev": "pnpm -r --parallel --filter auth-node --filter Gestor_Bancario --filter gestor-bancario-frontend dev"
+  }
+}

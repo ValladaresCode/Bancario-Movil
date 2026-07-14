@@ -1,15 +1,68 @@
-version: '3.8'
-
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bancario-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - bancario-network
+
+  mongo:
+    image: mongo:7
+    container_name: bancario-mongo
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - bancario-network
+
   auth-service:
     build:
       context: ./AuthService-GestionBancaria
       dockerfile: Dockerfile
     container_name: auth-service
-    ports:
-      - "3900:3900"
     env_file:
       - ./AuthService-GestionBancaria/.env
+    environment:
+      NODE_ENV: production
+      PORT: 3900
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-postgres}
+      DB_USERNAME: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "3900:3900"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://localhost:3900/api/v1/health').then((r)=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))\""
+        ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
     networks:
       - bancario-network
@@ -19,40 +72,66 @@ services:
       context: ./Gestor_Bancario_Backend
       dockerfile: Dockerfile
     container_name: bank-service
-    ports:
-      - "3006:3006"
     env_file:
       - ./Gestor_Bancario_Backend/.env
+    environment:
+      NODE_ENV: production
+      PORT: 3006
+    ports:
+      - "3006:3006"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://localhost:3006/health').then((r)=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))\""
+        ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
     networks:
       - bancario-network
 
-  frontend:
+  frontend-web:
     build:
       context: ./Gestor_Bancario_Frontend
       dockerfile: Dockerfile
       args:
-        VITE_AUTH_API_URL: http://localhost:3900/api/v1
-        VITE_ACCOUNT_URL: http://localhost:3006/gestionBancaria/api/v1
+        VITE_AUTH_API_URL: ${VITE_AUTH_API_URL:-http://localhost:3900/api/v1}
+        VITE_BANK_API_URL: ${VITE_BANK_API_URL:-http://localhost:3006/gestionBancaria/api/v1}
+        VITE_BANK_HEALTH_URL: ${VITE_BANK_HEALTH_URL:-http://localhost:3006/health}
     container_name: frontend-web
     ports:
       - "8080:80"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      bank-service:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - bancario-network
-    # Las variables de entorno de Vite (.env) normalmente se inyectan en tiempo de construcción.
-    # Si requieres pasarlas, puedes usar build.args o tener el .env en la carpeta.
-    # En este caso, el COPY . . copiará el .env al contenedor para el build process de Vite.
 
   mobile-web:
     build:
-      context: ./Bancario-Movil
+      context: ./Banco-movil
       dockerfile: Dockerfile
+      args:
+        EXPO_PUBLIC_AUTH_URL: ${EXPO_PUBLIC_AUTH_URL:-http://localhost:3900/api/v1}
+        EXPO_PUBLIC_BANK_URL: ${EXPO_PUBLIC_BANK_URL:-http://localhost:3006/gestionBancaria/api/v1}
+        EXPO_PUBLIC_BANK_HEALTH_URL: ${EXPO_PUBLIC_BANK_HEALTH_URL:-http://localhost:3006/health}
     container_name: mobile-web
     ports:
-      - "8081:8081"
-    env_file:
-      - ./Bancario-Movil/.env
+      - "8081:80"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      bank-service:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - bancario-network
@@ -60,3 +139,7 @@ services:
 networks:
   bancario-network:
     driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:

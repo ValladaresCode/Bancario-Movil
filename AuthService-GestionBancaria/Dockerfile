@@ -1,14 +1,16 @@
 FROM node:22-alpine
 
+RUN corepack enable
+RUN corepack prepare pnpm@10.29.3 --activate
+
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml* ./
 
-RUN npm install --omit=dev
+RUN pnpm install --frozen-lockfile --prod
 
 COPY . .
 
-# El puerto 3900 está configurado en .env (copiado en runtime o pasado por docker-compose)
 EXPOSE 3900
 
-CMD ["npm", "start"]
+CMD ["pnpm", "start"]

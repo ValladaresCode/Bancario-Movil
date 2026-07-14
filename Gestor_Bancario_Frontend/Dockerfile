@@ -2,19 +2,22 @@
 FROM node:22-alpine as build
 
 RUN corepack enable
+RUN corepack prepare pnpm@10.29.3 --activate
 
 WORKDIR /usr/src/app
 
 COPY package.json pnpm-lock.yaml* ./
 
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 
 ARG VITE_AUTH_API_URL
-ARG VITE_ACCOUNT_URL
+ARG VITE_BANK_API_URL
+ARG VITE_BANK_HEALTH_URL
 ENV VITE_AUTH_API_URL=$VITE_AUTH_API_URL
-ENV VITE_ACCOUNT_URL=$VITE_ACCOUNT_URL
+ENV VITE_BANK_API_URL=$VITE_BANK_API_URL
+ENV VITE_BANK_HEALTH_URL=$VITE_BANK_HEALTH_URL
 
 # Construimos la aplicación Vite
 RUN pnpm run build
