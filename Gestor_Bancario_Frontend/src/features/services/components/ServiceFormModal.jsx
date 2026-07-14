@@ -55,7 +55,7 @@ export const ServiceFormModal = ({ service, onClose, onSuccess }) => {
             <option value="INACTIVE">Inactivo</option>
           </SelectField>
 
-          <div className="flex items-center gap-3 text-sm">
+          <div className="flex flex-wrap items-center gap-3 text-sm">
             <label className="flex items-center gap-2">
               <input type="checkbox" name="active" checked={form.active} onChange={handleChange} />
               <span className="text-[var(--theme-text-muted)]">Activo</span>

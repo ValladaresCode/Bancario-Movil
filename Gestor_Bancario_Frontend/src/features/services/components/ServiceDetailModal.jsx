@@ -7,7 +7,7 @@ export const ServiceDetailModal = ({ service, onClose }) => {
   return (
     <Modal title="Detalle del servicio" onClose={onClose} maxWidth="max-w-2xl">
       <div className="grid gap-6 lg:grid-cols-[200px_1fr]">
-        <div className="h-48 w-full overflow-hidden rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-surface-alt)]">
+        <div className="h-40 sm:h-48 w-full overflow-hidden rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-surface-alt)]">
           {service.imageUrl && service.imageUrl.trim() !== '' && service.imageUrl !== 'null' ? (
             <img src={service.imageUrl} alt={service.name} className="h-full w-full object-cover" />
           ) : (

@@ -1,4 +1,3 @@
-import nodemailer from 'nodemailer';
 import { config } from '../configs/config.js';
 import fs from 'fs';
 import path from 'path';
@@ -16,42 +15,39 @@ const emailStyles = fs.readFileSync(
 );
 
 // =========================================
-// TRANSPORTER
+// EMAIL SENDER (Brevo HTTP API)
 // =========================================
-const createTransporter = () => {
-  if (!config.smtp.username || !config.smtp.password) {
-    console.warn('SMTP credentials not configured.');
-    return null;
+// Railway bloquea los puertos SMTP salientes, por eso no usamos nodemailer.
+// Brevo envía por HTTPS (443), que nunca está bloqueado.
+const sendEmail = async ({ to, subject, html }) => {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) {
+    throw new Error('BREVO_API_KEY no configurada');
   }
 
-  const smtpPort = Number(config.smtp.port) || 587;
-  const secure = smtpPort === 465;
-
-  const normalizedPassword = (config.smtp.password || '').replace(/\s+/g, '');
-
-  return nodemailer.createTransport({
-    host: config.smtp.host,
-    port: smtpPort,
-    secure,
-
-    auth: {
-      user: config.smtp.username,
-      pass: normalizedPassword,
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': apiKey,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
     },
-
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
-
-    requireTLS: !secure,
-
-    tls: {
-      rejectUnauthorized: false,
-    },
+    body: JSON.stringify({
+      sender: {
+        name: config.smtp.fromName,
+        email: config.smtp.fromEmail,
+      },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
   });
-};
 
-const transporter = createTransporter();
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(`Error de Brevo ${res.status}: ${detail}`);
+  }
+};
 
 // =========================================
 // EMAIL TEMPLATE
@@ -162,9 +158,6 @@ const createEmailTemplate = ({
 // VERIFICATION EMAIL
 // =========================================
 export const sendVerificationEmail = async (email, name, verificationToken) => {
-  if (!transporter) {
-    throw new Error('SMTP transporter not configured');
-  }
 
   try {
     const frontendUrl = config.app.frontendUrl || 'http://localhost:3000';
@@ -205,8 +198,7 @@ export const sendVerificationEmail = async (email, name, verificationToken) => {
       buttonUrl: verificationUrl,
     });
 
-    await transporter.sendMail({
-      from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+    await sendEmail({
       to: email,
       subject: 'Verifica tu cuenta | Kinal Banc',
       html,
@@ -223,9 +215,6 @@ export const sendVerificationEmail = async (email, name, verificationToken) => {
 // PASSWORD RESET EMAIL
 // =========================================
 export const sendPasswordResetEmail = async (email, name, resetToken) => {
-  if (!transporter) {
-    throw new Error('SMTP transporter not configured');
-  }
 
   try {
     const frontendUrl = config.app.frontendUrl || 'http://localhost:3000';
@@ -276,8 +265,7 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
       buttonUrl: webUrl,
     });
 
-    await transporter.sendMail({
-      from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+    await sendEmail({
       to: email,
       subject: 'Restablecimiento de contraseña',
       html,
@@ -294,9 +282,6 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
 // WELCOME EMAIL
 // =========================================
 export const sendWelcomeEmail = async (email, name) => {
-  if (!transporter) {
-    throw new Error('SMTP transporter not configured');
-  }
 
   try {
     const html = createEmailTemplate({
@@ -326,8 +311,7 @@ export const sendWelcomeEmail = async (email, name) => {
       `,
     });
 
-    await transporter.sendMail({
-      from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+    await sendEmail({
       to: email,
       subject: 'Bienvenido a Kinal Banc',
       html,
@@ -344,9 +328,6 @@ export const sendWelcomeEmail = async (email, name) => {
 // PASSWORD CHANGED EMAIL
 // =========================================
 export const sendPasswordChangedEmail = async (email, name) => {
-  if (!transporter) {
-    throw new Error('SMTP transporter not configured');
-  }
 
   try {
     const html = createEmailTemplate({
@@ -376,8 +357,7 @@ export const sendPasswordChangedEmail = async (email, name) => {
       `,
     });
 
-    await transporter.sendMail({
-      from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+    await sendEmail({
       to: email,
       subject: 'Contraseña actualizada',
       html,

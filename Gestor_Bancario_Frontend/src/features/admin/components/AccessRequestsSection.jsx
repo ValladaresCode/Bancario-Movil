@@ -1,57 +1,6 @@
-import { useState } from 'react'
-import { Check, ClipboardCheck, Copy, Loader2, X } from 'lucide-react'
+import { ClipboardCheck, Loader2 } from 'lucide-react'
 import { Alert } from '../../../shared/components/ui/Alert.jsx'
 import { formatDate } from '../../../shared/utils/format.js'
-
-// Banner con el token de verificación de la última solicitud aprobada: lo
-// copia directo al portapapeles para pegarlo en el campo "Código de
-// verificación" de la app móvil, sin depender del correo.
-const ApprovedTokenBanner = ({ approvedToken, onClear }) => {
-  const [copied, setCopied] = useState(false)
-
-  if (!approvedToken) return null
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(approvedToken.token)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // Portapapeles sin permiso/no disponible: el usuario puede seleccionar el texto manualmente.
-    }
-  }
-
-  return (
-    <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="min-w-0">
-        <p className="text-sm font-semibold text-emerald-700">
-          Solicitud aprobada{approvedToken.email ? ` — ${approvedToken.email}` : ''}
-        </p>
-        <p className="truncate text-xs text-[color:var(--theme-text-muted)]" title={approvedToken.token}>
-          Token: {approvedToken.token}
-        </p>
-      </div>
-      <div className="flex shrink-0 items-center gap-2">
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
-        >
-          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-          {copied ? 'Copiado' : 'Copiar token'}
-        </button>
-        <button
-          type="button"
-          onClick={onClear}
-          className="rounded-xl p-2 text-[color:var(--theme-text-muted)] transition hover:bg-black/5"
-          aria-label="Cerrar"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
-  )
-}
 
 const getRequestedFields = (request) => {
   const fields = []
@@ -125,16 +74,7 @@ const RequestCard = ({ request, actionId, onAction }) => {
   )
 }
 
-export const AccessRequestsSection = ({
-  requests,
-  loading,
-  error,
-  actionError,
-  actionId,
-  onAction,
-  approvedToken,
-  onClearApprovedToken,
-}) => (
+export const AccessRequestsSection = ({ requests, loading, error, actionError, actionId, onAction }) => (
   <section className="rounded-3xl border border-[color:var(--theme-border)] bg-[color:var(--theme-surface)] p-6 shadow-sm">
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-2 text-[color:var(--theme-text)]">
@@ -145,8 +85,6 @@ export const AccessRequestsSection = ({
         </div>
       </div>
     </div>
-
-    <ApprovedTokenBanner approvedToken={approvedToken} onClear={onClearApprovedToken} />
 
     {loading ? <p className="mt-4 text-sm text-[color:var(--theme-text-muted)]">Cargando solicitudes...</p> : null}
     {error ? <Alert className="mt-4">{error}</Alert> : null}
