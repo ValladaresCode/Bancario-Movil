@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 import { Button, Card, Input, Selector } from '../../../shared/components';
 import { notify } from '../../../shared/utils/confirm';
@@ -23,6 +24,7 @@ import {
 export function NewTransactionScreen({ navigation, route }) {
   const { colors } = useThemeStore();
   const styles = createStyles(colors);
+  const headerHeight = useHeaderHeight();
   const presetOrigen = route?.params?.cuentaOrigen;
   const presetMoneda = route?.params?.moneda;
   // Destino prellenado al llegar desde el escaneo de QR.
@@ -89,7 +91,11 @@ export function NewTransactionScreen({ navigation, route }) {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={headerHeight}
+    >
       <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Card>
           <Selector label="Tipo de transacción" options={TRANSACTION_TYPE_OPTIONS} value={tipo} onChange={setTipo} />

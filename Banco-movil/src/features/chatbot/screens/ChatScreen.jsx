@@ -8,6 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 import { EmptyState } from '../../../shared/components';
 import { FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
@@ -23,6 +24,7 @@ export function ChatScreen({ route }) {
   const { messages, loading, sending, sendMessage } = useChat(initialChatId);
   const [text, setText] = useState('');
   const listRef = useRef(null);
+  const headerHeight = useHeaderHeight();
 
   const onSend = async () => {
     const value = text;
@@ -34,8 +36,8 @@ export function ChatScreen({ route }) {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={headerHeight}
     >
       {loading ? (
         <View style={styles.center}>

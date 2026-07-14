@@ -1,5 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FONTS, FONT_SIZE } from '../shared/constants/theme';
 import { useThemeStore } from '../shared/hooks/useThemeStore';
@@ -34,6 +35,7 @@ const resetTabOnPress = ({ navigation, route }) => ({
 
 export function MainTabs() {
   const { colors } = useThemeStore();
+  const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -44,9 +46,11 @@ export function MainTabs() {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 66,
+          // Sumamos el inset inferior del sistema (barra de navegación / gesto)
+          // para que los botones del tab no queden debajo de los del teléfono.
+          height: 66 + insets.bottom,
           paddingTop: 6,
-          paddingBottom: 10,
+          paddingBottom: 10 + insets.bottom,
         },
         tabBarLabelStyle: { fontSize: FONT_SIZE.xs, fontFamily: FONTS.semibold, fontWeight: '600' },
         tabBarIcon: ({ color, size, focused }) => (

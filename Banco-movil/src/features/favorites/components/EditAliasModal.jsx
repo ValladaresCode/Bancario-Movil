@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Button, Input } from '../../../shared/components';
 import { FONTS, FONT_SIZE, RADIUS, SPACING } from '../../../shared/constants/theme';
@@ -34,7 +34,7 @@ export function EditAliasModal({ favorite, onSave, onClose }) {
   return (
     <Modal visible={!!favorite} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.centered}>
+        <KeyboardAvoidingView behavior="padding" style={styles.centered}>
           {/* Pressable interior evita que el toque dentro de la tarjeta cierre el modal */}
           <Pressable style={styles.sheet}>
             <Text style={styles.title}>Editar alias</Text>

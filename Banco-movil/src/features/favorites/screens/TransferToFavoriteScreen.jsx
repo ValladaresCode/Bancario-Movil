@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 import { TRANSACTION_TYPES } from '../../../shared/constants';
 import { FONTS, FONT_SIZE, SPACING } from '../../../shared/constants/theme';
@@ -15,6 +16,7 @@ import { FavoriteSummaryCard, TransferForm } from '../components';
 export function TransferToFavoriteScreen({ navigation, route }) {
   const { colors } = useThemeStore();
   const styles = createStyles(colors);
+  const headerHeight = useHeaderHeight();
   const favorite = route?.params?.favorite;
   const { accounts } = useAccounts();
   const { createTransaction } = useTransactions();
@@ -59,7 +61,11 @@ export function TransferToFavoriteScreen({ navigation, route }) {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={headerHeight}
+    >
       <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <FavoriteSummaryCard favorite={favorite} />
         <TransferForm accountOptions={accountOptions} submitting={submitting} onSubmit={onTransfer} />
