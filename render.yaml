@@ -1,0 +1,140 @@
+services:
+  - type: web
+    name: bancario-auth-service
+    env: docker
+    plan: free
+    region: oregon
+    dockerContext: ./AuthService-GestionBancaria
+    dockerfilePath: ./AuthService-GestionBancaria/Dockerfile
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3900
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 30m
+      - key: ACCESS_TOKEN_EXPIRES_IN
+        value: 12h
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: JWT_ISSUER
+        value: The5FadeFriends
+      - key: JWT_AUDIENCE
+        value: The5FadeFriends
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_ENABLE_SSL
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: EMAIL_FROM_NAME
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_BASE_URL
+        sync: false
+      - key: CLOUDINARY_FOLDER
+        sync: false
+      - key: CLOUDINARY_DEFAULT_AVATAR_FILENAME
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: ADMIN_ALLOWED_ORIGINS
+        sync: false
+      - key: MOBILE_APP_SCHEME
+        value: bancariomovil
+      - key: VERIFICATION_EMAIL_EXPIRY_HOURS
+        value: 24
+      - key: PASSWORD_RESET_EXPIRY_HOURS
+        value: 1
+
+  - type: web
+    name: bancario-bank-service
+    env: docker
+    plan: free
+    region: oregon
+    dockerContext: ./Gestor_Bancario_Backend
+    dockerfilePath: ./Gestor_Bancario_Backend/Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3006
+      - key: URI_MONGO
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_ISSUER
+        value: The5FadeFriends
+      - key: JWT_AUDIENCE
+        value: The5FadeFriends
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_FOLDER
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+
+  - type: web
+    name: bancario-frontend-web
+    env: docker
+    plan: free
+    region: oregon
+    dockerContext: ./Gestor_Bancario_Frontend
+    dockerfilePath: ./Gestor_Bancario_Frontend/Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: VITE_AUTH_API_URL
+        sync: false
+      - key: VITE_BANK_API_URL
+        sync: false
+      - key: VITE_BANK_HEALTH_URL
+        sync: false
+
+  - type: web
+    name: bancario-mobile-web
+    env: docker
+    plan: free
+    region: oregon
+    dockerContext: ./Banco-movil
+    dockerfilePath: ./Banco-movil/Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: EXPO_PUBLIC_AUTH_URL
+        sync: false
+      - key: EXPO_PUBLIC_BANK_URL
+        sync: false
+      - key: EXPO_PUBLIC_BANK_HEALTH_URL
+        sync: false
