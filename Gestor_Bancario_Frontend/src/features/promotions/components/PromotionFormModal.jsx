@@ -119,7 +119,7 @@ export const PromotionFormModal = ({ promotion, onClose, onSuccess }) => {
             <small className="text-xs text-[var(--theme-text-muted)] opacity-70">Fin del período activo.</small>
           </label>
 
-          <div className="flex items-center gap-3 text-sm">
+          <div className="flex flex-wrap items-center gap-3 text-sm">
             <label className="flex items-center gap-2" title="Habilitar permite que la promoción se muestre si está activa">
               <input type="checkbox" name="active" checked={form.active} onChange={handleChange} />
               <span className="text-[var(--theme-text-muted)]">Activo</span>

@@ -45,6 +45,31 @@ export const errorHandler = (err, req, res, _next) => {
     });
   }
 
+  // Error de validación de Sequelize
+  if (err.name === 'SequelizeValidationError') {
+    const firstError = err?.errors?.[0];
+    return res.status(400).json({
+      success: false,
+      message: firstError?.message || 'Error de validación en base de datos',
+      errorCode,
+      traceId,
+      timestamp,
+    });
+  }
+
+  // Error de unicidad de Sequelize (email, dpi, etc.)
+  if (err.name === 'SequelizeUniqueConstraintError') {
+    const firstError = err?.errors?.[0];
+    const field = firstError?.path || 'campo';
+    return res.status(409).json({
+      success: false,
+      message: `El ${field} ya está en uso`,
+      errorCode,
+      traceId,
+      timestamp,
+    });
+  }
+
   // Error de JWT
   if (err.name === 'JsonWebTokenError') {
     return res.status(401).json({

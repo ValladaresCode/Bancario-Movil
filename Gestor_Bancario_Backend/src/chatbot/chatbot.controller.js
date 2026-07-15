@@ -73,9 +73,17 @@ export const sendMessage = async (req = request, res = response) => {
 
     } catch (error) {
         console.error("Chatbot Error:", error);
+        
+        let errorMessage = 'Ocurrió un error al procesar el mensaje con el asistente';
+        
+        // Manejo específico de errores de autenticación de GCP (ADC)
+        if (error.message && (error.message.includes('GCP_PROJECT_ID no configurado') || error.message.includes('Could not load the default credentials'))) {
+            errorMessage = 'Error de configuración de Google Cloud. Verifica que GCP_PROJECT_ID esté definido y que hayas ejecutado "gcloud auth application-default login" si estás en entorno local.';
+        }
+
         return res.status(500).json({ 
             success: false, 
-            message: 'Ocurrió un error al procesar el mensaje con el asistente', 
+            message: errorMessage, 
             error: error.message 
         });
     }

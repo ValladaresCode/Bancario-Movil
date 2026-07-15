@@ -38,10 +38,11 @@ export const SignupRequest = sequelize.define(
       allowNull: true,
       field: 'profile_picture',
     },
+    // Sin default: la fecha es obligatoria en el validador de ruta; un
+    // default estático convertiría un dato perdido en una fecha plausible.
     FechaNacimiento: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: new Date('2000-01-01'),
       field: 'fecha_nacimiento',
     },
     Dpi: {
@@ -54,6 +55,16 @@ export const SignupRequest = sequelize.define(
       type: DataTypes.DECIMAL(18, 2),
       allowNull: true,
       field: 'ingresos_mensuales',
+    },
+    Direccion: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'direccion',
+    },
+    NombreTrabajo: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      field: 'nombre_trabajo',
     },
     Status: {
       type: DataTypes.ENUM('PENDING', 'APPROVED', 'REJECTED'),

@@ -18,7 +18,7 @@ export const findUserByEmailOrUsername = async (email) => {
   try {
     const user = await User.findOne({
       where: {
-        Email: email.toLowerCase()
+        Email: email.toLowerCase(),
       },
       include: [
         { model: UserProfile, as: 'UserProfile' },
@@ -65,7 +65,7 @@ export const checkUserExists = async (email) => {
   try {
     const existingUser = await User.findOne({
       where: {
-        Email: email.toLowerCase()
+        Email: email.toLowerCase(),
       },
     });
 
@@ -76,12 +76,41 @@ export const checkUserExists = async (email) => {
   }
 };
 
+/**
+ * Verifica si un DPI ya pertenece a un usuario existente.
+ * user_profiles.dpi es UNIQUE: sin este chequeo previo, la colisión explota
+ * recién al crear el usuario (post-aprobación), dejando la solicitud varada.
+ */
+export const checkDpiExists = async (dpi) => {
+  if (!dpi) return false;
+  try {
+    const existingProfile = await UserProfile.findOne({
+      where: { Dpi: dpi },
+    });
+    return !!existingProfile;
+  } catch (error) {
+    console.error('Error verificando DPI:', error);
+    throw new Error('Error al verificar DPI');
+  }
+};
+
 export const createNewUser = async (userData) => {
   const transaction = await User.sequelize.transaction();
 
   try {
-    const { name, email, password, phone, fechaNacimiento, dpi, ingresosMensuales, profilePicture, hashedPassword } =
-      userData;
+    const {
+      name,
+      email,
+      password,
+      phone,
+      fechaNacimiento,
+      dpi,
+      ingresosMensuales,
+      direccion,
+      nombreTrabajo,
+      profilePicture,
+      hashedPassword,
+    } = userData;
 
     // Allow passing a pre-hashed password (e.g., from a pending signup request)
     const passwordToStore = hashedPassword
@@ -100,9 +129,8 @@ export const createNewUser = async (userData) => {
     );
 
     // Crear el perfil del usuario
-    const { getDefaultAvatarPath } = await import(
-      '../helpers/cloudinary-service.js'
-    );
+    const { getDefaultAvatarPath } =
+      await import('../helpers/cloudinary-service.js');
     const defaultAvatarFilename = getDefaultAvatarPath();
 
     await UserProfile.create(
@@ -112,6 +140,8 @@ export const createNewUser = async (userData) => {
         FechaNacimiento: fechaNacimiento,
         Dpi: dpi,
         IngresosMensuales: ingresosMensuales,
+        Direccion: direccion || null,
+        NombreTrabajo: nombreTrabajo || null,
         Imagen: profilePicture || defaultAvatarFilename,
       },
       { transaction }
@@ -161,6 +191,14 @@ export const createNewUser = async (userData) => {
   } catch (error) {
     await transaction.rollback();
     console.error('Error creando usuario:', error);
+    // Las violaciones de unicidad (email, dpi) deben llegar al cliente como
+    // 409 con el campo, no como 500 genérico imposible de diagnosticar.
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      const field = error.errors?.[0]?.path || 'campo único';
+      const err = new Error(`Ya existe un usuario con este ${field}`);
+      err.status = 409;
+      throw err;
+    }
     throw new Error('Error al crear usuario');
   }
 };
@@ -388,7 +426,10 @@ export const getPasswordResetTokenStatus = async (token) => {
 
     if (!row) return 'invalid';
     if (row.PasswordResetTokenUsedAt) return 'used';
-    if (!row.PasswordResetTokenExpiry || row.PasswordResetTokenExpiry.getTime() <= Date.now()) {
+    if (
+      !row.PasswordResetTokenExpiry ||
+      row.PasswordResetTokenExpiry.getTime() <= Date.now()
+    ) {
       return 'expired';
     }
     return 'pending';

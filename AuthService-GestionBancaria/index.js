@@ -15,8 +15,6 @@ await sequelize.authenticate();
 await sequelize.sync({ alter: true });
 await seedData();
 
-
-
 // Manejar errores no capturados
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);

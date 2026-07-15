@@ -13,7 +13,7 @@ export const hashPassword = async (password) => {
       hashLength: 32, // 32 bytes de hash (igual que .NET)
       saltLength: 16, // 16 bytes de salt (igual que .NET)
     });
-  } catch (error) {
+  } catch {
     throw new Error('Error al hashear la contraseña');
   }
 };
@@ -59,51 +59,8 @@ const verifyDotNetHashManually = async (password, hashedPassword) => {
     // Comparar hashes usando timing-safe comparison
     const isMatch = crypto.timingSafeEqual(expectedHash, computedHash);
     return isMatch;
-  } catch (error) {
+  } catch {
     return false;
-  }
-};
-
-const fromBase64UrlSafe = (base64url) => {
-  return base64url
-    .replace(/-/g, '+')
-    .replace(/_/g, '/')
-    .padEnd(base64url.length + ((4 - (base64url.length % 4)) % 4), '=');
-};
-
-const convertDotNetHashToNodeFormat = (hash) => {
-  try {
-    // El hash de Argon2 tiene el formato: $argon2id$v=19$m=102400,t=2,p=8$<salt>$<hash>
-    const parts = hash.split('$');
-    if (parts.length !== 6) {
-      return hash; // No es el formato esperado, devolver tal como está
-    }
-
-    const [, algorithm, version, params, salt, hashPart] = parts;
-
-    // Parsear los parámetros
-    const paramParts = params.split(',');
-    let memory = 102400,
-      time = 2,
-      parallel = 8;
-
-    paramParts.forEach((param) => {
-      if (param.startsWith('m=')) {
-        memory = parseInt(param.substring(2));
-      } else if (param.startsWith('t=')) {
-        time = parseInt(param.substring(2));
-      } else if (param.startsWith('p=')) {
-        parallel = parseInt(param.substring(2));
-      }
-    });
-
-    // Formatear parámetros para Node.js (solo usa 'm' para memory)
-    const nodeParams = `m=${memory},t=${time},p=${parallel}`;
-
-    // Salt y hash ya están en formato Base64 estándar desde .NET
-    return `$${algorithm}$${version}$${nodeParams}$${salt}$${hashPart}`;
-  } catch (error) {
-    return hash;
   }
 };
 
@@ -113,7 +70,7 @@ export const verifyPassword = async (hashedPassword, plainPassword) => {
     try {
       const result = await argon2.verify(hashedPassword, plainPassword);
       if (result) return true;
-    } catch (directError) {
+    } catch {
       // Continue to manual verification
     }
 

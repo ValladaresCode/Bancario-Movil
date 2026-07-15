@@ -1,5 +1,10 @@
 import { Role } from '../src/auth/role.model.js';
-import { User, UserProfile, UserEmail, UserPasswordReset } from '../src/users/user.model.js';
+import {
+  User,
+  UserProfile,
+  UserEmail,
+  UserPasswordReset,
+} from '../src/users/user.model.js';
 import { UserRole } from '../src/auth/role.model.js';
 import { USER_ROLE, ADMIN_ROLE, EMPLOYEE_ROLE } from './role-constants.js';
 import { generateUserId } from './uuid-generator.js';
@@ -41,7 +46,7 @@ export const seedData = async () => {
         Phone: '39539423',
         FechaNacimiento: new Date('1990-01-01'),
         Dpi: '1234567890123',
-        IngresosMensuales: 15000.00
+        IngresosMensuales: 15000.0,
       });
 
       await UserEmail.create({
@@ -95,7 +100,7 @@ export const seedData = async () => {
         Phone: '30000000',
         FechaNacimiento: new Date('1995-05-05'),
         Dpi: '9876543210987',
-        IngresosMensuales: 8000.00
+        IngresosMensuales: 8000.0,
       });
 
       await UserEmail.create({

@@ -31,7 +31,7 @@ export const AccountModal = ({ isOpen, onClose, account }) => {
         </div>
 
         {/* SALDO Y MONEDA */}
-        <div className="rounded-2xl bg-slate-900 p-5 text-white shadow-inner">
+        <div className="rounded-2xl bg-slate-900 p-4 sm:p-5 text-white shadow-inner">
           <label className="mb-2 block text-xs font-semibold uppercase text-slate-300">Saldo Actual</label>
           <p className="text-3xl font-bold tracking-tight">{formatCurrency(account.saldo, account.moneda)}</p>
           <p className="mt-2 text-sm text-slate-300">

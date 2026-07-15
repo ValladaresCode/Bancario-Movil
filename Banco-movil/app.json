@@ -24,6 +24,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Banco-movil usa la cámara para escanear códigos QR de cuentas y autocompletar transferencias."
+        }
+      ],
+      "@react-native-community/datetimepicker"
+    ]
   }
 }
